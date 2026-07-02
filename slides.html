@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Self-Assessment Calibration x Token Efficiency</title>
+<style>
+:root {
+  --dark-blue: #1B3A5C;
+  --teal: #2E8B8B;
+  --white: #FFFFFF;
+  --light-gray: #F8F9FA;
+  --light-blue: #E8EEF4;
+  --light-teal: #E8F4F4;
+  --medium-gray: #666E7A;
+  --dark-text: #2D3A4A;
+  --red-accent: #C0392B;
+  --light-red: #FDEDED;
+  --green-accent: #27843C;
+  --light-green: #E8F4E8;
+  --amber: #B8860B;
+  --light-amber: #FBF3E8;
+  --purple: #6A4C93;
+  --light-purple: #F0ECF8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: #ECEEF1;
+  color: var(--dark-text);
+  line-height: 1.5;
+}
+.slide {
+  width: 1280px;
+  height: 720px;
+  margin: 20px auto;
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+.slide-num {
+  position: absolute;
+  bottom: 18px;
+  right: 32px;
+  font-size: 11px;
+  color: var(--medium-gray);
+}
+.top-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; background: var(--teal);
+}
+.bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 24px; background: var(--dark-blue);
+}
+.title-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 90px; background: var(--dark-blue);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 48px;
+}
+.title-bar h1 {
+  font-size: 30px; color: var(--white); font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.title-bar .subtitle {
+  font-size: 15px; color: #D0ECEC; margin-top: 4px;
+}
+.content { padding: 110px 48px 50px; height: 100%; }
+
+/* Cards */
+.card {
+  border-radius: 4px;
+  padding: 20px;
+  border-left: 4px solid var(--teal);
+  background: var(--light-teal);
+}
+.card-red { border-left-color: var(--red-accent); background: var(--light-red); }
+.card-amber { border-left-color: var(--amber); background: var(--light-amber); }
+.card-blue { border-left-color: var(--dark-blue); background: var(--light-blue); }
+.card-green { border-left-color: var(--green-accent); background: var(--light-green); }
+.card-purple { border-left-color: var(--purple); background: var(--light-purple); }
+.card-gray { border-left-color: var(--medium-gray); background: var(--light-gray); }
+.card h3 { font-size: 17px; margin-bottom: 8px; }
+.card p { font-size: 13px; color: var(--dark-text); }
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { background: var(--dark-blue); color: var(--white); padding: 10px 12px; text-align: left; font-weight: 600; }
+td { padding: 8px 12px; border-bottom: 1px solid #E0E4E8; }
+tr:nth-child(even) td { background: var(--light-gray); }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 13px; font-weight: 700; color: var(--white);
+}
+.badge-blue { background: var(--dark-blue); }
+.badge-teal { background: var(--teal); }
+.badge-red { background: var(--red-accent); }
+.badge-amber { background: var(--amber); }
+.badge-green { background: var(--green-accent); }
+.badge-purple { background: var(--purple); }
+.badge-gray { background: var(--medium-gray); }
+
+/* Flow arrows */
+.arrow {
+  display: inline-block; width: 30px; text-align: center;
+  color: var(--teal); font-size: 24px; font-weight: 700;
+}
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+/* Misc */
+.highlight-box {
+  background: var(--dark-blue); color: var(--white);
+  padding: 14px 20px; border-radius: 4px; font-size: 14px;
+  text-align: center; font-weight: 600;
+}
+.amber-box {
+  background: var(--light-amber); border-left: 4px solid var(--amber);
+  padding: 12px 16px; font-size: 14px; font-weight: 600;
+}
+.teal-box {
+  background: var(--light-teal); border-left: 4px solid var(--teal);
+  padding: 12px 16px; font-size: 14px;
+}
+.rounded-box {
+  border-radius: 8px; padding: 16px; border: 2px solid;
+  text-align: center; font-size: 14px; font-weight: 600;
+}
+
+/* Title slide */
+.title-slide {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  height: 100%; text-align: center;
+}
+.title-slide h1 { font-size: 38px; color: var(--dark-blue); line-height: 1.3; }
+.title-slide .accent-line { width: 380px; height: 4px; background: var(--teal); margin: 20px 0; }
+.title-slide .sub { font-size: 17px; color: var(--medium-gray); margin-top: 10px; }
+.title-slide .keyword { font-size: 19px; color: var(--teal); margin-top: 20px; }
+
+/* Outline */
+.outline-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.outline-item .badge { flex-shrink: 0; }
+.outline-item span { font-size: 16px; }
+
+/* Bullet list */
+.bullet-list { list-style: none; padding: 0; }
+.bullet-list li { padding: 4px 0 4px 16px; position: relative; font-size: 14px; }
+.bullet-list li::before { content: '\2022'; position: absolute; left: 0; color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide">
+  <div class="title-slide">
+    <div class="accent-line"></div>
+    <h1>LLM Self-Assessment Calibration<br>x Token Efficiency</h1>
+    <div class="accent-line"></div>
+    <p class="sub">Research Proposal for Advisor Meeting</p>
+    <p class="keyword">Can calibrated self-evaluation predict and optimize token allocation?</p>
+    <p class="sub" style="margin-top:40px;">Ryan &nbsp;-&nbsp; 2026-07-04</p>
+  </div>
+  <div class="slide-num">1 / 21</div>
+</div>
+
+<!-- SLIDE 2: Outline -->
+<div class="slide">
+  <div class="top-bar"></div>
+  <div class="content">
+    <h2 style="font-size:30px;color:var(--dark-blue);margin-bottom:24px;">Outline</h2>
+    <div class="grid-2" style="gap:8px 40px;">
+      <div class="outline-item"><span class="badge badge-teal">1</span><span>Background: 學姐論文回顧與缺口</span></div>
+      <div class="outline-item"><span class="badge badge-teal">2</span><span>Research Direction: Token 最小使用</span></div>
+      <div class="outline-item"><span class="badge badge-teal">3</span><span>Literature Survey: 16 組 arXiv 搜尋結果</span></div>
+      <div class="outline-item"><span class="badge badge-teal">4</span><span>Four Core Gaps</span></div>
+      <div class="outline-item"><span class="badge badge-teal">5</span><span>Research Questions & Hypotheses</span></div>
+      <div class="outline-item"><span class="badge badge-teal">6</span><span>Paper Story & Contributions</span></div>
+      <div class="outline-item"><span class="badge badge-teal">7</span><span>Experiment Design (Phase 1-3)</span></div>
+      <div class="outline-item"><span class="badge badge-teal">8</span><span>Integration with 學姐 Framework</span></div>
+      <div class="outline-item"><span class="badge badge-teal">9</span><span>Risk Assessment</span></div>
+      <div class="outline-item"><span class="badge badge-teal">10</span><span>Timeline & Questions for Advisor</span></div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">2 / 21</div>
+</div>
+
+<!-- SLIDE 3: 學姐論文回顧 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Background: 學姐論文回顧</h1>
+    <div class="subtitle">Chen et al., IEEE IRI 2026 - LCAE Framework</div>
+  </div>
+  <div class="content">
+    <div class="grid-3">
+      <div class="card card-blue">
+        <h3 style="color:var(--dark-blue)">Stage 1: 能力估計</h3>
+        <p>Rasch Model<br>模型能力 + 題目難度<br>同一把尺<br>客觀算答錯機率</p>
+      </div>
+      <div class="card card-teal">
+        <h3 style="color:var(--teal)">Stage 2: 自我評估</h3>
+        <p>四種情境：<br>QOQ（不給訊號）<br>IDS（給難度訊號）<br>DPR（給能力位置）<br>Combined（全給）</p>
+      </div>
+      <div class="card card-purple">
+        <h3 style="color:var(--purple)">Stage 3: 模型選擇</h3>
+        <p>LCAE 指標<br>比較「模型自估」<br>vs「IRT 客觀估」<br>一致性 + 成本效益</p>
+      </div>
+    </div>
+    <div style="background:var(--light-gray);padding:16px;margin-top:20px;border-radius:4px;">
+      <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">Key Findings</h3>
+      <p style="font-size:13px;">
+        能力強 ≠ 自評準（GPT-5 最強但 LCAE 不是最好；Llama 3 70B 自評最準）&nbsp;&nbsp;|&nbsp;&nbsp;
+        IDS 最有效（給難度訊號是改善校準最有效的元素）&nbsp;&nbsp;|&nbsp;&nbsp;
+        校準不傷能力&nbsp;&nbsp;|&nbsp;&nbsp;
+        <strong style="color:var(--red-accent)">Cost 提到但未深入</strong>
+      </p>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">3 / 21</div>
+</div>
+
+<!-- SLIDE 4: 四個缺口 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>學姐論文的四個缺口</h1>
+    <div class="subtitle">Where this research can extend</div>
+  </div>
+  <div class="content">
+    <div class="grid-4">
+      <div class="card card-red">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge badge-red">1</span>
+          <strong style="color:var(--red-accent);font-size:15px;">只有 Rasch Model</strong>
+        </div>
+        <p>未計算鑑別度<br>可引入 2PL/3PL</p>
+      </div>
+      <div class="card card-amber">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge badge-amber">2</span>
+          <strong style="color:var(--amber);font-size:15px;">難度訊號偏差</strong>
+        </div>
+        <p>IDS 的難度訊號來自同組受評模型<br>有循環依賴<br>可用外部獨立模型</p>
+      </div>
+      <div class="card card-amber">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge badge-amber">3</span>
+          <strong style="color:var(--amber);font-size:15px;">成本估計簡化</strong>
+        </div>
+        <p>未應用於實際場景<br>只有粗略 cost 估計</p>
+      </div>
+      <div class="card card-red">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="badge badge-red">4</span>
+          <strong style="color:var(--red-accent);font-size:15px;">Token 未驗證</strong>
+        </div>
+        <p>token 使用量與答題品質<br>自評準確度的關係<br><strong>完全未驗證</strong></p>
+      </div>
+    </div>
+    <div class="teal-box" style="margin-top:24px;">
+      <strong style="color:var(--teal);font-size:15px;">Teacher's Suggestion for Ryan</strong>
+      <p style="margin-top:6px;font-size:14px;">
+        Extend the token minimization issue from 學姐's framework. Design simple vs complex task scenarios, validate the relationship between token usage and answer quality / self-assessment accuracy. Goal: achieve equal quality with fewer tokens.
+      </p>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">4 / 21</div>
+</div>
+
+<!-- SLIDE 5: 核心直覺 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Research Direction: Core Intuition</h1>
+    <div class="subtitle">Three questions 學姐 did not answer</div>
+  </div>
+  <div class="content">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card card-blue" style="display:flex;align-items:center;gap:16px;">
+        <span class="badge badge-blue" style="width:36px;height:36px;font-size:14px;flex-shrink:0;">Q1</span>
+        <strong style="font-size:18px;">改善信心校準之後，模型能不能更有效率地使用 token？</strong>
+      </div>
+      <div class="card card-teal" style="display:flex;align-items:center;gap:16px;">
+        <span class="badge badge-teal" style="width:36px;height:36px;font-size:14px;flex-shrink:0;">Q2</span>
+        <strong style="font-size:18px;">如果模型「知道自己會不會」，能不能用更少 token 達到同樣品質？</strong>
+      </div>
+      <div class="card card-purple" style="display:flex;align-items:center;gap:16px;">
+        <span class="badge badge-purple" style="width:36px;height:36px;font-size:14px;flex-shrink:0;">Q3</span>
+        <strong style="font-size:18px;">自我評估準確度（LCAE）和 token 使用效率之間有沒有關係？</strong>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:24px;">
+      From correlation (學姐 mentioned) → causation (this research validates) → optimization (token allocation strategy)
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">5 / 21</div>
+</div>
+
+<!-- SLIDE 6: 文獻調查規模 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Literature Survey: 16 Systematic arXiv Searches</h1>
+    <div class="subtitle">Covering self-evaluation, calibration, token efficiency, IRT, and their intersections</div>
+  </div>
+  <div class="content">
+    <div class="grid-2">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:16px;">
+          <span style="font-size:60px;font-weight:700;color:var(--teal);">16</span>
+          <div>
+            <div style="font-size:18px;">systematic searches</div>
+            <div style="font-size:12px;color:var(--medium-gray);">on arXiv (cs.AI, cs.CL, cs.LG)</div>
+          </div>
+        </div>
+        <h3 style="font-size:16px;color:var(--red-accent);margin-bottom:12px;">6 precise intersection queries returned 0 results:</h3>
+        <ul class="bullet-list" style="font-size:12px;">
+          <li>"difficulty" × "token allocation" × "LLM"</li>
+          <li>"adaptive computation" × "self-evaluation" × "LLM"</li>
+          <li>"IRT" × "LLM evaluation" × "cost"</li>
+          <li>"self-assessment" × "reasoning cost"</li>
+          <li>"compute allocation" × "self-knowledge"</li>
+          <li>"self-calibration" × "reasoning" × "efficiency"</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-size:18px;color:var(--teal);margin-bottom:12px;">5 existing literature clusters</h3>
+        <table>
+          <tr><th></th><th>Cluster</th><th>Size</th></tr>
+          <tr><td><strong>A</strong></td><td>Difficulty-aware Token Budget</td><td>~10 papers</td></tr>
+          <tr><td><strong>B</strong></td><td>LLM Confidence Calibration</td><td>~8 papers</td></tr>
+          <tr><td><strong>C</strong></td><td>Test-Time Compute Scaling</td><td>~9 papers</td></tr>
+          <tr><td><strong>D</strong></td><td>IRT × LLM Evaluation</td><td>only 學姐</td></tr>
+          <tr><td><strong>E</strong></td><td>Overthinking / Redundancy</td><td>several</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="amber-box" style="margin-top:16px;">
+      Key insight: These 5 clusters do not intersect with each other. Nobody combines self-assessment + IRT + token prediction.
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">6 / 21</div>
+</div>
+
+<!-- SLIDE 7: 文獻空白地圖 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Literature Gap Map</h1>
+    <div class="subtitle">Where the white space is</div>
+  </div>
+  <div class="content">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+      <span style="font-size:13px;color:var(--medium-gray);">Token Efficiency (higher = better)</span>
+      <span style="font-size:12px;color:var(--medium-gray);">External Signal ← → Self-Assessment</span>
+    </div>
+    <div style="border-left:2px solid var(--medium-gray);border-bottom:2px solid var(--medium-gray);height:420px;position:relative;margin:0 20px;">
+      <!-- Left side: external signal works -->
+      <div style="position:absolute;left:20px;top:20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--dark-blue);margin-bottom:8px;">Cluster A: External Signal → Token Budget</div>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;margin-bottom:4px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;">UAB</div>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;margin-bottom:4px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;margin-left:30px;">ROI-Reasoning</div><br>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;margin-bottom:4px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;">CARD</div>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;margin-bottom:4px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;margin-left:20px;">TAB</div><br>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;margin-bottom:4px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;">DSC</div>
+        <div style="font-size:11px;color:var(--dark-blue);background:var(--light-blue);padding:4px 8px;border:1px solid var(--dark-blue);border-radius:3px;display:inline-block;margin-left:10px;">"LLM Already Knows"</div>
+      </div>
+      <!-- Middle: test-time compute -->
+      <div style="position:absolute;left:260px;top:180px;">
+        <div style="font-size:12px;font-weight:600;color:var(--purple);margin-bottom:6px;">Cluster C: Test-Time Compute</div>
+        <div style="font-size:10px;color:var(--purple);background:var(--light-purple);padding:3px 6px;margin-bottom:3px;border:1px solid var(--purple);border-radius:3px;display:inline-block;">Entropy-Gated</div>
+        <div style="font-size:10px;color:var(--purple);background:var(--light-purple);padding:3px 6px;margin-bottom:3px;border:1px solid var(--purple);border-radius:3px;display:inline-block;margin-left:4px;">SLAT</div>
+        <div style="font-size:10px;color:var(--purple);background:var(--light-purple);padding:3px 6px;margin-bottom:3px;border:1px solid var(--purple);border-radius:3px;display:inline-block;">TRIAGE</div><br>
+        <div style="font-size:10px;color:var(--purple);background:var(--light-purple);padding:3px 6px;border:1px solid var(--purple);border-radius:3px;display:inline-block;">RLCM</div>
+        <div style="font-size:10px;color:var(--purple);background:var(--light-purple);padding:3px 6px;border:1px solid var(--purple);border-radius:3px;display:inline-block;margin-left:4px;">SR²AM</div>
+      </div>
+      <!-- Right side: self-assessment, no token -->
+      <div style="position:absolute;right:20px;top:20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:8px;">Cluster B: Calibration (no token)</div>
+        <div style="font-size:10px;color:var(--teal);background:var(--light-teal);padding:4px 8px;margin-bottom:4px;border:1px solid var(--teal);border-radius:3px;">學姐 LCAE</div>
+        <div style="font-size:10px;color:var(--teal);background:var(--light-teal);padding:4px 8px;margin-bottom:4px;border:1px solid var(--teal);border-radius:3px;">Kumaran</div>
+        <div style="font-size:10px;color:var(--teal);background:var(--light-teal);padding:4px 8px;margin-bottom:4px;border:1px solid var(--teal);border-radius:3px;">Protocol Sensitivity</div>
+        <div style="font-size:10px;color:var(--teal);background:var(--light-teal);padding:4px 8px;border:1px solid var(--teal);border-radius:3px;">Query-Level Uncert.</div>
+      </div>
+      <!-- GAPS -->
+      <div class="card card-red" style="position:absolute;right:20px;top:180px;padding:10px 14px;width:220px;">
+        <strong style="font-size:11px;color:var(--red-accent);">GAP 1 ★★★</strong>
+        <p style="font-size:10px;margin-top:4px;">Self-assessment accuracy<br>× Token prediction<br><strong>Nobody does this</strong></p>
+      </div>
+      <div class="card card-red" style="position:absolute;right:20px;top:280px;padding:10px 14px;width:220px;">
+        <strong style="font-size:11px;color:var(--red-accent);">GAP 4 ★★★</strong>
+        <p style="font-size:10px;margin-top:4px;">Calibration → Token savings<br>Causal chain unverified</p>
+      </div>
+      <div class="card card-amber" style="position:absolute;right:260px;top:360px;padding:10px 14px;width:200px;">
+        <strong style="font-size:11px;color:var(--amber);">GAP 2 ★★</strong>
+        <p style="font-size:10px;margin-top:4px;">IRT × Token allocation<br>Nobody does this</p>
+      </div>
+      <div class="card card-amber" style="position:absolute;right:20px;top:380px;padding:10px 14px;width:220px;">
+        <strong style="font-size:11px;color:var(--amber);">GAP 3 ★★</strong>
+        <p style="font-size:10px;margin-top:4px;">Verbalized conf as token signal<br>UNTESTED</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">7 / 21</div>
+</div>
+
+<!-- SLIDE 8: 四個核心缺口 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Four Core Gaps</h1>
+    <div class="subtitle">Confirmed by 16 systematic arXiv searches</div>
+  </div>
+  <div class="content">
+    <div class="grid-2" style="gap:16px;">
+      <div class="card card-red">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:18px;color:var(--red-accent);">Gap 1</strong>
+          <span style="font-size:13px;color:var(--amber);">★★★</span>
+        </div>
+        <h3 style="font-size:15px;margin-bottom:6px;">Self-assessment accuracy → Token prediction</h3>
+        <p>NOBODY has studied whether LLM self-assessment quality can predict token requirements.<br><br>
+        <strong>Why it matters:</strong> If it works, we have a training-free token allocation signal — the model "knows itself."</p>
+      </div>
+      <div class="card card-red">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:18px;color:var(--red-accent);">Gap 4</strong>
+          <span style="font-size:13px;color:var(--amber);">★★★</span>
+        </div>
+        <h3 style="font-size:15px;margin-bottom:6px;">Calibration → Token savings causal chain</h3>
+        <p>Nobody connects calibration improvement to token efficiency gains.<br><br>
+        學姐 proved IDS improves calibration. Others proved difficulty-aware allocation reduces tokens. <strong>Nobody linked them.</strong></p>
+      </div>
+      <div class="card card-amber">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:18px;color:var(--amber);">Gap 2</strong>
+          <span style="font-size:13px;color:var(--amber);">★★</span>
+        </div>
+        <h3 style="font-size:15px;margin-bottom:6px;">IRT difficulty signals × Token allocation</h3>
+        <p>Nobody uses IRT objective difficulty to guide token distribution. IRT provides difficulty relative to model ability — more principled than ad-hoc estimators.</p>
+      </div>
+      <div class="card card-amber">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:18px;color:var(--amber);">Gap 3</strong>
+          <span style="font-size:13px;color:var(--amber);">★★</span>
+        </div>
+        <h3 style="font-size:15px;margin-bottom:6px;">Verbalized confidence as token signal</h3>
+        <p>UNTESTED. Kumaran (2026-06) found verbalized conf tracks commitment, not correctness. Risk, but also a research question — which signal works for token allocation?</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">8 / 21</div>
+</div>
+
+<!-- SLIDE 9: 研究問題與假設 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Research Questions & Hypotheses</h1>
+  </div>
+  <div class="content">
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Research Questions</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-teal" style="flex-shrink:0;">RQ1</span>
+            <div>
+              <strong style="font-size:14px;">Can LCAE predict token requirements?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">If model knows itself, does it naturally use fewer tokens?</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-teal" style="flex-shrink:0;">RQ2</span>
+            <div>
+              <strong style="font-size:14px;">Can IRT difficulty signals serve as token allocation signals?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">IDS improved calibration; can it also improve token distribution?</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-teal" style="flex-shrink:0;">RQ3</span>
+            <div>
+              <strong style="font-size:14px;">Does calibration improvement causally lead to token efficiency?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">Not just correlation: improvement → prediction → savings</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-teal" style="flex-shrink:0;">RQ4</span>
+            <div>
+              <strong style="font-size:14px;">Verbalized vs log-prob: which is better for token allocation?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">Kumaran found verbalized tracks commitment, not correctness</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Hypotheses</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-green" style="flex-shrink:0;">H1</span>
+            <div>
+              <strong style="font-size:14px;">LCAE positively correlates with token efficiency</strong>
+              <div style="font-size:12px;color:var(--green-accent);">Medium-High confidence</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-green" style="flex-shrink:0;">H2</span>
+            <div>
+              <strong style="font-size:14px;">IDS difficulty signals improve token allocation efficiency</strong>
+              <div style="font-size:12px;color:var(--green-accent);">Medium-High confidence</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-amber" style="flex-shrink:0;">H3</span>
+            <div>
+              <strong style="font-size:14px;">Calibration → token efficiency causal chain holds</strong>
+              <div style="font-size:12px;color:var(--amber);">Medium (null result is also a finding)</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span class="badge badge-amber" style="flex-shrink:0;">H4</span>
+            <div>
+              <strong style="font-size:14px;">Log-prob &gt; verbalized confidence for token allocation</strong>
+              <div style="font-size:12px;color:var(--amber);">Medium (Kumaran evidence supports)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">9 / 21</div>
+</div>
+
+<!-- SLIDE 10: 論文 Story -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Paper Story</h1>
+    <div class="subtitle">The causal chain we want to validate</div>
+  </div>
+  <div class="content">
+    <div style="display:flex;justify-content:center;gap:0;align-items:center;margin:30px 0;">
+      <div class="rounded-box" style="border-color:var(--dark-blue);background:var(--light-blue);color:var(--dark-blue);width:200px;">
+        IRT Difficulty<br>Signals<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">學姐已證</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--teal);background:var(--light-teal);color:var(--teal);width:200px;">
+        Improve<br>Self-Assessment<br>(LCAE)<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">學姐已證</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--red-accent);background:var(--light-red);color:var(--red-accent);width:200px;">
+        More Accurate<br>Token Need<br>Prediction<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">本研究驗證</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--red-accent);background:var(--light-red);color:var(--red-accent);width:200px;">
+        More Efficient<br>Token<br>Allocation<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">本研究驗證</span>
+      </div>
+    </div>
+    <div style="background:var(--light-gray);padding:20px;border-radius:4px;margin-top:20px;">
+      <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">One-sentence story</h3>
+      <p style="font-size:14px;">
+        學姐 proved IRT difficulty signals improve LLM self-assessment (LCAE) and mentioned reliability-inference cost association.
+        This research fills that gap: we measure the self-assessment — token efficiency relationship, validate the
+        calibration → token savings causal chain, and propose a self-assessment-based token allocation strategy.
+        <strong>If it holds, this provides a training-free token optimization method</strong> — no extra training needed, just let the model know itself better.
+      </p>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">10 / 21</div>
+</div>
+
+<!-- SLIDE 11: 四個貢獻 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Contributions (4)</h1>
+    <div class="subtitle">What this paper adds to the field</div>
+  </div>
+  <div class="content">
+    <div class="grid-4" style="gap:14px;">
+      <div class="card card-red" style="text-align:center;">
+        <span class="badge badge-red" style="margin-bottom:8px;">C1</span>
+        <h3 style="color:var(--red-accent);font-size:14px;">New Finding</h3>
+        <p style="margin-top:8px;">Reveal the relationship between self-assessment accuracy (LCAE) and token requirements</p>
+        <div style="margin-top:10px;background:var(--red-accent);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 1</div>
+      </div>
+      <div class="card card-amber" style="text-align:center;">
+        <span class="badge badge-amber" style="margin-bottom:8px;">C2</span>
+        <h3 style="color:var(--amber);font-size:14px;">New Method</h3>
+        <p style="margin-top:8px;">Use IRT difficulty signals to predict token requirements</p>
+        <div style="margin-top:10px;background:var(--amber);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 2</div>
+      </div>
+      <div class="card card-red" style="text-align:center;">
+        <span class="badge badge-red" style="margin-bottom:8px;">C3</span>
+        <h3 style="color:var(--red-accent);font-size:14px;">New Validation</h3>
+        <p style="margin-top:8px;">Validate the causal chain: better calibration → less tokens for same quality</p>
+        <div style="margin-top:10px;background:var(--red-accent);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 4</div>
+      </div>
+      <div class="card card-teal" style="text-align:center;">
+        <span class="badge badge-teal" style="margin-bottom:8px;">C4</span>
+        <h3 style="color:var(--teal);font-size:14px;">New Framework</h3>
+        <p style="margin-top:8px;">Propose self-assessment-based token allocation strategy (training-free)</p>
+        <div style="margin-top:10px;background:var(--teal);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 1+2+4</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">11 / 21</div>
+</div>
+
+<!-- SLIDE 12: 競爭者比較 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Nearest Competitors</h1>
+    <div class="subtitle">Why nobody has done this before</div>
+  </div>
+  <div class="content">
+    <table>
+      <tr>
+        <th>Competitor</th>
+        <th>Overlap</th>
+        <th>Key Difference</th>
+      </tr>
+      <tr>
+        <td><strong>ROI-Reasoning</strong><br>(2026-01)</td>
+        <td>Predicts reasoning cost + budget allocation</td>
+        <td>No IRT, no self-assessment, uses trained predictor</td>
+      </tr>
+      <tr>
+        <td><strong>TRIAGE</strong><br>(2026-05)</td>
+        <td>Metacognitive control + token budget</td>
+        <td>Evaluates allocation quality, not calibration × token</td>
+      </tr>
+      <tr>
+        <td><strong>學姐 LCAE</strong><br>(IEEE IRI 2026)</td>
+        <td>IRT + calibration + mentions cost</td>
+        <td>Does not go deep into token efficiency</td>
+      </tr>
+      <tr>
+        <td><strong>UAB</strong><br>(2026-05)</td>
+        <td>Uncertainty → budget allocation</td>
+        <td>Uses log-prob, not self-assessment</td>
+      </tr>
+      <tr>
+        <td><strong>"LLM Already Knows"</strong><br>(2025-09)</td>
+        <td>Pre-generation difficulty prediction</td>
+        <td>Uses hidden states, not verbalized confidence</td>
+      </tr>
+    </table>
+    <div class="highlight-box" style="margin-top:20px;">
+      No paper simultaneously does ALL FOUR: IRT framework + self-assessment measurement + token prediction + causal validation
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">12 / 21</div>
+</div>
+
+<!-- SLIDE 13: 實驗設計總覽 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Experiment Design Overview</h1>
+    <div class="subtitle">Three phases, building on 學姐 assets</div>
+  </div>
+  <div class="content">
+    <div class="grid-3" style="gap:16px;">
+      <div class="rounded-box" style="border-color:var(--dark-blue);background:var(--light-blue);color:var(--dark-blue);text-align:left;padding:16px;">
+        <span class="badge badge-blue" style="margin-bottom:8px;">Phase 1</span>
+        <h3 style="font-size:16px;color:var(--dark-blue);margin:8px 0;">Correlation Analysis</h3>
+        <p style="font-size:13px;color:var(--dark-text);text-align:left;">
+          Use 學姐 20 models data + measure token usage → LCAE × Token efficiency correlation
+        </p>
+      </div>
+      <div class="rounded-box" style="border-color:var(--teal);background:var(--light-teal);color:var(--teal);text-align:left;padding:16px;">
+        <span class="badge badge-teal" style="margin-bottom:8px;">Phase 2</span>
+        <h3 style="font-size:16px;color:var(--teal);margin:8px 0;">Causal Chain Validation</h3>
+        <p style="font-size:13px;color:var(--dark-text);text-align:left;">
+          With/without IDS (學姐 proved improves LCAE) → measure token change → causal effect of calibration on tokens
+        </p>
+      </div>
+      <div class="rounded-box" style="border-color:var(--red-accent);background:var(--light-red);color:var(--red-accent);text-align:left;padding:16px;">
+        <span class="badge badge-red" style="margin-bottom:8px;">Phase 3</span>
+        <h3 style="font-size:16px;color:var(--red-accent);margin:8px 0;">Token Allocation Strategy</h3>
+        <p style="font-size:13px;color:var(--dark-text);text-align:left;">
+          Design allocation based on self-assessment → compare with Uniform/Oracle/External → measure efficiency
+        </p>
+      </div>
+    </div>
+    <div style="background:var(--light-gray);padding:16px;border-radius:4px;margin-top:20px;">
+      <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">Shared Resources (from 學姐)</h3>
+      <p style="font-size:13px;">
+        20 models IRT ability estimates (θ) | Item difficulty parameters (b) | LCAE calculation method |
+        IDS/QOQ/DPR/Combined self-assessment scenarios | Benchmark data | Prompt templates
+      </p>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">13 / 21</div>
+</div>
+
+<!-- SLIDE 14: Phase 1 詳細 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Phase 1: LCAE × Token Correlation</h1>
+    <div class="subtitle">Does self-assessment accuracy predict token efficiency?</div>
+  </div>
+  <div class="content">
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:16px;color:var(--dark-blue);margin-bottom:12px;">Measured Variables</h3>
+        <table>
+          <tr><th>Variable</th><th>Source</th><th>Description</th></tr>
+          <tr><td><strong>LCAE</strong></td><td>from 學姐</td><td>Self-assessment vs IRT consistency</td></tr>
+          <tr><td><strong>Ability (θ)</strong></td><td>from 學姐</td><td>IRT estimated model capability</td></tr>
+          <tr><td><strong>Difficulty (b)</strong></td><td>from 學姐</td><td>IRT estimated item difficulty</td></tr>
+          <tr><td><strong>Token usage (T)</strong></td><td style="color:var(--red-accent);font-weight:600;">NEW</td><td>Actual reasoning tokens per question</td></tr>
+          <tr><td><strong>Accuracy</strong></td><td>from 學姐</td><td>Answer correctness</td></tr>
+          <tr><td><strong>Token efficiency</strong></td><td style="color:var(--red-accent);font-weight:600;">NEW</td><td>Accuracy / Token usage</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:16px;color:var(--dark-blue);margin-bottom:12px;">Steps</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card card-teal" style="padding:10px 14px;">
+            <p style="font-size:13px;">1. Run 20 models on 學姐 benchmark, measure reasoning tokens per question</p>
+          </div>
+          <div class="card card-teal" style="padding:10px 14px;">
+            <p style="font-size:13px;">2. Compute LCAE vs avg token efficiency correlation (Pearson/Spearman)</p>
+          </div>
+          <div class="card card-teal" style="padding:10px 14px;">
+            <p style="font-size:13px;">3. Stratified analysis by difficulty: easy / medium / hard</p>
+          </div>
+          <div class="card card-teal" style="padding:10px 14px;">
+            <p style="font-size:13px;">4. Analyze: do calibrated models show adaptive allocation (easy=less, hard=more)?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="teal-box" style="margin-top:16px;">
+      <strong style="color:var(--teal);">Expected:</strong> H1 holds → LCAE positively correlates with token efficiency, especially on hard questions.
+      H1 null → self-assessment and token efficiency are unrelated (also an important finding).
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">14 / 21</div>
+</div>
+
+<!-- SLIDE 15: Phase 2 詳細 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Phase 2: Causal Chain Validation</h1>
+    <div class="subtitle">Does improving calibration CAUSE token efficiency gains?</div>
+  </div>
+  <div class="content">
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:16px;color:var(--dark-blue);margin-bottom:12px;">Experiment Groups</h3>
+        <table>
+          <tr><th>Group</th><th>Signal</th><th>Expected LCAE</th></tr>
+          <tr><td>Control</td><td>None (QOQ)</td><td>Worst</td></tr>
+          <tr><td>Treatment 1</td><td>IDS</td><td>Better</td></tr>
+          <tr><td>Treatment 2</td><td>DPR</td><td>Medium</td></tr>
+          <tr><td>Treatment 3</td><td>Combined</td><td>Best</td></tr>
+        </table>
+        <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">All groups: measure Token usage + Accuracy</p>
+      </div>
+      <div>
+        <h3 style="font-size:16px;color:var(--dark-blue);margin-bottom:12px;">Causal Logic</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="card card-teal" style="padding:8px 14px;"><p style="font-size:13px;">IDS improves LCAE (學姐 proved)</p></div>
+          <div class="card card-teal" style="padding:8px 14px;"><p style="font-size:13px;">If IDS also improves token efficiency...</p></div>
+          <div class="card card-teal" style="padding:8px 14px;"><p style="font-size:13px;">And improvement magnitude correlates with LCAE improvement...</p></div>
+          <div class="card card-red" style="padding:8px 14px;"><p style="font-size:13px;"><strong>Then: calibration → token savings causal chain is supported</strong></p></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">Further Analysis</h3>
+      <div class="grid-2" style="gap:12px;">
+        <ul class="bullet-list" style="font-size:13px;">
+          <li>Difficulty stratification: In which difficulty range does IDS have the largest token effect?</li>
+          <li>Allocation quality: Does IDS group show adaptive allocation (easy=less, hard=more)?</li>
+        </ul>
+        <ul class="bullet-list" style="font-size:13px;">
+          <li>Overthinking analysis: Does IDS reduce redundant reasoning on easy questions?</li>
+          <li>Control: Free budget vs Fixed budget vs Adaptive budget</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">15 / 21</div>
+</div>
+
+<!-- SLIDE 16: Phase 3 詳細 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Phase 3: Token Allocation Strategy</h1>
+    <div class="subtitle">Can self-assessment-based allocation outperform baselines?</div>
+  </div>
+  <div class="content">
+    <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:12px;">Allocation Pipeline</h3>
+    <div style="display:flex;justify-content:center;align-items:center;gap:0;margin-bottom:20px;">
+      <div class="rounded-box" style="border-color:var(--dark-blue);background:var(--light-blue);color:var(--dark-blue);width:180px;font-size:13px;">Model receives<br>question</div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--teal);background:var(--light-teal);color:var(--teal);width:180px;font-size:13px;">Self-assessment<br>(confidence/difficulty)</div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--amber);background:var(--light-amber);color:var(--amber);width:180px;font-size:13px;">Allocate token<br>budget based on<br>self-assessment</div>
+      <span class="arrow">→</span>
+      <div class="rounded-box" style="border-color:var(--red-accent);background:var(--light-red);color:var(--red-accent);width:180px;font-size:13px;">Generate answer<br>within budget</div>
+    </div>
+    <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">Comparison Strategies</h3>
+    <table>
+      <tr><th>Strategy</th><th>Token allocation based on</th><th>Role</th></tr>
+      <tr><td>Uniform</td><td>Same budget for all</td><td>Baseline</td></tr>
+      <tr><td>Oracle</td><td>IRT difficulty (post-hoc)</td><td>Upper bound</td></tr>
+      <tr><td>Self-assessment (verbalized)</td><td>Verbalized confidence</td><td>Tests H4</td></tr>
+      <tr><td>Self-assessment (log-prob)</td><td>Log-prob confidence</td><td>Tests H4</td></tr>
+      <tr><td>IDS-based</td><td>IRT signal + self-assessment</td><td>Combines 學姐 framework</td></tr>
+      <tr><td>External estimator</td><td>External model predicts</td><td>ROI-Reasoning style</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">
+      Metrics: Token efficiency | Budget utilization | Allocation quality (Spearman ρ vs Oracle) | Regret
+    </p>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">16 / 21</div>
+</div>
+
+<!-- SLIDE 17: 與學姐銜接 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Integration with 學姐 Framework</h1>
+    <div class="subtitle">What we reuse vs what we add</div>
+  </div>
+  <div class="content">
+    <div class="grid-2" style="gap:20px;">
+      <div class="card card-green">
+        <h3 style="color:var(--green-accent);font-size:18px;margin-bottom:12px;">Reused from 學姐</h3>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li>20 models IRT ability estimates (θ)</li>
+          <li>Item difficulty parameters (b)</li>
+          <li>LCAE metric calculation method</li>
+          <li>IDS/QOQ/DPR/Combined scenarios</li>
+          <li>Self-assessment prompt templates</li>
+          <li>Benchmark data</li>
+        </ul>
+      </div>
+      <div class="card card-red">
+        <h3 style="color:var(--red-accent);font-size:18px;margin-bottom:12px;">New in This Research</h3>
+        <ul class="bullet-list" style="font-size:14px;">
+          <li>Token usage precise measurement</li>
+          <li>Token efficiency metric definition</li>
+          <li>Causal chain validation experiment</li>
+          <li>Token allocation strategy design</li>
+          <li>Verbalized vs log-prob comparison</li>
+          <li>Overthinking analysis</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:20px;font-size:13px;">
+      學姐 story: IRT → LCAE → IDS improves calibration → mentions cost association &nbsp;||&nbsp;
+      Ryan story: LCAE → token prediction → token allocation optimization → validate causal chain
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">17 / 21</div>
+</div>
+
+<!-- SLIDE 18: 風險評估 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Risk Assessment</h1>
+    <div class="subtitle">Risks and mitigation strategies</div>
+  </div>
+  <div class="content" style="padding-top:100px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card card-red" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:10px 14px;">
+        <div><span class="badge badge-red">High</span></div>
+        <div><strong style="font-size:13px;">Verbalized confidence may not work for token allocation</strong><br><span style="font-size:11px;color:var(--medium-gray);">Kumaran (2026-06): tracks commitment, not correctness</span></div>
+        <div style="font-size:12px;"><strong>Mitigation:</strong> Test both verbalized and log-prob; frame as research question; IDS may still work independently</div>
+      </div>
+      <div class="card card-red" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:10px 14px;">
+        <div><span class="badge badge-red">High</span></div>
+        <div><strong style="font-size:13px;">Causal chain may not hold</strong><br><span style="font-size:11px;color:var(--medium-gray);">Better calibration might not cause token savings</span></div>
+        <div style="font-size:12px;"><strong>Mitigation:</strong> Null result is itself a finding; distinguish allocation quality from total volume; report honestly</div>
+      </div>
+      <div class="card card-amber" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:10px 14px;">
+        <div><span class="badge badge-amber">Med</span></div>
+        <div><strong style="font-size:13px;">Scope may be too narrow</strong><br><span style="font-size:11px;color:var(--medium-gray);">Only one intersection: self-assessment × token</span></div>
+        <div style="font-size:12px;"><strong>Mitigation:</strong> Broaden to metacognition × compute allocation; 4 contributions cover multiple levels</div>
+      </div>
+      <div class="card card-amber" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:10px 14px;">
+        <div><span class="badge badge-amber">Med</span></div>
+        <div><strong style="font-size:13px;">學姐 data may not have token records</strong><br><span style="font-size:11px;color:var(--medium-gray);">Need to re-run experiments</span></div>
+        <div style="font-size:12px;"><strong>Mitigation:</strong> Confirm data format first; if needed, run representative subset (5-8 models)</div>
+      </div>
+      <div class="card card-teal" style="display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:10px 14px;">
+        <div><span class="badge badge-teal">Low</span></div>
+        <div><strong style="font-size:13px;">ROI-Reasoning too close</strong><br><span style="font-size:11px;color:var(--medium-gray);">Already does meta-cognitive prediction + budget</span></div>
+        <div style="font-size:12px;"><strong>Mitigation:</strong> Differences sufficient: no IRT, no calibration, no causal analysis, trained predictor not self-assessment</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">18 / 21</div>
+</div>
+
+<!-- SLIDE 19: 時程規劃 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Timeline (6 weeks to IEEE Big Data deadline)</h1>
+    <div class="subtitle">Aug 12, 2026 submission target</div>
+  </div>
+  <div class="content">
+    <table>
+      <tr><th>Week</th><th>Date</th><th>Task</th><th>Deliverable</th></tr>
+      <tr><td><strong>W1</strong></td><td>Jul 1-7</td><td>Confirm 學姐 data format, get 20 model list, check token records</td><td>Data checklist</td></tr>
+      <tr><td><strong>W2</strong></td><td>Jul 8-14</td><td>Phase 1 data collection (run models + token measurement)</td><td>Phase 1 raw data</td></tr>
+      <tr><td><strong>W3</strong></td><td>Jul 15-21</td><td>Phase 1 analysis + Phase 2 experiment execution</td><td>Phase 1 results + Phase 2 data</td></tr>
+      <tr><td><strong>W4</strong></td><td>Jul 22-28</td><td>Phase 2 analysis + Phase 3 strategy design + experiment</td><td>Phase 2 results + Phase 3 data</td></tr>
+      <tr><td><strong>W5</strong></td><td>Jul 29-Aug 4</td><td>Phase 3 analysis + paper draft writing</td><td>Full results + draft</td></tr>
+      <tr><td><strong>W6</strong></td><td>Aug 5-11</td><td>Paper revision, supplementary experiments, finalization</td><td>Final paper</td></tr>
+    </table>
+    <h3 style="font-size:15px;color:var(--dark-blue);margin-top:16px;margin-bottom:8px;">Degradation Plan (if time runs short)</h3>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="background:var(--green-accent);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 0</span>
+        <span style="font-size:13px;">Full: Phase 1+2+3</span>
+        <span style="font-size:12px;color:var(--green-accent);font-weight:600;margin-left:auto;">C1+C2+C3+C4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="background:var(--teal);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 1</span>
+        <span style="font-size:13px;">Phase 1+2, Phase 3 simplified (design only)</span>
+        <span style="font-size:12px;color:var(--teal);font-weight:600;margin-left:auto;">C1+C2+C3</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="background:var(--amber);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 2</span>
+        <span style="font-size:13px;">Phase 1+2 only</span>
+        <span style="font-size:12px;color:var(--amber);font-weight:600;margin-left:auto;">C1+C3 (correlation + causation)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="background:var(--red-accent);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 3</span>
+        <span style="font-size:13px;">Phase 1 only</span>
+        <span style="font-size:12px;color:var(--red-accent);font-weight:600;margin-left:auto;">C1 (correlation finding)</span>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">Even Level 3 is publishable: first discovery of LCAE-token relationship</p>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">19 / 21</div>
+</div>
+
+<!-- SLIDE 20: 給老師的問題 -->
+<div class="slide">
+  <div class="title-bar">
+    <h1>Questions for Advisor</h1>
+    <div class="subtitle">8 questions for discussion</div>
+  </div>
+  <div class="content" style="padding-top:100px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q1</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Direction</strong> — <span style="font-size:14px;">Is this story (self-assessment → token prediction → allocation optimization) viable?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q2</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Data access</strong> — <span style="font-size:14px;">Does 學姐 data include token records? Can I access the 20-model data and benchmark?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q3</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Venue</strong> — <span style="font-size:14px;">Invest IEEE Big Data 2026 (Aug deadline) or do deeper work for another venue?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q4</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Priority</strong> — <span style="font-size:14px;">If time is short, which Phase to cut? P1 (correlation) / P2 (causal) / P3 (strategy)?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q5</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Benchmark</strong> — <span style="font-size:14px;">What benchmark did 學姐 use? Need to expand to multi-domain (MMLU + GSM8K)?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q6</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Verbalized conf</strong> — <span style="font-size:14px;">Is Kumaran finding a risk or a research opportunity? Frame as question or assume log-prob?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q7</span>
+        <div><strong style="font-size:13px;color:var(--teal);">nhri project</strong> — <span style="font-size:14px;">Combine with memory conflict research? Or focus on one direction?</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span class="badge badge-blue" style="flex-shrink:0;">Q8</span>
+        <div><strong style="font-size:13px;color:var(--teal);">Models</strong> — <span style="font-size:14px;">Re-run all 20 models or select representative subset (5-8, covering frontier/mid/small)?</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">20 / 21</div>
+</div>
+
+<!-- SLIDE 21: Summary -->
+<div class="slide">
+  <div class="top-bar"></div>
+  <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;padding:40px;text-align:center;">
+    <h1 style="font-size:36px;color:var(--dark-blue);margin-bottom:30px;">Summary</h1>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:800px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;">學姐 proved IRT difficulty signals improve LLM self-assessment (LCAE)</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;">She mentioned reliability-cost association but did not explore it</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;">16 systematic searches confirm: nobody connects calibration to token efficiency</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;">This research validates the causal chain: calibration → token prediction → allocation</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;">4 contributions: new finding, method, validation, framework</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
+        <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
+        <span style="font-size:15px;"><strong>Training-free optimization: no extra training, just better self-awareness</strong></span>
+      </div>
+    </div>
+    <p style="font-size:20px;color:var(--teal);font-weight:600;margin-top:40px;">Thank you — Questions & Discussion</p>
+  </div>
+  <div class="bottom-bar"></div>
+  <div class="slide-num">21 / 21</div>
+</div>
+
+</body>
+</html>
