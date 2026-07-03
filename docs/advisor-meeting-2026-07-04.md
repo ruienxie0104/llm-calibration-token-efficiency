@@ -1,4 +1,4 @@
-# 研究提案：LLM 信心校準 × Token 效率
+# Calibration-Aware Token Efficiency: Does Better LLM Self-Assessment Lead to More Efficient Reasoning?
 
 > **日期：** 2026-07-04（週五）與指導教授開會討論  
 > **撰寫日期：** 2026-07-01  
@@ -70,19 +70,19 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 
 學姐證明了「給難度訊號 (IDS) 能改善信心校準」，但沒有回答：
 
-- **改善信心校準之後，模型能不能更有效率地使用 token？**
-- **如果模型「知道自己會不會」，能不能用更少 token 達到同樣品質？**
-- **自我評估準確度（LCAE）和 token 使用效率之間有沒有關係？**
+- **改善信心校準之後，模型的 token 分配品質是否更好？**
+- **如果模型「知道自己會不會」，它是否能把 token 分配得更合理——簡單題少、難題多？**
+- **自我評估準確度（LCAE）和 token 分配品質之間有沒有關係？**
 
-這三個問題構成了本研究的主軸。
+這三個問題構成了本研究的主軸。注意：校準好的模型不一定總 token 量更少，但分配可能更合理。
 
 ### 2.2 從學姐的 Cost 提及到 Ryan 的深入探討
 
 學姐論文在討論中提到 reliability 與 inference cost 有關聯，但只有粗估。本研究的目標是：
 
 1. **精確測量** token 使用量（不只是粗估 cost）
-2. **建立因果鏈**：校準改善 → token 需求預測 → token 分配優化
-3. **驗證假設**：校準好的模型能用更少 token 達到同樣品質
+2. **建立因果鏈**：校準改善 → token 分配品質改善（不一定總量減少）
+3. **驗證假設**：校準好的模型有更好的 token allocation quality（excess token usage 更少）
 
 ---
 
@@ -127,13 +127,15 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 | 論文 | 核心方法 | 與本研究的關鍵差異 |
 |---|---|---|
 | ROI-Reasoning (2026-01) | Meta-cognitive 預測 reasoning cost + RL budget allocation | 不用 IRT，不測信心校準，用自訓 predictor |
+| SelfBudgeter (2025-05) | 讓模型先估 token budget 再生成（training-based） | 需微調模型，非 diagnostic/training-free；不用 IRT/LCAE 框架 |
+| TALE (2025) | Token-efficient reasoning via length-aware fine-tuning | training-based，改變模型行為；不涉及自我評估 |
 | UAB (2026-05) | log-probability 做 sampling budget 分配 | 不是 verbalized confidence，做 sampling 不是 reasoning length |
 | CARD (2025-12) | 0.6B 模型預測 complexity → thought budget | 用外部小模型，不涉及自我評估 |
 | TAB (2026-04) | 多輪 sequential compute allocation | 不涉及自我評估 |
 | "LLM Already Knows" (2025-09) | Hidden states 估計難度，不需生成 token | 用 hidden states，不是 verbalized confidence |
 | DSC (2026-02) | FFN neuron activations 做 difficulty probe | 用 internal activations，做 sampling 不是 reasoning length |
 
-**集群 A 總結：** 非常活躍，但所有人都在做「外部難度估計 → budget 分配」，幾乎沒有人做「模型自我評估能力 → token 需求預測」。
+**集群 A 總結：** 非常活躍，但所有人都在做「外部難度估計 → budget 分配」，幾乎沒有人做「模型自我評估能力 → token 分配品質」。SelfBudgeter 和 TALE 是 training-based 的，與本研究的 diagnostic/training-free 路線不同。
 
 #### 集群 B：LLM 信心校準（~8 篇）
 
@@ -173,7 +175,7 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 
 ## 四、四個核心文獻缺口
 
-### Gap 1（★★★ 主要空白）：自我評估準確度 → Token 需求預測，無人做
+### Gap 1（★★★ 主要空白）：自我評估準確度 → Token 分配品質，無人做
 
 **現狀：**
 - 有人用 external difficulty estimator 預測 token 需求（集群 A）
@@ -182,12 +184,12 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 - 有人研究 verbalized confidence 的性質（集群 B）
 
 **空白：**
-- 沒有人研究「模型對自己能力的評估有多準」和「它實際需要多少 token」之間的關係
+- 沒有人研究「模型對自己能力的評估有多準」和「它 token 分配品質好不好」之間的關係
 - 學姐發現 reliability 與 inference cost 有關聯，但沒有深入
-- 沒有人測試「自我評估準的模型 → 能用更少 token 達到同樣品質」這個假設
+- 沒有人測試「自我評估準的模型 → token 分配更合理（excess token usage 更少）」這個假設
 
 **為什麼重要：**
-- 如果自我評估能力能預測 token 需求，就有了一個 **training-free 的 token 分配信號**
+- 如果自我評估能力能預測 token 分配品質，就有了一個 **training-free 的 token 分配信號**
 - 這跟用外部模型/hidden states 的方法不同——它是模型「自己知道」的
 
 ### Gap 2（★★☆ 重要空白）：IRT 難度信號 × Token 分配，無人做
@@ -211,7 +213,7 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 - 能否設計一個「correctness-tracking 的 verbalized 信心」用於 token 分配？
 - 這反而是一個研究問題而非阻礙
 
-### Gap 4（★★★ 核心機會）：信心校準改善 → Token 效率提升，因果鏈未驗證
+### Gap 4（★★★ 核心機會）：信心校準改善 → Token 分配品質提升，因果鏈未驗證
 
 **現狀：**
 - 學姐證明 IDS 能改善信心校準
@@ -221,9 +223,11 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 **這就是論文的 story：**
 
 ```
-[IRT 難度信號] → [改善自我評估/信心校準] → [更準的 token 需求預測] → [更高效的 token 分配]
+[IRT 難度信號] → [改善自我評估/信心校準] → [更準的 token 需求預測] → [更好的 token 分配品質]
      (學姐已證)         (學姐已證)              (本研究驗證)               (本研究驗證)
 ```
+
+注意：「更好」的分配不一定意味著總 token 量更少，而是分配更合理——簡單題少 token、難題多 token。
 
 ---
 
@@ -231,30 +235,25 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 
 ### 5.1 研究問題
 
-**RQ1:** LLM 的自我評估準確度（LCAE）能否預測其 token 需求？
+**RQ1:** LLM 的自我評估準確度（LCAE）能否預測 token inefficiency（excess token usage）？
 
-> 如果模型「知道自己會不會」，它是否自然地用更少 token？
+> 如果模型「知道自己會不會」，它是否避免了浪費 token？控制 ability/difficulty/correctness 後，LCAE 能否預測 excess token usage？
 
-**RQ2:** IRT 難度信號（IDS）能否作為 token 分配的有效信號？
+**RQ2:** IRT 難度信號（IDS）能否改善 token allocation quality？
 
-> 學姐證明 IDS 改善校準；如果再用 IDS 來分配 token，能否在不犧牲品質下減少 token？
+> 學姐證明 IDS 改善校準；如果再用 IDS 來分配 token，token allocation quality 是否更好？（不只看減少 token，看分配合理性）
 
-**RQ3:** 信心校準改善是否因果性地導致 token 效率提升？
+**RQ3:** 信心校準改善是否因果性地導致 token allocation quality 提升？哪種信心信號（verbalized vs log-prob）更適合做 token 分配？
 
-> 不是相關性，是因果鏈：改善校準 → 更好的 token 預測 → 更少 token 達到同品質
-
-**RQ4:** Verbalized confidence 和 log-probability confidence 哪個更適合做 token 分配信號？
-
-> Kumaran (2026-06) 發現 verbalized confidence 追蹤 commitment 而非 correctness。這在 token 分配場景下是否成立？
+> 不是相關性，是因果鏈：改善校準 → 更好的 token 分配品質。同時比較 verbalized 和 log-prob confidence 作為分配信號的效果（原 RQ4 併入此題）。
 
 ### 5.2 假設
 
 | 假設 | 方向 | 信心 |
 |---|---|---|
-| H1 | LCAE 與 token 效率正相關（校準好 → token 省） | 中高 |
-| H2 | IDS 難度信號能改善 token 分配效率 | 中高 |
-| H3 | 信心校準改善 → token 效率提升的因果鏈成立 | 中（可能不成立，但不成立也是發現） |
-| H4 | Log-prob confidence 比 verbalized confidence 更適合 token 分配 | 中（Kumaran 證據支持） |
+| H1 | LCAE 能預測 excess token usage（控制 ability/difficulty/correctness 後） | 中高 |
+| H2 | IDS 難度信號能改善 token allocation quality | 中高 |
+| H3 | 信心校準改善 → token allocation quality 提升的因果鏈成立（校準好可能不降總 token 但分配更合理） | 中（可能不成立，但不成立也是發現） |
 
 ---
 
@@ -262,28 +261,30 @@ Rasch Model 把模型       四種自我評估情境：           LCAE 指標比
 
 ### 6.1 論文 Story（一段話版本）
 
-> 學姐證明了 IRT 難度信號能改善 LLM 的自我評估準確度（LCAE），並提到 reliability 與 inference cost 有關聯。但這個關聯從未被深入探討。本研究填補這個缺口：我們測量自我評估準確度與 token 使用效率的關係，驗證「校準好 → token 省」的因果鏈，並提出基於自我評估的 token 分配策略。如果成立，這提供了一個 training-free 的 token 優化方法——不需要額外訓練，只需要讓模型更了解自己。
+> 學姐證明了 IRT 難度信號能改善 LLM 的自我評估準確度（LCAE），並提到 reliability 與 inference cost 有關聯。但這個關聯從未被深入探討。本研究填補這個缺口：我們測量自我評估準確度與 token 分配品質的關係，驗證「校準好 → allocation 品質好」的因果鏈，並提出基於自我評估的 token 分配策略。校準好的模型可能總 token 不降，但分配更合理——簡單題少 token、難題多 token。如果成立，這提供了一個 training-free 的 token 優化方法——不需要額外訓練，只需要讓模型更了解自己。
 
 ### 6.2 貢獻設計（4 個貢獻）
 
 | # | 貢獻 | 類型 | 對應 Gap |
 |---|---|---|---|
-| C1 | 揭示自我評估能力（LCAE）與 token 需求的關係 | 新發現 | Gap 1 |
+| C1 | 揭示自我評估能力（LCAE）與 excess token usage 的關係 | 新發現 | Gap 1 |
 | C2 | 用 IRT 難度信號預測 token 需求 | 新方法 | Gap 2 |
-| C3 | 驗證「校準好 → token 省」的因果鏈 | 新驗證 | Gap 4 |
-| C4 | 提出基於自我評估的 token 分配策略 | 新框架 | Gap 1+2+4 |
+| C3 | 驗證「校準好 → allocation 品質好」的因果鏈 | 新驗證 | Gap 4 |
+| C4 | 提出基於自我評估的 token 分配策略（**延後/bonus**） | 新框架 | Gap 1+2+4 |
 
 ### 6.3 與現有工作的區別
 
 | 最接近競爭者 | 重疊點 | 關鍵差異 |
 |---|---|---|
 | ROI-Reasoning (2026-01) | 預測 reasoning cost + budget allocation | 不用 IRT，不用自我評估，用自訓 predictor |
+| SelfBudgeter (2025-05) | 讓模型先估 token budget 再生成 | training-based（需微調），非 diagnostic/training-free；不用 IRT/LCAE 框架 |
+| TALE (2025) | Token-efficient reasoning via length-aware fine-tuning | training-based，改變模型行為而非診斷；不涉及自我評估 |
 | TRIAGE (2026-05) | Metacognitive control + token budget | 評估分配品質，不研究信心校準 × token 的關係 |
 | 學姐 LCAE | IRT + 信心校準 + 提到 cost | 沒深入 token 效率 |
 | UAB (2026-05) | 不確定性 → budget 分配 | 用 log-prob，不是自我評估 |
 | "LLM Already Knows" (2025-09) | 回答前預測難度 | 用 hidden states，不是 verbalized confidence |
 
-**沒有任何一篇同時做到：** IRT 難度框架 ✗ + 測量自我評估能力 ✗ + 預測 token 需求 ✗ + 驗證校準→token 因果鏈 ✗
+**沒有任何一篇同時做到：** IRT 難度框架 ✗ + 測量自我評估能力 ✗ + 預測 token 需求 ✗ + 驗證校準→token allocation 因果鏈 ✗
 
 ### 6.4 目標投稿場所
 
@@ -322,18 +323,30 @@ Phase 3: Token 分配策略（基於 Phase 1-2 發現，設計分配方法）
 | Difficulty (b) | 學姐資料 | IRT 估計的題目難度 |
 | Token usage (T) | **本研究新測** | 每題實際使用的 reasoning token 數 |
 | Accuracy | 學姐資料 | 答題正確率 |
-| Token efficiency | **本研究新定義** | Accuracy / Token usage（每 token 貢獻的正確率） |
+
+**指標設計（從粗略到精細）：**
+
+| 指標 | 定義 | 說明 |
+|---|---|---|
+| Token efficiency（粗略） | Accuracy / Token usage | 每 token 貢獻的正確率，作為基礎指標 |
+| Excess Token Usage | 實際 token − 同 difficulty/ability 下的預期 token | 控制難度與能力後的浪費量，正值代表浪費 |
+| Overthinking Rate | P(T ≫ median | easy, correct) | 簡單且答對但 token 遠高於中位數的比例 |
+| Underthinking Rate | P(T ≪ median | hard, incorrect) | 困難且答錯但 token 很少的比例 |
+| Accuracy-Token Pareto | 同 accuracy 下比較 token 使用 | 在同一 accuracy 水準看誰 token 少 |
+| Allocation-Difficulty Correlation | Corr(T, θ−b) | token usage 與 effective difficulty 的相關，正值代表分配合理 |
 
 **實驗步驟：**
 
-1. 在學姐使用的 benchmark 上，對 20 個模型分別測量每題的 reasoning token 使用量
-2. 計算每個模型的 LCAE 與平均 token efficiency 的相關性
-3. 按難度分層分析：簡單題、中等題、困難題中，LCAE 與 token 效率的關係
-4. 分析：校準好的模型是否在「簡單題少 token、困難題多 token」的分配上更合理
+1. 在學姐使用的 benchmark 上，對模型分別測量每題的 reasoning token 使用量
+2. 計算每個模型的 LCAE 與 excess token usage 的相關性（控制 ability/difficulty/correctness）
+3. 按難度分層分析：簡單題、中等題、困難題中，LCAE 與各指標的關係
+4. 分析：校準好的模型是否在「簡單題少 token、困難題多 token」的分配上更合理（Allocation-Difficulty Correlation）
+5. 計算 Overthinking Rate 和 Underthinking Rate，看是否與 LCAE 相關
 
 **預期結果：**
-- 如果 H1 成立：LCAE 與 token efficiency 正相關，尤其在高難度題目上更顯著
-- 如果 H1 不成立：自我評估能力和 token 效率無關——這本身也是重要發現
+- 如果 H1 成立：LCAE 能預測 excess token usage（控制 ability/difficulty/correctness 後），校準好的模型 excess token 較少
+- 如果 H1 不成立：自我評估能力和 token 分配品質無關——這本身也是重要發現
+- 注意：校準好的模型可能總 token 不降，但 Allocation-Difficulty Correlation 更高（分配更合理）
 
 **控制變因：**
 - 固定 temperature（0.0 或 0.3，需確認學姐設定）
@@ -342,11 +355,11 @@ Phase 3: Token 分配策略（基於 Phase 1-2 發現，設計分配方法）
 
 ### 7.3 Phase 2：因果鏈驗證
 
-**目標：** 驗證 H3 — 信心校準改善是否因果性地導致 token 效率提升
+**目標：** 驗證 H3 — 信心校準改善是否因果性地導致 token allocation quality 提升
 
 **設計邏輯：**
 - 學姐已證明 IDS（給難度信號）能改善 LCAE
-- 如果我們在有/無 IDS 的情況下測量 token 使用量，就能看到「校準改善 → token 變化」的因果效應
+- 如果我們在有/無 IDS 的情況下測量 token 使用量，就能看到「校準改善 → token 分配變化」的因果效應
 
 **實驗分組：**
 
@@ -362,18 +375,36 @@ Phase 3: Token 分配策略（基於 Phase 1-2 發現，設計分配方法）
 ```
 IDS 改善 LCAE（學姐已證，已知效應）
          ↓
-如果 IDS 同時改善了 token efficiency
+如果 IDS 同時改善了 token allocation quality（excess token usage 減少）
          ↓
-且 token efficiency 改善幅度與 LCAE 改善幅度正相關
+且 allocation quality 改善幅度與 LCAE 改善幅度正相關
          ↓
-則支持「校準改善 → token 省」的因果鏈
+則支持「校準改善 → token allocation 品質提升」的因果鏈
 ```
 
 **進一步分析：**
 
-- 按 difficulty 分層：IDS 在哪個難度範圍對 token 效率影響最大？
-- Token 分配合理性：IDS 組是否表現出「簡單題少 token、困難題多 token」的適應性分配？
-- Overthinking 分析：IDS 組是否減少了簡單題的冗餘推理？
+- 按 difficulty 分層：IDS 在哪個難度範圍對 token allocation 影響最大？
+- Token 分配合理性：IDS 組是否表現出「簡單題少 token、困難題多 token」的適應性分配？（Allocation-Difficulty Correlation）
+- Overthinking 分析：IDS 組是否減少了簡單題的冗餘推理？（Overthinking Rate 下降）
+- Underthinking 分析：IDS 組是否避免了困難題的推理不足？（Underthinking Rate 下降）
+
+**控制實驗：Budget Curve 分析**
+
+不只一個 budget，設多個 budget level 看 accuracy-token curve：
+
+| Budget Level | 說明 |
+|---|---|
+| 64 tokens | 極簡 |
+| 128 tokens | 簡潔 |
+| 256 tokens | 標準 |
+| 512 tokens | 充分 |
+| 1024 tokens | 寬鬆 |
+
+在不同 budget level 下，比較各組的 accuracy-token Pareto curve：
+- 校準好的組是否在低 budget 時仍能維持合理 accuracy？
+- 校準好的組的 budget curve 是否更接近 Oracle 的曲線？
+- 哪個 budget level 下校準的效益最大？
 
 **控制實驗：Token 分配 vs Token 總量**
 
@@ -385,9 +416,11 @@ IDS 改善 LCAE（學姐已證，已知效應）
 | Fixed budget | 限制總 token，看不同校準組的分配品質 |
 | Adaptive budget | 根據自我評估分配 token，看是否比 fixed 更好 |
 
-### 7.4 Phase 3：Token 分配策略
+### 7.4 Phase 3：Token 分配策略（延後 / Bonus）
 
-**目標：** 驗證 H2 — 基於自我評估的 token 分配策略能否提升效率
+**目標：** 驗證 H2 — 基於自我評估的 token 分配策略能否提升 allocation quality
+
+> **注意：** Phase 1 + 2 已足夠寫一篇完整論文。Phase 3 為 bonus，視時間與結果決定是否執行。主打 Phase 1+2 的貢獻（C1+C2+C3），Phase 3 的 C4 延後。
 
 **分配策略設計：**
 
@@ -403,7 +436,7 @@ Step 2: 根據自我評估分配 token 預算
   ↓
 Step 3: 在分配的預算內生成回答
   ↓
-Step 4: 評估 accuracy 和 token efficiency
+Step 4: 評估 accuracy 和 token allocation quality
 ```
 
 **對照組：**
@@ -412,8 +445,8 @@ Step 4: 評估 accuracy 和 token efficiency
 |---|---|---|
 | Uniform | 所有題目相同 token budget | 基線 |
 | Oracle | IRT 難度（事後，知道正確答案） | 上限 |
-| Self-assessment (verbalized) | 模型 verbalized confidence | 測 H4 |
-| Self-assessment (log-prob) | 模型 log-prob confidence | 測 H4 |
+| Self-assessment (verbalized) | 模型 verbalized confidence | 測 RQ3 |
+| Self-assessment (log-prob) | 模型 log-prob confidence | 測 RQ3 |
 | IDS-based | IRT 難度信號 + 自我評估 | 結合學姐框架 |
 | External estimator | 外部模型預測難度 | 對照 ROI-Reasoning 風格 |
 
@@ -421,13 +454,27 @@ Step 4: 評估 accuracy 和 token efficiency
 
 | 指標 | 定義 |
 |---|---|
-| Token efficiency | Accuracy / Total tokens |
+| Excess Token Usage | 實際 token − 同 difficulty/ability 下預期 token |
+| Token efficiency（粗略） | Accuracy / Total tokens |
 | Budget utilization | Used tokens / Allocated tokens |
 | Allocation quality | 與 Oracle 分配的相關性（Spearman ρ） |
+| Accuracy-Token Pareto | 同 accuracy 下比較 token 使用 |
+| Allocation-Difficulty Correlation | Corr(T, θ−b) |
 | Regret | 比 Oracle 多用的 token 或少得的 accuracy |
-| Calibration-aware efficiency | 在同 LCAE 水平下比較 token 效率 |
 
 ### 7.5 模型選擇
+
+**建議：先跑 5-8 個代表性模型，有趨勢再擴到 20 個。**
+
+代表性模型選擇原則：
+
+| 類型 | 選擇原則 | 示例 |
+|---|---|---|
+| 高能力高校準 | 能力強且 LCAE 好 | Llama 3 70B |
+| 高能力低校準 | 能力強但 LCAE 差 | GPT-5 |
+| 中能力高校準 | 能力中等但 LCAE 好 | （待學姐資料確認） |
+| 中能力低校準 | 能力中等且 LCAE 差 | （待學姐資料確認） |
+| 小模型 | 1-2 個輕量模型 | 各廠商小模型 |
 
 **優先使用學姐的 20 模型清單**（具體清單待確認），涵蓋：
 
@@ -438,6 +485,7 @@ Step 4: 評估 accuracy 和 token efficiency
 **新增考量：**
 - 為了 token 分析，需要選擇支援 reasoning token 計數的模型
 - 確認學姐資料中是否已有 token 使用記錄（如有，可直接分析）
+- 先跑 5-8 個代表性模型確認趨勢，再決定是否擴展到全部 20 個
 
 ### 7.6 Benchmark 選擇
 
@@ -507,14 +555,15 @@ Kumaran (2026-06) 發現 verbalized confidence 追蹤 commitment 而非 correctn
 
 **風險 2：因果鏈不成立**
 
-校準好不代表 token 省。可能校準好的模型在某些場景反而用更多 token（因為「知道自己不會」所以更謹慎、推理更長）。
+校準好不代表 token 省。可能校準好的模型在某些場景反而用更多 token（因為「知道自己不會」所以更謹慎、推理更長）。但校準好可能改善 allocation quality 而非減少總量。
 
 - **機率：** 中
 - **影響：** H3 不成立，但 H1 可能仍然成立（只是不是因果）
 - **緩解：**
   1. 不成立本身是一個重要發現（「校準好 ≠ 省 token」打破了直覺假設）
-  2. 區分「token 分配合理性」和「token 總量」——校準好可能改善分配但不減少總量
-  3. 報告 null result 並分析為什麼不成立
+  2. 區分「token 分配品質」和「token 總量」——校準好可能改善分配但不減少總量
+  3. 使用 Allocation-Difficulty Correlation 和 Excess Token Usage 等精細指標，而非只看總量
+  4. 報告 null result 並分析為什麼不成立
 
 ### 9.2 中風險
 
@@ -579,11 +628,13 @@ Kumaran (2026-06) 發現 verbalized confidence 追蹤 commitment 而非 correctn
 | 降級級別 | 內容 | 仍有的貢獻 |
 |---|---|---|
 | Level 0（完整） | Phase 1+2+3 全做 | C1+C2+C3+C4 |
-| Level 1 | Phase 1+2，Phase 3 簡化（只做策略設計不做實驗） | C1+C2+C3 |
+| Level 1 | **Phase 1+2**，Phase 3 延後（只做策略設計不做實驗） | C1+C2+C3（**主打**） |
 | Level 2 | Phase 1+2，不做 Phase 3 | C1+C3（關聯+因果） |
 | Level 3 | 只做 Phase 1 | C1（關聯性發現） |
 
-**即使 Level 3 仍然是一個貢獻：** 首次揭示自我評估能力與 token 需求的關係，配合學姐框架延伸，足以寫一篇 short paper 或 workshop paper。
+**Phase 1+2 就是主打方案**，已有 C1+C2+C3 三個貢獻，足以寫一篇完整論文。Phase 3（C4）是 bonus，有時間再做。
+
+**即使 Level 3 仍然是一個貢獻：** 首次揭示自我評估能力與 token 分配品質的關係，配合學姐框架延伸，足以寫一篇 short paper 或 workshop paper。
 
 ### 10.3 如不趕 IEEE Big Data 的長期規劃
 
@@ -621,7 +672,7 @@ Kumaran (2026-06) 發現 verbalized confidence 追蹤 commitment 而非 correctn
 > 之前的記憶衝突實驗（2,800 + 280 calls）發現「status metadata 類似 IDS 結構化信號」。這兩個方向有沒有可能結合？例如：在記憶衝突場景下，metadata 能否同時改善校準和 token 效率？還是應該專注一個方向？
 
 **Q8: 模型選擇**
-> 學姐用了 20 個模型。我需要全部重跑嗎？還是選代表性子集（如 5-8 個，涵蓋 frontier/mid/small）即可？
+> 學姐用了 20 個模型。我建議先跑 5-8 個代表性模型（高能力高校準/高能力低校準/中能力高校準/中能力低校準/小模型 1-2 個），有趨勢再擴到 20 個。老師覺得這個策略好嗎？
 
 ---
 
@@ -682,6 +733,8 @@ Kumaran (2026-06) 發現 verbalized confidence 追蹤 commitment 而非 correctn
 | ID | 論文 | arXiv | 集群 | 與本研究的關係 |
 |---|---|---|---|---|
 | A1 | ROI-Reasoning | 2601.03822 | A | 最接近的競爭者 |
+| A1b | SelfBudgeter | 2505.11274 | A | Training-based budget estimation，區隔：我們是 diagnostic/training-free |
+| A1c | TALE | 2505.xxxxx | A | Training-based token-efficient reasoning，區隔：不涉及自我評估 |
 | A2 | UAB | 2605.26849 | A | log-prob budget 分配 |
 | A3 | CARD | 2601.04210 | A | 外部小模型預測難度 |
 | A7 | "LLM Already Knows" | 2509.12886 | A | Hidden states 預測難度 |

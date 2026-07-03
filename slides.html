@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LLM Self-Assessment Calibration x Token Efficiency</title>
+<title>Calibration-Aware Token Efficiency</title>
 <style>
 :root {
   --dark-blue: #1B3A5C;
@@ -163,10 +163,11 @@ tr:nth-child(even) td { background: var(--light-gray); }
 <div class="slide">
   <div class="title-slide">
     <div class="accent-line"></div>
-    <h1>LLM Self-Assessment Calibration<br>x Token Efficiency</h1>
+    <h1>Calibration-Aware Token Efficiency</h1>
     <div class="accent-line"></div>
-    <p class="sub">Research Proposal for Advisor Meeting</p>
-    <p class="keyword">Can calibrated self-evaluation predict and optimize token allocation?</p>
+    <p class="sub">Does Better LLM Self-Assessment Lead to More Efficient Reasoning?</p>
+    <div class="accent-line" style="margin-top:20px;"></div>
+    <p class="keyword">Can calibrated self-evaluation predict and optimize token allocation quality?</p>
     <p class="sub" style="margin-top:40px;">Ryan &nbsp;-&nbsp; 2026-07-04</p>
   </div>
   <div class="slide-num">1 / 21</div>
@@ -427,18 +428,18 @@ tr:nth-child(even) td { background: var(--light-gray); }
           <strong style="font-size:18px;color:var(--red-accent);">Gap 1</strong>
           <span style="font-size:13px;color:var(--amber);">★★★</span>
         </div>
-        <h3 style="font-size:15px;margin-bottom:6px;">Self-assessment accuracy → Token prediction</h3>
-        <p>NOBODY has studied whether LLM self-assessment quality can predict token requirements.<br><br>
-        <strong>Why it matters:</strong> If it works, we have a training-free token allocation signal — the model "knows itself."</p>
+        <h3 style="font-size:15px;margin-bottom:6px;">Self-assessment accuracy → Token allocation quality</h3>
+        <p>NOBODY has studied whether LLM self-assessment quality can predict token allocation quality.<br><br>
+        <strong>Why it matters:</strong> If it works, we have a training-free token allocation signal — the model "knows itself." Better calibration may not reduce total tokens but may improve allocation.</p>
       </div>
       <div class="card card-red">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <strong style="font-size:18px;color:var(--red-accent);">Gap 4</strong>
           <span style="font-size:13px;color:var(--amber);">★★★</span>
         </div>
-        <h3 style="font-size:15px;margin-bottom:6px;">Calibration → Token savings causal chain</h3>
-        <p>Nobody connects calibration improvement to token efficiency gains.<br><br>
-        學姐 proved IDS improves calibration. Others proved difficulty-aware allocation reduces tokens. <strong>Nobody linked them.</strong></p>
+        <h3 style="font-size:15px;margin-bottom:6px;">Calibration → Token allocation quality causal chain</h3>
+        <p>Nobody connects calibration improvement to token allocation quality gains.<br><br>
+        學姐 proved IDS improves calibration. Others proved difficulty-aware allocation reduces tokens. <strong>Nobody linked them.</strong> Better calibration may not mean fewer total tokens, but better allocation.</p>
       </div>
       <div class="card card-amber">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -470,67 +471,53 @@ tr:nth-child(even) td { background: var(--light-gray); }
   <div class="content">
     <div class="grid-2">
       <div>
-        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Research Questions</h3>
-        <div style="display:flex;flex-direction:column;gap:14px;">
+        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Research Questions (3)</h3>
+        <div style="display:flex;flex-direction:column;gap:18px;">
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-teal" style="flex-shrink:0;">RQ1</span>
             <div>
-              <strong style="font-size:14px;">Can LCAE predict token requirements?</strong>
-              <div style="font-size:12px;color:var(--medium-gray);">If model knows itself, does it naturally use fewer tokens?</div>
+              <strong style="font-size:14px;">Can LCAE predict token inefficiency (excess token usage)?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">Controlling for ability/difficulty/correctness — does calibration predict waste?</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-teal" style="flex-shrink:0;">RQ2</span>
             <div>
-              <strong style="font-size:14px;">Can IRT difficulty signals serve as token allocation signals?</strong>
-              <div style="font-size:12px;color:var(--medium-gray);">IDS improved calibration; can it also improve token distribution?</div>
+              <strong style="font-size:14px;">Can IDS improve token allocation quality?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">Not just fewer tokens — better allocation (easy=less, hard=more)</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-teal" style="flex-shrink:0;">RQ3</span>
             <div>
-              <strong style="font-size:14px;">Does calibration improvement causally lead to token efficiency?</strong>
-              <div style="font-size:12px;color:var(--medium-gray);">Not just correlation: improvement → prediction → savings</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span class="badge badge-teal" style="flex-shrink:0;">RQ4</span>
-            <div>
-              <strong style="font-size:14px;">Verbalized vs log-prob: which is better for token allocation?</strong>
-              <div style="font-size:12px;color:var(--medium-gray);">Kumaran found verbalized tracks commitment, not correctness</div>
+              <strong style="font-size:14px;">Does calibration → allocation quality causal chain hold? Which signal works best?</strong>
+              <div style="font-size:12px;color:var(--medium-gray);">Verbalized vs log-prob comparison folded in (was RQ4)</div>
             </div>
           </div>
         </div>
       </div>
       <div>
-        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Hypotheses</h3>
-        <div style="display:flex;flex-direction:column;gap:14px;">
+        <h3 style="font-size:18px;color:var(--dark-blue);margin-bottom:16px;">Hypotheses (3)</h3>
+        <div style="display:flex;flex-direction:column;gap:18px;">
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-green" style="flex-shrink:0;">H1</span>
             <div>
-              <strong style="font-size:14px;">LCAE positively correlates with token efficiency</strong>
+              <strong style="font-size:14px;">LCAE predicts excess token usage (after controlling for ability/difficulty/correctness)</strong>
               <div style="font-size:12px;color:var(--green-accent);">Medium-High confidence</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-green" style="flex-shrink:0;">H2</span>
             <div>
-              <strong style="font-size:14px;">IDS difficulty signals improve token allocation efficiency</strong>
+              <strong style="font-size:14px;">IDS difficulty signals improve token allocation quality</strong>
               <div style="font-size:12px;color:var(--green-accent);">Medium-High confidence</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span class="badge badge-amber" style="flex-shrink:0;">H3</span>
             <div>
-              <strong style="font-size:14px;">Calibration → token efficiency causal chain holds</strong>
+              <strong style="font-size:14px;">Calibration → allocation quality causal chain holds (may not reduce total tokens, but better distribution)</strong>
               <div style="font-size:12px;color:var(--amber);">Medium (null result is also a finding)</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span class="badge badge-amber" style="flex-shrink:0;">H4</span>
-            <div>
-              <strong style="font-size:14px;">Log-prob &gt; verbalized confidence for token allocation</strong>
-              <div style="font-size:12px;color:var(--amber);">Medium (Kumaran evidence supports)</div>
             </div>
           </div>
         </div>
@@ -562,15 +549,16 @@ tr:nth-child(even) td { background: var(--light-gray); }
       </div>
       <span class="arrow">→</span>
       <div class="rounded-box" style="border-color:var(--red-accent);background:var(--light-red);color:var(--red-accent);width:200px;">
-        More Efficient<br>Token<br>Allocation<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">本研究驗證</span>
+        Better Token<br>Allocation<br>Quality<br><span style="font-size:11px;font-weight:400;color:var(--medium-gray);">本研究驗證</span>
       </div>
     </div>
     <div style="background:var(--light-gray);padding:20px;border-radius:4px;margin-top:20px;">
       <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">One-sentence story</h3>
       <p style="font-size:14px;">
         學姐 proved IRT difficulty signals improve LLM self-assessment (LCAE) and mentioned reliability-inference cost association.
-        This research fills that gap: we measure the self-assessment — token efficiency relationship, validate the
-        calibration → token savings causal chain, and propose a self-assessment-based token allocation strategy.
+        This research fills that gap: we measure the self-assessment — token allocation quality relationship, validate the
+        calibration → better allocation causal chain, and propose a self-assessment-based token allocation strategy.
+        Better calibration may not reduce total tokens, but leads to more rational allocation (easy=less, hard=more).
         <strong>If it holds, this provides a training-free token optimization method</strong> — no extra training needed, just let the model know itself better.
       </p>
     </div>
@@ -605,11 +593,11 @@ tr:nth-child(even) td { background: var(--light-gray); }
         <p style="margin-top:8px;">Validate the causal chain: better calibration → less tokens for same quality</p>
         <div style="margin-top:10px;background:var(--red-accent);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 4</div>
       </div>
-      <div class="card card-teal" style="text-align:center;">
+      <div class="card card-teal" style="text-align:center;opacity:0.7;">
         <span class="badge badge-teal" style="margin-bottom:8px;">C4</span>
-        <h3 style="color:var(--teal);font-size:14px;">New Framework</h3>
-        <p style="margin-top:8px;">Propose self-assessment-based token allocation strategy (training-free)</p>
-        <div style="margin-top:10px;background:var(--teal);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">Addresses Gap 1+2+4</div>
+        <h3 style="color:var(--teal);font-size:14px;">New Framework (Bonus)</h3>
+        <p style="margin-top:8px;">Self-assessment-based token allocation strategy (training-free)</p>
+        <div style="margin-top:10px;background:var(--medium-gray);color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">⏸ Deferred / Bonus</div>
       </div>
     </div>
   </div>
@@ -636,6 +624,16 @@ tr:nth-child(even) td { background: var(--light-gray); }
         <td>No IRT, no self-assessment, uses trained predictor</td>
       </tr>
       <tr>
+        <td><strong>SelfBudgeter</strong><br>(2025-05)</td>
+        <td>Model estimates token budget before generation</td>
+        <td>Training-based (requires fine-tuning); no IRT/LCAE framework</td>
+      </tr>
+      <tr>
+        <td><strong>TALE</strong><br>(2025)</td>
+        <td>Token-efficient reasoning via length-aware fine-tuning</td>
+        <td>Training-based; modifies model behavior; no self-assessment</td>
+      </tr>
+      <tr>
         <td><strong>TRIAGE</strong><br>(2026-05)</td>
         <td>Metacognitive control + token budget</td>
         <td>Evaluates allocation quality, not calibration × token</td>
@@ -657,7 +655,7 @@ tr:nth-child(even) td { background: var(--light-gray); }
       </tr>
     </table>
     <div class="highlight-box" style="margin-top:20px;">
-      No paper simultaneously does ALL FOUR: IRT framework + self-assessment measurement + token prediction + causal validation
+      No paper simultaneously does ALL FOUR: IRT framework + self-assessment + token prediction + causal validation. SelfBudgeter & TALE are training-based; we are diagnostic/training-free.
     </div>
   </div>
   <div class="bottom-bar"></div>
@@ -723,30 +721,37 @@ tr:nth-child(even) td { background: var(--light-gray); }
           <tr><td><strong>Difficulty (b)</strong></td><td>from 學姐</td><td>IRT estimated item difficulty</td></tr>
           <tr><td><strong>Token usage (T)</strong></td><td style="color:var(--red-accent);font-weight:600;">NEW</td><td>Actual reasoning tokens per question</td></tr>
           <tr><td><strong>Accuracy</strong></td><td>from 學姐</td><td>Answer correctness</td></tr>
-          <tr><td><strong>Token efficiency</strong></td><td style="color:var(--red-accent);font-weight:600;">NEW</td><td>Accuracy / Token usage</td></tr>
+        </table>
+        <h4 style="font-size:14px;color:var(--red-accent);margin-top:12px;margin-bottom:8px;">New Metrics (from coarse to fine)</h4>
+        <table style="font-size:12px;">
+          <tr><td><strong>Token efficiency</strong> (coarse)</td><td>Accuracy / Token usage</td></tr>
+          <tr><td><strong>Excess Token Usage</strong></td><td>Actual − expected (given difficulty/ability)</td></tr>
+          <tr><td><strong>Overthinking Rate</strong></td><td>P(T≫median | easy, correct)</td></tr>
+          <tr><td><strong>Underthinking Rate</strong></td><td>P(T≪median | hard, incorrect)</td></tr>
+          <tr><td><strong>Alloc-Diff Corr.</strong></td><td>Corr(T, θ−b) — rational allocation signal</td></tr>
         </table>
       </div>
       <div>
         <h3 style="font-size:16px;color:var(--dark-blue);margin-bottom:12px;">Steps</h3>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div class="card card-teal" style="padding:10px 14px;">
-            <p style="font-size:13px;">1. Run 20 models on 學姐 benchmark, measure reasoning tokens per question</p>
+            <p style="font-size:13px;">1. Run models on 學姐 benchmark, measure reasoning tokens per question</p>
           </div>
           <div class="card card-teal" style="padding:10px 14px;">
-            <p style="font-size:13px;">2. Compute LCAE vs avg token efficiency correlation (Pearson/Spearman)</p>
+            <p style="font-size:13px;">2. Compute LCAE vs excess token usage correlation (controlling for ability/difficulty/correctness)</p>
           </div>
           <div class="card card-teal" style="padding:10px 14px;">
-            <p style="font-size:13px;">3. Stratified analysis by difficulty: easy / medium / hard</p>
+            <p style="font-size:13px;">3. Stratified analysis by difficulty: easy / medium / hard — check overthinking & underthinking rates</p>
           </div>
           <div class="card card-teal" style="padding:10px 14px;">
-            <p style="font-size:13px;">4. Analyze: do calibrated models show adaptive allocation (easy=less, hard=more)?</p>
+            <p style="font-size:13px;">4. Analyze: Allocation-Difficulty Correlation — do calibrated models show rational allocation (easy=less, hard=more)?</p>
           </div>
         </div>
       </div>
     </div>
     <div class="teal-box" style="margin-top:16px;">
-      <strong style="color:var(--teal);">Expected:</strong> H1 holds → LCAE positively correlates with token efficiency, especially on hard questions.
-      H1 null → self-assessment and token efficiency are unrelated (also an important finding).
+      <strong style="color:var(--teal);">Expected:</strong> H1 holds → LCAE predicts excess token usage after controlling for ability/difficulty/correctness. Calibrated models may not use fewer total tokens, but show better allocation (higher Alloc-Diff Corr, lower overthinking).
+      H1 null → self-assessment and token allocation quality are unrelated (also an important finding).
     </div>
   </div>
   <div class="bottom-bar"></div>
@@ -786,14 +791,21 @@ tr:nth-child(even) td { background: var(--light-gray); }
       <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:8px;">Further Analysis</h3>
       <div class="grid-2" style="gap:12px;">
         <ul class="bullet-list" style="font-size:13px;">
-          <li>Difficulty stratification: In which difficulty range does IDS have the largest token effect?</li>
+          <li>Difficulty stratification: In which range does IDS have the largest allocation effect?</li>
           <li>Allocation quality: Does IDS group show adaptive allocation (easy=less, hard=more)?</li>
         </ul>
         <ul class="bullet-list" style="font-size:13px;">
-          <li>Overthinking analysis: Does IDS reduce redundant reasoning on easy questions?</li>
-          <li>Control: Free budget vs Fixed budget vs Adaptive budget</li>
+          <li>Overthinking: Does IDS reduce redundant reasoning on easy questions?</li>
+          <li>Underthinking: Does IDS avoid insufficient reasoning on hard questions?</li>
         </ul>
       </div>
+    </div>
+    <div style="margin-top:16px;background:var(--light-amber);border-left:4px solid var(--amber);padding:12px 16px;">
+      <strong style="font-size:14px;color:var(--amber);">Budget Curve Analysis (NEW)</strong>
+      <p style="font-size:13px;margin-top:6px;">
+        Multiple budget levels: 64 / 128 / 256 / 512 / 1024 tokens → plot Accuracy-Token Pareto curve per group.
+        Which budget level maximizes calibration benefit? Does calibrated group's curve approach Oracle?
+      </p>
     </div>
   </div>
   <div class="bottom-bar"></div>
@@ -802,12 +814,15 @@ tr:nth-child(even) td { background: var(--light-gray); }
 
 <!-- SLIDE 16: Phase 3 詳細 -->
 <div class="slide">
-  <div class="title-bar">
-    <h1>Phase 3: Token Allocation Strategy</h1>
-    <div class="subtitle">Can self-assessment-based allocation outperform baselines?</div>
+  <div class="title-bar" style="background:var(--medium-gray);">
+    <h1>Phase 3: Token Allocation Strategy (Deferred / Bonus)</h1>
+    <div class="subtitle">Phase 1+2 is the main paper; Phase 3 is bonus</div>
   </div>
-  <div class="content">
-    <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:12px;">Allocation Pipeline</h3>
+  <div class="content" style="padding-top:100px;">
+    <div class="amber-box" style="margin-bottom:20px;text-align:center;">
+      Phase 1+2 already provides C1+C2+C3 — sufficient for a complete paper. Phase 3 (C4) is bonus, executed if time/results permit.
+    </div>
+    <h3 style="font-size:15px;color:var(--dark-blue);margin-bottom:12px;">Allocation Pipeline (Simplified)</h3>
     <div style="display:flex;justify-content:center;align-items:center;gap:0;margin-bottom:20px;">
       <div class="rounded-box" style="border-color:var(--dark-blue);background:var(--light-blue);color:var(--dark-blue);width:180px;font-size:13px;">Model receives<br>question</div>
       <span class="arrow">→</span>
@@ -822,16 +837,15 @@ tr:nth-child(even) td { background: var(--light-gray); }
       <tr><th>Strategy</th><th>Token allocation based on</th><th>Role</th></tr>
       <tr><td>Uniform</td><td>Same budget for all</td><td>Baseline</td></tr>
       <tr><td>Oracle</td><td>IRT difficulty (post-hoc)</td><td>Upper bound</td></tr>
-      <tr><td>Self-assessment (verbalized)</td><td>Verbalized confidence</td><td>Tests H4</td></tr>
-      <tr><td>Self-assessment (log-prob)</td><td>Log-prob confidence</td><td>Tests H4</td></tr>
+      <tr><td>Self-assessment (verbalized)</td><td>Verbalized confidence</td><td>Tests RQ3</td></tr>
+      <tr><td>Self-assessment (log-prob)</td><td>Log-prob confidence</td><td>Tests RQ3</td></tr>
       <tr><td>IDS-based</td><td>IRT signal + self-assessment</td><td>Combines 學姐 framework</td></tr>
-      <tr><td>External estimator</td><td>External model predicts</td><td>ROI-Reasoning style</td></tr>
     </table>
     <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">
-      Metrics: Token efficiency | Budget utilization | Allocation quality (Spearman ρ vs Oracle) | Regret
+      Metrics: Excess Token Usage | Token efficiency (coarse) | Budget utilization | Allocation quality (Spearman ρ vs Oracle) | Alloc-Diff Correlation | Regret
     </p>
   </div>
-  <div class="bottom-bar"></div>
+  <div class="bottom-bar" style="background:var(--medium-gray);"></div>
   <div class="slide-num">16 / 21</div>
 </div>
 
@@ -939,8 +953,8 @@ tr:nth-child(even) td { background: var(--light-gray); }
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span style="background:var(--teal);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 1</span>
-        <span style="font-size:13px;">Phase 1+2, Phase 3 simplified (design only)</span>
-        <span style="font-size:12px;color:var(--teal);font-weight:600;margin-left:auto;">C1+C2+C3</span>
+        <span style="font-size:13px;">Phase 1+2, Phase 3 deferred (main plan)</span>
+        <span style="font-size:12px;color:var(--teal);font-weight:600;margin-left:auto;">C1+C2+C3 ★</span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span style="background:var(--amber);color:white;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:600;width:70px;text-align:center;">Level 2</span>
@@ -953,7 +967,11 @@ tr:nth-child(even) td { background: var(--light-gray); }
         <span style="font-size:12px;color:var(--red-accent);font-weight:600;margin-left:auto;">C1 (correlation finding)</span>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">Even Level 3 is publishable: first discovery of LCAE-token relationship</p>
+    <p style="font-size:12px;color:var(--medium-gray);margin-top:8px;">Phase 1+2 is the main plan (C1+C2+C3). Phase 3 is bonus. Even Level 3 is publishable: first discovery of LCAE-token allocation quality relationship</p>
+    <div style="background:var(--light-amber);border-left:4px solid var(--amber);padding:10px 14px;margin-top:12px;">
+      <strong style="font-size:13px;color:var(--amber);">Model Selection Strategy</strong>
+      <p style="font-size:12px;margin-top:4px;">Start with 5-8 representative models: high-ability+high-cal / high-ability+low-cal / mid-ability+high-cal / mid-ability+low-cal / 1-2 small models. If trends emerge, expand to 20.</p>
+    </div>
   </div>
   <div class="bottom-bar"></div>
   <div class="slide-num">19 / 21</div>
@@ -997,7 +1015,7 @@ tr:nth-child(even) td { background: var(--light-gray); }
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
         <span class="badge badge-blue" style="flex-shrink:0;">Q8</span>
-        <div><strong style="font-size:13px;color:var(--teal);">Models</strong> — <span style="font-size:14px;">Re-run all 20 models or select representative subset (5-8, covering frontier/mid/small)?</span></div>
+        <div><strong style="font-size:13px;color:var(--teal);">Models</strong> — <span style="font-size:14px;">Start with 5-8 representative models (high/low ability × high/low calibration + 1-2 small), expand to 20 if trends emerge?</span></div>
       </div>
     </div>
   </div>
@@ -1025,11 +1043,11 @@ tr:nth-child(even) td { background: var(--light-gray); }
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
         <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
-        <span style="font-size:15px;">This research validates the causal chain: calibration → token prediction → allocation</span>
+        <span style="font-size:15px;">This research validates: calibration → better token allocation quality (not necessarily fewer tokens)</span>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
         <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
-        <span style="font-size:15px;">4 contributions: new finding, method, validation, framework</span>
+        <span style="font-size:15px;">3 core contributions (C1-C3) + 1 bonus (C4 deferred): finding, method, validation</span>
       </div>
       <div style="display:flex;gap:12px;align-items:flex-start;text-align:left;">
         <span class="badge badge-teal" style="flex-shrink:0;margin-top:2px;">•</span>
