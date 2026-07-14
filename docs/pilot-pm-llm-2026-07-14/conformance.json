@@ -1,0 +1,32 @@
+{
+  "GPT-OSS-20B": {
+    "avg_fitness": 0.9959816030562665,
+    "log_moves": 5,
+    "model_moves": 408,
+    "total_deviations": 413
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "avg_fitness": 1.0,
+    "log_moves": 0,
+    "model_moves": 217,
+    "total_deviations": 217
+  },
+  "GPT-OSS-120B": {
+    "avg_fitness": 0.997099567099567,
+    "log_moves": 1,
+    "model_moves": 378,
+    "total_deviations": 379
+  },
+  "GLM-4.7-357B": {
+    "avg_fitness": 0.9884513085218186,
+    "log_moves": 48,
+    "model_moves": 948,
+    "total_deviations": 996
+  },
+  "GLM-5.2-756B": {
+    "avg_fitness": 0.995205815895471,
+    "log_moves": 6,
+    "model_moves": 444,
+    "total_deviations": 450
+  }
+}
