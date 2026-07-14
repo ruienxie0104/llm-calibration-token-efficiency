@@ -30,4 +30,4 @@ Thumbs.db
 # Results
 results/
 runs/
-*.log
+*.logpilot_results/

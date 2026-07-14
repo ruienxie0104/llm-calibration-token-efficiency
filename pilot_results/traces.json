@@ -1,0 +1,1594 @@
+{
+  "ModelA_HighLCAE": [
+    {
+      "case_id": "ModelA_HighLCAE_Q1",
+      "model": "ModelA_HighLCAE",
+      "question_id": 1,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q2",
+      "model": "ModelA_HighLCAE",
+      "question_id": 2,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q3",
+      "model": "ModelA_HighLCAE",
+      "question_id": 3,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q4",
+      "model": "ModelA_HighLCAE",
+      "question_id": 4,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q5",
+      "model": "ModelA_HighLCAE",
+      "question_id": 5,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q6",
+      "model": "ModelA_HighLCAE",
+      "question_id": 6,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q7",
+      "model": "ModelA_HighLCAE",
+      "question_id": 7,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q8",
+      "model": "ModelA_HighLCAE",
+      "question_id": 8,
+      "trace": [
+        "understand",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q9",
+      "model": "ModelA_HighLCAE",
+      "question_id": 9,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q10",
+      "model": "ModelA_HighLCAE",
+      "question_id": 10,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q11",
+      "model": "ModelA_HighLCAE",
+      "question_id": 11,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q12",
+      "model": "ModelA_HighLCAE",
+      "question_id": 12,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "calculate",
+        "reason",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q13",
+      "model": "ModelA_HighLCAE",
+      "question_id": 13,
+      "trace": [
+        "understand",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q14",
+      "model": "ModelA_HighLCAE",
+      "question_id": 14,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q15",
+      "model": "ModelA_HighLCAE",
+      "question_id": 15,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q16",
+      "model": "ModelA_HighLCAE",
+      "question_id": 16,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q17",
+      "model": "ModelA_HighLCAE",
+      "question_id": 17,
+      "trace": [
+        "understand",
+        "plan",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q18",
+      "model": "ModelA_HighLCAE",
+      "question_id": 18,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q19",
+      "model": "ModelA_HighLCAE",
+      "question_id": 19,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 11,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q20",
+      "model": "ModelA_HighLCAE",
+      "question_id": 20,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q21",
+      "model": "ModelA_HighLCAE",
+      "question_id": 21,
+      "trace": [
+        "understand",
+        "plan",
+        "reason",
+        "calculate",
+        "reason",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q22",
+      "model": "ModelA_HighLCAE",
+      "question_id": 22,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q23",
+      "model": "ModelA_HighLCAE",
+      "question_id": 23,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q24",
+      "model": "ModelA_HighLCAE",
+      "question_id": 24,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q25",
+      "model": "ModelA_HighLCAE",
+      "question_id": 25,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q26",
+      "model": "ModelA_HighLCAE",
+      "question_id": 26,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q27",
+      "model": "ModelA_HighLCAE",
+      "question_id": 27,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q28",
+      "model": "ModelA_HighLCAE",
+      "question_id": 28,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q29",
+      "model": "ModelA_HighLCAE",
+      "question_id": 29,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelA_HighLCAE_Q30",
+      "model": "ModelA_HighLCAE",
+      "question_id": 30,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    }
+  ],
+  "ModelB_MedLCAE": [
+    {
+      "case_id": "ModelB_MedLCAE_Q1",
+      "model": "ModelB_MedLCAE",
+      "question_id": 1,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 1,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q2",
+      "model": "ModelB_MedLCAE",
+      "question_id": 2,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q3",
+      "model": "ModelB_MedLCAE",
+      "question_id": 3,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q4",
+      "model": "ModelB_MedLCAE",
+      "question_id": 4,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 1,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q5",
+      "model": "ModelB_MedLCAE",
+      "question_id": 5,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q6",
+      "model": "ModelB_MedLCAE",
+      "question_id": 6,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q7",
+      "model": "ModelB_MedLCAE",
+      "question_id": 7,
+      "trace": [
+        "understand",
+        "calculate",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q8",
+      "model": "ModelB_MedLCAE",
+      "question_id": 8,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 11,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q9",
+      "model": "ModelB_MedLCAE",
+      "question_id": 9,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q10",
+      "model": "ModelB_MedLCAE",
+      "question_id": 10,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q11",
+      "model": "ModelB_MedLCAE",
+      "question_id": 11,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q12",
+      "model": "ModelB_MedLCAE",
+      "question_id": 12,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q13",
+      "model": "ModelB_MedLCAE",
+      "question_id": 13,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q14",
+      "model": "ModelB_MedLCAE",
+      "question_id": 14,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q15",
+      "model": "ModelB_MedLCAE",
+      "question_id": 15,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q16",
+      "model": "ModelB_MedLCAE",
+      "question_id": 16,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q17",
+      "model": "ModelB_MedLCAE",
+      "question_id": 17,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 1,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q18",
+      "model": "ModelB_MedLCAE",
+      "question_id": 18,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q19",
+      "model": "ModelB_MedLCAE",
+      "question_id": 19,
+      "trace": [
+        "understand",
+        "calculate",
+        "reconsider",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 1,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q20",
+      "model": "ModelB_MedLCAE",
+      "question_id": 20,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q21",
+      "model": "ModelB_MedLCAE",
+      "question_id": 21,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 14,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q22",
+      "model": "ModelB_MedLCAE",
+      "question_id": 22,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q23",
+      "model": "ModelB_MedLCAE",
+      "question_id": 23,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q24",
+      "model": "ModelB_MedLCAE",
+      "question_id": 24,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q25",
+      "model": "ModelB_MedLCAE",
+      "question_id": 25,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q26",
+      "model": "ModelB_MedLCAE",
+      "question_id": 26,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 14,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q27",
+      "model": "ModelB_MedLCAE",
+      "question_id": 27,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "calculate",
+        "calculate",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q28",
+      "model": "ModelB_MedLCAE",
+      "question_id": 28,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q29",
+      "model": "ModelB_MedLCAE",
+      "question_id": 29,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 1,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelB_MedLCAE_Q30",
+      "model": "ModelB_MedLCAE",
+      "question_id": 30,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": false
+    }
+  ],
+  "ModelC_LowLCAE": [
+    {
+      "case_id": "ModelC_LowLCAE_Q1",
+      "model": "ModelC_LowLCAE",
+      "question_id": 1,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q2",
+      "model": "ModelC_LowLCAE",
+      "question_id": 2,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 6,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q3",
+      "model": "ModelC_LowLCAE",
+      "question_id": 3,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q4",
+      "model": "ModelC_LowLCAE",
+      "question_id": 4,
+      "trace": [
+        "understand",
+        "reason",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q5",
+      "model": "ModelC_LowLCAE",
+      "question_id": 5,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q6",
+      "model": "ModelC_LowLCAE",
+      "question_id": 6,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q7",
+      "model": "ModelC_LowLCAE",
+      "question_id": 7,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "calculate",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 15,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q8",
+      "model": "ModelC_LowLCAE",
+      "question_id": 8,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 1,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q9",
+      "model": "ModelC_LowLCAE",
+      "question_id": 9,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q10",
+      "model": "ModelC_LowLCAE",
+      "question_id": 10,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 7,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q11",
+      "model": "ModelC_LowLCAE",
+      "question_id": 11,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q12",
+      "model": "ModelC_LowLCAE",
+      "question_id": 12,
+      "trace": [
+        "understand",
+        "recall",
+        "plan",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q13",
+      "model": "ModelC_LowLCAE",
+      "question_id": 13,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q14",
+      "model": "ModelC_LowLCAE",
+      "question_id": 14,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q15",
+      "model": "ModelC_LowLCAE",
+      "question_id": 15,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reason",
+        "calculate",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q16",
+      "model": "ModelC_LowLCAE",
+      "question_id": 16,
+      "trace": [
+        "understand",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 12,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q17",
+      "model": "ModelC_LowLCAE",
+      "question_id": 17,
+      "trace": [
+        "understand",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 12,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q18",
+      "model": "ModelC_LowLCAE",
+      "question_id": 18,
+      "trace": [
+        "understand",
+        "reason",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 1,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q19",
+      "model": "ModelC_LowLCAE",
+      "question_id": 19,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 12,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q20",
+      "model": "ModelC_LowLCAE",
+      "question_id": 20,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "calculate",
+        "reconsider",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q21",
+      "model": "ModelC_LowLCAE",
+      "question_id": 21,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q22",
+      "model": "ModelC_LowLCAE",
+      "question_id": 22,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 9,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q23",
+      "model": "ModelC_LowLCAE",
+      "question_id": 23,
+      "trace": [
+        "understand",
+        "plan",
+        "calculate",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q24",
+      "model": "ModelC_LowLCAE",
+      "question_id": 24,
+      "trace": [
+        "understand",
+        "reason",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 8,
+      "num_loops": 2,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q25",
+      "model": "ModelC_LowLCAE",
+      "question_id": 25,
+      "trace": [
+        "understand",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q26",
+      "model": "ModelC_LowLCAE",
+      "question_id": 26,
+      "trace": [
+        "understand",
+        "recall",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 4,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q27",
+      "model": "ModelC_LowLCAE",
+      "question_id": 27,
+      "trace": [
+        "understand",
+        "calculate",
+        "calculate",
+        "reason",
+        "answer"
+      ],
+      "num_steps": 5,
+      "num_loops": 0,
+      "has_verify": false
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q28",
+      "model": "ModelC_LowLCAE",
+      "question_id": 28,
+      "trace": [
+        "understand",
+        "plan",
+        "reason",
+        "calculate",
+        "calculate",
+        "verify",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 1,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q29",
+      "model": "ModelC_LowLCAE",
+      "question_id": 29,
+      "trace": [
+        "understand",
+        "recall",
+        "calculate",
+        "reconsider",
+        "reason",
+        "verify",
+        "reconsider",
+        "reason",
+        "calculate",
+        "answer"
+      ],
+      "num_steps": 10,
+      "num_loops": 2,
+      "has_verify": true
+    },
+    {
+      "case_id": "ModelC_LowLCAE_Q30",
+      "model": "ModelC_LowLCAE",
+      "question_id": 30,
+      "trace": [
+        "understand",
+        "calculate",
+        "calculate",
+        "calculate",
+        "reason",
+        "reconsider",
+        "reason",
+        "reconsider",
+        "reason",
+        "verify",
+        "answer"
+      ],
+      "num_steps": 11,
+      "num_loops": 2,
+      "has_verify": true
+    }
+  ]
+}

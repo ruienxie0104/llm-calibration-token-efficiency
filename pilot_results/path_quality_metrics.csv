@@ -1,0 +1,4 @@
+Model,LCAE,Accuracy,Avg_Steps,Avg_Loops,Verify_Rate,Variants,Fitness_vs_Ref,Deviations,Log_Moves,Model_Moves
+ModelA_HighLCAE,0.85,0.9,7.7,0.07,87%,24,0.9377,209,0,209
+ModelB_MedLCAE,0.62,0.7,7.3,0.37,53%,25,0.9345,263,1,262
+ModelC_LowLCAE,0.38,0.5,7.87,0.9,30%,26,0.94,329,2,327

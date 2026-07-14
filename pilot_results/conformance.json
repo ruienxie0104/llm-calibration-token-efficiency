@@ -1,0 +1,20 @@
+{
+  "ModelA_HighLCAE": {
+    "avg_fitness": 0.9377242664742662,
+    "log_moves": 0,
+    "model_moves": 209,
+    "total_deviations": 209
+  },
+  "ModelB_MedLCAE": {
+    "avg_fitness": 0.9345394023904082,
+    "log_moves": 1,
+    "model_moves": 262,
+    "total_deviations": 263
+  },
+  "ModelC_LowLCAE": {
+    "avg_fitness": 0.939958680516225,
+    "log_moves": 2,
+    "model_moves": 327,
+    "total_deviations": 329
+  }
+}
