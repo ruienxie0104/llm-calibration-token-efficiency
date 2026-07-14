@@ -1,37 +1,37 @@
 # Reading Notes: Process Mining — Data Science in Action
 
-**Author:** Wil M.P. van der Aalst  
-**Publisher:** Springer, 2016  
-**Status:** Completed (key chapters 1–12; chapters 13–16 browsed for key ideas)
+**Author:** Wil M.P. van der Aalst（PM 領域創始人）
+**Publisher:** Springer, 2016
+**Pages:** 477（16 章，6 個 Part）
 
 ---
 
-## Book Structure (from Table of Contents)
+## Book Structure
 
-The book is organized into six parts across 16 chapters (477 pages):
-
-- **Part I: Introduction**
-  - Ch 1: Data Science in Action (pp. 20–40)
-  - Ch 2: Process Mining: The Missing Link (pp. 41–68)
-- **Part II: Preliminaries**
-  - Ch 3: Process Modeling and Analysis (pp. 71–104)
-  - Ch 4: Data Mining (pp. 105–137)
-- **Part III: From Event Data to Process Models**
-  - Ch 5: Getting the Data (pp. 140–177)
-  - Ch 6: Process Discovery: An Introduction (pp. 178–209)
-  - Ch 7: Advanced Process Discovery Techniques (pp. 210–255)
-- **Part IV: Conformance Checking**
-  - Ch 8: Conformance Checking (pp. 258–289)
-- **Part V: Process Mining Beyond Control Flow**
-  - Ch 9: Mining Additional Perspectives (pp. 290–315)
-  - Ch 10: Operational Support (pp. 316–336)
-- **Part VI: Process Mining in Practice**
-  - Ch 11: Process Mining Software (pp. 339–366)
-  - Ch 12: Process Mining in the Large (pp. 367–390)
-  - Ch 13: Analyzing "Lasagna" Processes (pp. 391–406)
-  - Ch 14: Analyzing "Spaghetti" Processes (pp. 407–422)
-  - Ch 15: Process Cartography (pp. 423–446)
-  - Ch 16: Epilogue (pp. 447–458)
+```
+Part I: Introduction
+  Ch1: Data Science in Action
+  Ch2: Process Mining: The Missing Link
+Part II: Preliminaries
+  Ch3: Process Modeling and Analysis (Petri nets, BPMN, etc.)
+  Ch4: Data Mining (classification, clustering, association rules)
+Part III: From Event Logs to Process Models
+  Ch5: Getting the Data (XES format, data extraction)
+  Ch6: From Event Logs to Process Models (α-algorithm)
+  Ch7: Advanced Process Discovery Techniques (heuristic, genetic, region-based)
+Part IV: Beyond Discovery
+  Ch8: Conformance Checking
+  Ch9: Mining Additional Perspectives (org, time, case, decision)
+  Ch10: Operational Support (predictive, prescriptive)
+Part V: Tool Support and Applications
+  Ch11: Tool Support (ProM, Disco, etc.)
+  Ch12: Process Mining in the Large (big data, decomposition)
+  Ch13: Analyzing "Lasagna Processes"
+  Ch14: Analyzing "Spaghetti Processes"
+Part VI: Reflection
+  Ch15: Cartography and Navigation
+  Ch16: Epilogue
+```
 
 ---
 
@@ -39,418 +39,228 @@ The book is organized into six parts across 16 chapters (477 pages):
 
 ### Chapter 1: Data Science in Action
 
-The chapter frames data science as the intersection of process science and data science. The "Internet of Events" — the growing availability of event data from RFID, GPS, sensors, transaction logs, etc. — is a key enabler. Van der Aalst identifies a gap: data science approaches tend to be process-agnostic, while process science focuses on modeling without leveraging data. Process mining bridges this gap.
+PM 的定位：介于 process science（BPM、工作流管理）和 data science（數據挖掘、機器學習）之間的橋樑。
 
-**Key concepts:**
-- **Data science vs. process science**: Data science is data-centric; process science is model-centric. Process mining is both.
-- **Four V's of Big Data**: Volume, Velocity, Variety, Veracity — all relevant to event data.
-- **Process mining definition**: Using event data to discover, conformance-check, and enhance process models.
-- **Three types of process mining**: Discovery (build model from data), Conformance (compare model vs. data), Enhancement (extend model with data).
-- **Yin-yang of data and process**: Data-driven and process-centric forces need to be balanced.
-
-**Research relevance:** The framing of PM as a bridge between data science and process science maps directly to our research — we're bridging ML/LLM analysis (data-driven) with structured process analysis (process-centric). LLM reasoning traces are "event data" waiting to be process-mined.
+關鍵概念：
+- **Internet of Events (IoE)**：所有事件數據的總集合，包含 IoC（內容）、IoP（人際）、IoT（物聯網）、IoL（位置）
+- 數據從 analog → digital 的轉變產生了大量事件數據
+- PM 的核心：用事件數據來發現、監控、改善真實流程
 
 ### Chapter 2: Process Mining: The Missing Link
 
-Introduces the core PM framework. Uses a running example (handling complaints at a municipal authority) to illustrate event logs, process models, and the Play-In / Play-Out / Replay triad.
+**這是全書最重要的一章。**
 
-**Key concepts:**
-- **Play-In**: From example behavior → process model (discovery).
-- **Play-Out**: From process model → example behavior (simulation/execution).
-- **Replay**: Both model + log → analysis (conformance checking, bottleneck analysis).
-- **Event log structure**: Each event has a case ID, activity name, timestamp, and optionally resource, cost, etc.
-- **Orthogonal perspectives**: Control-flow ("How?"), Organizational ("Who?"), Case/Data ("What?"), Time ("When?").
-- **Positioning vs. related fields**: BPM, data mining, BI, Lean Six Sigma, BPR, CEP, GRC, ABPD, Big Data — PM is distinct from all of these but overlaps with each.
-- **De jure vs. de facto models**: Normative (should-be) vs. descriptive (as-is) models.
+#### PM 的三種類型
 
-**Research relevance:** Play-In/Play-Out/Replay maps to our research: Play-In = discover reasoning patterns from CoT traces; Replay = compare expected reasoning protocol against actual traces; Play-Out = generate expected reasoning paths for a given question type. The multi-perspective framing (How/Who/What/When) suggests we can analyze not just "what steps" but "what token budget per step", "what error type", etc.
+1. **Discovery（發現）**：從 event log 自動發現 process model，不需要任何先驗資訊
+   - 例：α-algorithm 從 log 自動建構 Petri net
+   
+2. **Conformance（合規檢查）**：拿現有 process model 跟 event log 比對
+   - 找出 model 和現實的差異
+   - 用途：稽核、詐欺偵測、流程合規
+   - 可以量化偏差程度
 
-### Chapter 3: Process Modeling and Analysis
+3. **Enhancement（增強）**：用 event log 的資訊來擴展或修正現有 model
+   - Repair：修改 model 使其更符合現實
+   - Extension：在 model 上加入新視角（如時間、資源）
 
-Surveys modeling notations: transition systems, Petri nets, Workflow nets (WF-nets), YAWL, BPMN, EPCs, Causal Nets, Process Trees. Also covers model-based analysis (verification, soundness, invariants).
+#### 四個分析視角
 
-**Key concepts:**
-- **Transition systems**: Simplest formal model — states and transitions. Basis for many discovery algorithms.
-- **Petri nets and WF-nets**: Token-based formalism with places, transitions, arcs. WF-nets have a single source and sink place. **Soundness** property: every case can complete, no dead transitions, no tokens left.
-- **BPMN**: De facto standard for process modeling; has gateways (AND, XOR, OR), events, activities.
-- **Process Trees**: Recursive structure (operator + children): seq(→), choice(×), parallel(∧), loop(↺). Always sound by construction. Key for inductive mining.
-- **Causal Nets (C-nets)**: Activity-based model with input/output bindings; allows expressing non-local dependencies.
-- **Workflow patterns**: 40+ control-flow patterns (sequence, parallel split, synchronization, exclusive choice, etc.) — a vocabulary for representational bias.
-- **Model-based analysis**: Invariants, deadlocks, soundness checking. LTL-based verification.
+| 視角 | 關注什麼 | 問題舉例 |
+|------|----------|----------|
+| **Control-flow** | 活動的順序 | 流程的正確路徑是什麼？ |
+| **Organizational** | 資源/角色 | 誰在做什麼？人們怎麼合作？ |
+| **Case** | 案例屬性 | 什麼因素影響案例的走向？ |
+| **Time** | 時間/頻率 | 瓶頸在哪？服務水準如何？ |
 
-**Research relevance:** Process trees are particularly interesting for modeling LLM reasoning patterns — their recursive structure (seq, choice, parallel, loop) maps naturally to reasoning operations. E.g., a reasoning trace might be seq(decompose, parallel(solve_sub1, solve_sub2), combine). The soundness property could be adapted to define "valid" reasoning traces. BPMN gateways (AND/XOR/OR) could model branching in reasoning strategies.
+#### Event Log 的最基本要求
 
-### Chapter 4: Data Mining
+- 每個 event 必須關聯到一個 **case**（流程實例）
+- 每個 event 必須關聯到一個 **activity**（活動類型）
+- 同一個 case 內的 events 必須有 **順序**
+- 額外資訊：timestamp、resource、costs、data attributes
 
-Covers classical data mining techniques: classification, clustering, association rule learning, sequence mining. Explains why traditional data mining alone is insufficient for process mining (it ignores the ordering/behavioral aspect).
+#### Play-In / Play-Out / Replay
 
-**Key concepts:**
-- **Classification**: Decision trees, k-NN, SVM, neural networks. Maps features → labels.
-- **Clustering**: k-means, hierarchical clustering, SOM. Groups similar instances.
-- **Association rule learning**: Apriori algorithm, support, confidence. Finds "if X then Y" rules.
-- **Sequence mining**: GSP, SPADE, PrefixSpan. Mines sequential patterns from sequences.
-- **Frequent episodes**: Mining partial orders using a sliding window.
-- **Limitations for PM**: Data mining works on "flat" tables; loses the process/event notion. Cannot discover end-to-end process models. Cannot do conformance checking. No notion of cases, ordering, or concurrency.
-
-**Research relevance:** Clustering (trace clustering) is directly applicable: group similar LLM reasoning traces to find distinct reasoning strategies. Decision tree learning can be used for decision mining — what features predict correct vs. incorrect answers. Sequence mining can discover common reasoning patterns. But the key insight is the same as van der Aalst's: these techniques lose the process structure. PM provides the framework to preserve it.
+- **Play-In**：從事件行為建構 model（= discovery）
+- **Play-Out**：從 model 產生行為（= 模擬/執行）
+- **Replay**：在 model 上重播 event log（= conformance + enhancement）
 
 ### Chapter 5: Getting the Data
 
-Covers data sources, event log extraction, the XES standard, data quality, and preprocessing. This is the "data engineering" chapter.
+event log 的格式和資料抽取。
 
-**Key concepts:**
-- **Event log requirements**: Each event needs at minimum: case ID, activity, timestamp. Resource, cost, and other attributes are optional.
-- **Correlation**: Events must be correlated to cases — this is non-trivial. Requires domain knowledge.
-- **Transactional lifecycle**: Events have types (start, complete, suspend, resume, abort, etc.). An activity instance may generate multiple events.
-- **XES standard**: IEEE standard for event log exchange. Extensible: attributes can be added freely. Uses classifiers to map events to activities.
-- **Data quality issues**: Incompleteness (missing events), noise (infrequent/exceptional behavior), volatility (process changes over time — concept drift), cross-organization.
-- **Concept drift**: The process changes while you're observing it. Must detect and handle.
-- **Dotted chart**: Visual analytics tool — events as dots in 2D (time × class), color/shape encode attributes. Provides a "helicopter view" before formal analysis.
+- **XES (eXtensible Event Stream)**：PM 的標準格式，基於 XML
+- 每個 event 有：trace（case）ID、activity name、timestamp、resource 等 attributes
+- 資料抽取是 PM 的第一步，往往最花時間
+- 真實資料通常散落在多個系統中，需要整合
 
-**Research relevance:** The event log mapping is critical. For LLM reasoning traces:
-- **Case ID** = question ID (or question + model ID)
-- **Activity** = reasoning step type (e.g., "decompose", "compute", "verify", "answer")
-- **Timestamp** = token position or generation order (note: this is tricky — LLM reasoning is sequential, not wall-clock)
-- **Resource** = model name / parameter count
-- **Attributes** = token count per step, confidence score, error type, prompt length
+### Chapter 6: From Event Logs to Process Models
 
-Data quality issues also apply: incomplete traces (truncated CoT), noise (unusual reasoning paths), concept drift (model updates). The dotted chart idea could be adapted to visualize reasoning traces — x-axis = token position, y-axis = question ID, color = step type.
+**α-Algorithm** — 最基本的 process discovery 演算法。
 
-### Chapter 6: Process Discovery: An Introduction
+核心思路：
+1. 從 event log 找出所有 activity pairs 的因果關係（a → b 表示 a 一定在 b 之前）
+2. 用這些關係建構 Petri net
+3. 四種基本結構：sequence、choice、parallel、loop
 
-Introduces process discovery through the α-algorithm. Defines the core problem and quality dimensions.
+四個品質指標：
+- **Fitness**：log 中的行為有多少能被 model replay
+- **Precision**：model 不應該允許 log 中沒出現的行為（避免太寬鬆）
+- **Generalization**：model 應該能泛化到未見過的行為（避免過擬合）
+- **Simplicity**：model 應該越簡單越好
 
-**Key concepts:**
-- **α-algorithm**: First PM discovery algorithm. Builds a Petri net from the "directly-follows" relation (>L) in the event log. Works for a restricted class of WF-nets.
-- **Four quality dimensions**:
-  - **Fitness**: Can the log be replayed by the model? (proportion of observed behavior the model allows)
-  - **Precision**: Does the model not allow too much? (no underfitting — model shouldn't permit unseen behavior)
-  - **Generalization**: Does the model generalize beyond the log? (no overfitting — new traces should fit)
-  - **Simplicity**: Is the model simple? (Occam's razor — fewer nodes/arcs)
-- **Directly-follows relation**: a >L b iff there's a case where a is immediately followed by b.
-- **Limitations of α-algorithm**: Cannot handle short loops, duplicate activities, non-free-choice constructs, noise. Despite limitations, it illustrates the core ideas.
-- **Noise definition**: Infrequent or exceptional behavior. The 80/20 model: 80% of behavior explained by a simple model; the remaining 20% accounts for most variability.
-- **Causalities in α-algorithm**: a →L b (a causes b), a #L b (a and b never follow each other), a ||L b (a and b can be in any order = parallel).
+### Chapter 7: Advanced Process Discovery
 
-**Research relevance:** The four quality dimensions are directly applicable to evaluating discovered reasoning trace models:
-- **Fitness**: Does the discovered reasoning model explain the observed CoT traces?
-- **Precision**: Does the model avoid permitting impossible reasoning sequences?
-- **Generalization**: Does the model generalize to new questions (not just memorized ones)?
-- **Simplicity**: Is the reasoning pattern simple (efficient)?
-
-The α-algorithm's directly-follows relation could be used to discover "which reasoning step typically follows which" from CoT traces. The 80/20 principle is relevant — most reasoning traces likely follow common patterns, with a long tail of exceptional traces.
-
-### Chapter 7: Advanced Process Discovery Techniques
-
-Surveys the main families of discovery algorithms beyond α-miner. Discusses their strengths, weaknesses, and representational biases.
-
-**Key concepts:**
-- **Representational bias**: The class of models an algorithm can discover. Determines the search space. Limitations include inability to represent concurrency, loops, silent actions, duplicate actions, OR-splits, non-free-choice constructs, hierarchy.
-- **Four families of approaches**:
-  1. **Direct algorithmic** (α-algorithm, language-based regions): Extract footprint → construct model directly.
-  2. **Two-phase** (transition system + state-based regions): Build low-level model → convert to high-level model.
-  3. **Divide-and-conquer** (inductive miner): Recursively split the log → structured process tree.
-  4. **Computational intelligence** (genetic mining, ant colony optimization): Evolutionary approach — iteratively improve candidate models.
-  5. **Partial approaches** (frequent episodes, declarative mining): Focus on patterns/rules rather than end-to-end models.
-- **Heuristic mining**: Uses a dependency graph with frequencies. Handles noise by thresholding. Produces heuristic nets. More robust than α-algorithm.
-- **Genetic process mining**: Population of candidate models evolves via crossover/mutation. Fitness = how well model replays log. Handles noise and incompleteness. Slow.
-- **Region-based mining**:
-  - **State-based regions**: Build transition system from log → synthesize Petri net via region theory.
-  - **Language-based regions**: Convert log to inequation system → solve for Petri net places. ILP-based.
-- **Inductive miner (IM)**: Recursively finds cuts (seq, choice, parallel, loop) in the log → splits log → recurses. Always produces sound models. Scalable. Variants: IMF (handles infrequent), IMC (handles concurrency), IMD (directly-follows graph based).
-- **Fuzzy miner**: For unstructured processes. Groups related low-frequency activities into subprocesses. Produces hierarchical models.
-
-**Research relevance:** 
-- **Inductive miner** is most promising for our research: it produces sound, structured process trees, handles noise, and is scalable. Reasoning patterns naturally decompose into seq/choice/parallel/loop — exactly what process trees express.
-- **Heuristic mining** with frequency thresholds could identify "common" reasoning patterns vs. rare deviations.
-- **Genetic mining** could explore the space of possible reasoning protocols.
-- The representational bias discussion is crucial: we need to choose a representation that can express the reasoning patterns we expect (loops for iterative refinement, choices for strategy selection, parallel for concurrent sub-problems).
+- **Heuristic Mining**：能處理 noise 和不完整 log，基於頻率
+- **Genetic Process Mining**：演化算法，用 fitness function 驅動，能處理複雜結構但很慢
+- **Region-Based Mining**：從 transition system 合成 Petri net
+- **Inductive Mining**：遞迴分割，產生 process tree（重要！PM4Py 的主力演算法）
 
 ### Chapter 8: Conformance Checking
 
-Covers techniques to compare a process model against an event log. Introduces token replay and alignments — the two main approaches.
+**這章對我們研究最關鍵。**
 
-**Key concepts:**
-- **Conformance checking purpose**: Business alignment (does reality match the model?) and auditing (are rules being followed?).
-- **Token replay**: Replay the log on the Petri net, count missing/remaining/consumed/produced tokens.
-  - **Fitness metric**: (consumed + produced) / (consumed + produced + missing + remaining). Range [0, 1].
-  - Simple but has limitations: cannot handle non-unique activity labels, may produce misleading diagnostics.
-- **Alignments**: Optimal matching of log trace to model path. Minimizes edit distance (move in log, move in model, synchronous move).
-  - Provides precise diagnostics: exact location and type of deviation.
-  - Computationally expensive (requires solving optimization problems).
-- **Four quality dimensions revisited**:
-  - Fitness ≈ proportion of log behavior the model can explain.
-  - Precision ≈ how much extra behavior the model allows (behavioral appropriateness).
-  - Generalization ≈ ability to handle unseen traces (related to model simplicity vs. fitness trade-off).
-  - Simplicity ≈ model size / complexity.
-- **Model repair**: Using conformance diagnostics to fix the model (add/remove/modify edges).
-- **Footprint comparison**: Compare >L relations of log and model. Coarse but fast for model-to-model comparison.
-- **Squeezing reality into the model**: Even non-fitting cases are mapped to model paths, enabling performance analysis (bottleneck, waiting time) on the full log.
+#### Token Replay 方法
+- 把 event log 在 Petri net 上「重播」
+- 計算 missing tokens（model 說要有但 log 沒做）和 remaining tokens（log 做了但 model 沒預期）
+- **Fitness 公式**：fitness(L,N) = 1 - (missing + remaining) / (consumed + produced)
 
-**Research relevance:** Conformance checking is a core technique for our research:
-- **Token replay** could compare an expected reasoning protocol (model) against actual CoT traces (log). Deviations = reasoning errors or unexpected strategies.
-- **Alignments** provide precise diagnostics: which reasoning step was skipped, added, or replaced. This could identify specific types of reasoning failures.
-- **Footprint comparison** could quickly compare two reasoning models (e.g., expected vs. discovered, or model A vs. model B).
-- **Squeezing reality into the model** is relevant for analyzing performance (token efficiency) even when traces don't perfectly match the expected protocol.
-- Conformance metrics (fitness, precision) could be used to evaluate how well a given LLM follows a reasoning protocol.
+#### Alignments 方法（更先進）
+- 不只是重播，而是找 log trace 和 model 之間的「最佳對齊」
+- 每個 alignment 有 log move（log 有 model 沒）、model move（model 有 log 沒）、synchronous move（兩邊都有）
+- 可以精確定位偏差在哪個 step
+
+#### 偏差的兩種解讀
+1. Model 是錯的 → 需要 repair model
+2. 現實偏離了 model → 需要更好的控制
+- 這兩種解讀都合理，要看場景
+
+#### 關鍵啟示
+- **Conformance checking 不只是「對不對」，而是「差多遠」和「差在哪」**
+- 可以產生 global conformance measure（整體合規度）+ local diagnostics（哪個步驟偏離最多）
 
 ### Chapter 9: Mining Additional Perspectives
 
-Covers organizational mining, time perspective analysis (bottlenecks, service levels), and case/data perspective (decision mining).
+- **Organizational perspective**：從 log 中發現組織結構、社交網路
+- **Time perspective**：瓶頸分析、等待時間、服務時間
+- **Case perspective**：案例屬性如何影響流程走向
+- **Decision mining**：在 decision point 上，哪些因素決定了選哪條路
 
-**Key concepts:**
-- **Organizational mining**:
-  - **Social network analysis**: Build networks from event logs. Mining metrics:
-    - **Handover of work**: How often does resource A's activity get followed by resource B's activity?
-    - **Working together**: Do A and B work on the same case simultaneously?
-    - **Similar task**: Do A and B perform similar sets of activities?
-  - **Role discovery**: Cluster resources based on activity profiles → discover organizational roles.
-  - **Organizational structure**: Discover hierarchical relationships.
-- **Time perspective**:
-  - **Bottleneck analysis**: Identify activities with long waiting/processing times. Replay log on model, compute sojourn times per activity.
-  - **Service levels**: Measure time between request and completion per activity.
-  - **Resource utilization**: How busy is each resource over time?
-  - **Flow time analysis**: Decompose into waiting time, processing time, and transfer time.
-- **Decision mining**:
-  - At XOR-splits, discover decision rules using classification (decision tree learning).
-  - Features = case attributes at decision point; label = which branch was taken.
-  - Produces guards: "if amount > 1000 then thorough examination, else casual examination."
-- **Integrated model**: Combine control-flow + organizational + time + data into a single simulation model. Enables "what-if" analysis.
-- **Dotted chart revisited**: Events as dots, 2D = time × class, color/shape = attributes. Visual analytics before formal analysis.
+### Chapter 13-14: Lasagna vs Spaghetti Processes
 
-**Research relevance:**
-- **Organizational mining → "Resource" perspective for LLM**: If we tag resource = model name, social network analysis could reveal "which models produce similar reasoning patterns" or "which reasoning steps tend to follow each other across models." Handover of work = transition between reasoning phases.
-- **Decision mining → "Strategy selection"**: At choice points in reasoning, what features predict which branch is taken? E.g., "if problem type = math then use decompose-then-solve, else use direct reasoning." Decision trees on case attributes (question type, difficulty, prompt length) → predict reasoning strategy.
-- **Time perspective → "Token efficiency"**: Bottleneck analysis directly maps to token efficiency — which reasoning steps consume the most tokens? Waiting/processing time analog → token budget per step. Flow time = total token count.
-- **Integrated model → "Comprehensive reasoning model"**: A combined model could express control-flow (reasoning steps) + time (token cost) + data (problem features) + organizational (model identity). This is exactly what we need for a complete analysis.
-
-### Chapter 10: Operational Support
-
-Extends PM from offline analysis to online/real-time support. Introduces the refined PM framework with pre mortem / post mortem data and de jure / de facto models.
-
-**Key concepts:**
-- **Refined PM framework**: 10 activities grouped into Cartography (discover, enhance, diagnose), Auditing (detect, check, compare, promote), and Navigation (explore, predict, recommend).
-- **Pre mortem vs. post mortem data**: Pre mortem = running cases (can still be influenced); post mortem = completed cases (for analysis only).
-- **De jure vs. de facto models**: Normative (should-be) vs. descriptive (as-is). De facto models are discovered; de jure models are designed.
-- **Detect**: Compare partial trace against normative model → alert on violations in real-time.
-- **Predict**: Use historic data + current partial trace → predict remaining flow time, probability of success, etc.
-  - approaches: annotation-based (features from partial trace → regression), state-based (similar completed cases), model-based (replay + simulation).
-- **Recommend**: Based on predictions, suggest next action to optimize outcome (minimize time, maximize success).
-- **Partial traces**: Running cases produce partial traces σp = ⟨a, b, ...⟩. The future is unknown.
-- **Business process provenance**: Systematic, reliable, trustworthy recording of events. Essential for reliable analysis.
-
-**Research relevance:**
-- **Detect → "Reasoning deviation detection"**: During generation, check if partial CoT trace deviates from expected protocol. Could enable real-time intervention (e.g., trigger re-prompting).
-- **Predict → "Outcome prediction from partial reasoning"**: Given a partial CoT trace, predict whether the final answer will be correct, and estimate remaining token cost. This is highly relevant — early detection of doomed reasoning chains could save tokens.
-- **Recommend → "Next-step recommendation"**: Suggest the optimal next reasoning step to maximize correctness or minimize tokens. This connects to the token efficiency research goal.
-- **Pre mortem data** = during generation (streaming tokens); **post mortem data** = completed reasoning traces. The distinction is important: we can analyze completed traces offline, but real-time detection/prediction during generation requires pre mortem analysis.
-
-### Chapter 11: Process Mining Software
-
-Surveys PM tools: ProM (open-source, 1500+ plug-ins), and 11 commercial tools (Celonis, Disco, etc.). Discusses strengths and weaknesses.
-
-**Key concepts:**
-- **ProM**: Leading open-source platform. Supports discovery, conformance, organizational mining, decision mining, operational support. 1500+ plug-ins. Steep learning curve.
-- **Commercial tools**: Easier to use, better scalability, but limited functionality (especially no proper concurrency discovery, limited conformance checking, no decision mining).
-- **Three types of use cases**: Type 1 (ad-hoc, flexible), Type 2 (repeated, semi-configured), Type 3 (standard, fixed dashboards).
-- **Key weaknesses of commercial tools**:
-  - Limited support for concurrency (parallel activities often shown as loops)
-  - Limited conformance checking (no alignments, only rule-based filtering)
-  - No data-aware models (no decision mining)
-  - No automatic clustering
-  - Limited operational support
-- **RapidProM**: Extension of RapidMiner with ProM plug-ins. Enables analysis workflows. Good for large-scale experiments.
-
-**Research relevance:** For our research, ProM is the most suitable tool — it supports all the techniques we need (inductive miner, alignments, decision mining, trace clustering). RapidProM could be used for automating experiments. The identified gaps in commercial tools (no concurrency, no conformance, no decision mining) are also gaps in current LLM reasoning analysis tools — our research could help fill this gap.
-
-### Chapter 12: Process Mining in the Large
-
-Covers scalability: Big Event Data, MapReduce, decomposition strategies (case-based and activity-based), streaming PM, and process cubes.
-
-**Key concepts:**
-- **Big Event Data**: Event logs can have billions of events. Scalability depends on log characteristics, not just size.
-- **Event log metrics**: #cases, average trace length, #distinct activities, #distinct cases, #events, #direct successions, #start/end activities, set-based non-overlap of traces. These metrics determine complexity.
-- **Case-based decomposition (vertical partitioning)**: Split log by cases → distribute to compute nodes → merge results. Works for algorithms based on counting local patterns (α-algorithm, heuristic miner, inductive miner based on directly-follows graph).
-- **Activity-based decomposition (horizontal partitioning)**: Split log by activity sets → each sublog is a projection onto a subset of activities → analyze sublogs independently → merge models. Works for algorithms that are exponential in the number of activities.
-- **MapReduce for PM**: Map function emits (direct succession, 1) pairs; Reduce function sums per key. Directly-follows graph can be computed in a single MapReduce pass.
-- **Streaming PM**: Process events as they arrive (not storing all). Sliding window approaches. Relevant for real-time monitoring.
-- **Process cubes**: OLAP-style multidimensional analysis of event data. Dimensions = case attributes (time, region, product type, etc.). Enables slicing and dicing the event log.
-- **Bonferroni's principle**: In large datasets, rare events appear frequently by chance. Be cautious of false positives when searching for patterns in massive logs.
-
-**Research relevance:**
-- **Scalability**: Our LLM reasoning trace datasets could be large (thousands of questions × hundreds of traces each). Case-based decomposition is directly applicable — each question's reasoning trace is independent.
-- **MapReduce**: Computing directly-follows graphs for reasoning traces can be done with MapReduce. Map = emit (step_i → step_i+1, 1) per trace; Reduce = sum frequencies.
-- **Event log metrics** are useful for characterizing our reasoning trace datasets: #questions (cases), average reasoning length (trace length), #distinct step types (activities), #distinct traces (unique reasoning paths), set-based non-overlap (diversity of reasoning strategies).
-- **Process cubes**: Could enable multi-dimensional analysis of reasoning traces — dimensions = question type, difficulty, model, prompt strategy, etc. Slice and dice to compare reasoning patterns across dimensions.
-- **Bonferroni's principle**: When searching for common reasoning patterns in large trace datasets, be cautious of spurious patterns.
-
-### Chapters 13–14: Lasagna vs. Spaghetti Processes (Browsed)
-
-- **Lasagna processes**: Highly structured, predictable, well-organized. Few distinct paths. Easy to model and analyze. Most processes in controlled environments (manufacturing, administrative workflows).
-- **Spaghetti processes**: Unstructured, highly variable, many distinct paths. Difficult to model — discovered models are "spaghetti-like." Common in healthcare, knowledge work, creative processes.
-- **Key insight**: The more unstructured a process, the more important it is to use decomposition, clustering, and abstraction techniques.
-- **For Spaghetti**: Use trace clustering to group similar cases, discover multiple simple models instead of one complex one. Fuzzy miner for hierarchical abstraction.
-
-**Research relevance:** LLM reasoning traces are likely **Spaghetti** — highly variable, many distinct paths, unstructured. This means:
-- We should use trace clustering first (group similar reasoning traces) before discovery.
-- Fuzzy miner or inductive miner with abstraction is more appropriate than α-algorithm.
-- Multiple simple models (one per cluster) will be more useful than one complex model.
-- The Lasagna/Spaghetti distinction gives us a vocabulary: "Is LLM reasoning a Lasagna or Spaghetti process?" (Likely Spaghetti, but may become more Lasagna-like with structured prompting.)
-
-### Chapters 15–16: Process Cartography & Epilogue (Browsed)
-
-- **Process cartography**: Analogy to geographic maps — process models are maps of organizational behavior. Different scales, resolutions, and perspectives for different stakeholders.
-- **Epilogue**: PM is maturing. Growing adoption in industry. Future directions: streaming PM, PM for ML/AI, combining PM with simulation.
-- Van der Aalst explicitly mentions the potential of PM for analyzing "non-business processes" including software processes and AI systems.
+- **Lasagna processes**：結構化、可預測、有清晰的流程邊界（如銀行貸款流程）
+- **Spaghetti processes**：高度不規則、案例間差異大（如醫院急診）
+- LLM 推理軌跡可能更接近 Spaghetti（每題解法都不同）但也有 Lasagna 特徵（都有「理解→解題→驗證」的大框架）
 
 ---
 
-## Key Concepts for Our Research
+## Key Concepts for Our Research (PM × LLM Reasoning Trace)
 
-### Concepts directly relevant to LLM reasoning trace analysis
+### Event Log → CoT Trace Mapping
 
-1. **Event log as the universal interface**: PM requires events with (case ID, activity, timestamp, + optional attributes). LLM reasoning traces can be formatted as event logs with:
-   - Case ID = (question_id, model_id)
-   - Activity = reasoning step type
-   - Timestamp = token position (sequential ordering)
-   - Resource = model name
-   - Attributes = token count, confidence, error type
+| PM Event Log 概念 | LLM 推理軌跡對應 | 說明 |
+|-------------------|------------------|------|
+| **Case ID** | Question ID | 每個題目 = 一個 process instance |
+| **Activity** | Step Type（語義標注） | 如「理解問題」、「回憶知識」、「計算」、「驗證」、「給答案」 |
+| **Timestamp** | Step sequence order | CoT step 的先後順序（不需要真實時間，順序即可） |
+| **Resource** | Model name / token cost | 哪個模型執行的、花了多少 token |
+| **Trace** | Full CoT sequence | 一道題的完整推理過程 |
+| **Variant** | Unique trace pattern | 不同模型或不同題目產生的不同推理路徑 |
+| **Event attribute** | Step metadata | step 的 token 數、step 類型、是否正確 |
 
-2. **Three types of PM → Three types of reasoning analysis**:
-   - **Discovery**: Discover reasoning patterns from CoT traces
-   - **Conformance**: Check if actual reasoning follows expected protocol
-   - **Enhancement**: Extend reasoning models with token cost, error analysis, performance metrics
+### 需要解決的技術問題
 
-3. **Four quality dimensions for reasoning models**:
-   - Fitness: Does the model explain observed traces?
-   - Precision: Does the model avoid permitting invalid reasoning?
-   - Generalization: Does the model generalize to new questions?
-   - Simplicity: Is the reasoning pattern efficient?
+1. **Step Segmentation**：怎麼把一段 CoT 切成 steps？
+   - 句子級：太細，noise 太多
+   - 段落級：合理但要定義邊界
+   - 語義級（推薦）：用 LLM 把 CoT 切成语義步驟，如「理解問題→回憶知識→計算→驗證→給答案」
+   - 需要人工驗證一批來確認 segmentation 品質
 
-4. **Multi-perspective analysis**: PM's orthogonal perspectives map to reasoning analysis:
-   - Control-flow: What reasoning steps and in what order?
-   - Organizational: Which model/configuration produces which patterns?
-   - Time (token): How many tokens per step? Total? Bottlenecks?
-   - Case/Data: What question features predict which reasoning strategy?
+2. **Activity Labeling**：每個 step 的 activity type 怎麼定？
+   - 可以參考 Rebmann et al. (2025) 的 5 種 semantics-aware PM task 分類
+   - 候選 label set：{understand, recall, calculate, reason, verify, reconsider, answer, other}
+   - 用 LLM 輔助 labeling + 人工驗證
 
-5. **Conformance checking for reasoning validation**: Alignments can precisely identify where and how a reasoning trace deviates from the expected protocol. This enables fine-grained error analysis.
+3. **定義「理想路徑」**：conformance checking 需要一個 reference model
+   - 方法 A：用高 LCAE + 高 accuracy 模型的常見路徑當 baseline
+   - 方法 B：用 expert 解題的標準步驟當 reference
+   - 方法 C：用所有模型的最頻繁路徑當 normative model
+   - 推薦方法 A：直接從數據中發現，不需要外部標準
 
-6. **Operational support for real-time reasoning monitoring**: Detect deviations during generation, predict outcome from partial traces, recommend optimal next steps.
+### Applicable PM Methods
 
-7. **Lasagna vs. Spaghetti**: LLM reasoning is likely Spaghetti — trace clustering and abstraction are essential before model discovery.
+#### Process Discovery（用於 Phase 1）
+- **Inductive Miner**（推薦）：PM4Py 主力，產生 process tree，能處理 noise
+- Alpha Miner：最基本，但對 noise 敏感
+- Heuristic Miner：能處理 noise，適合不完整 log
+- **不建議** Genetic Miner：太慢
 
-### Process Discovery methods we can use
+#### Conformance Checking（用於 Phase 1-2）
+- **Alignments**（推薦）：能精確定位偏差，比 token replay 更好
+- Token Replay：簡單但資訊量少
+- 可以量化：高 LCAE 模型的推理路徑偏離「理想路徑」多少
 
-1. **Inductive Miner (IM, IMF, IMD)**: Best overall choice.
-   - Produces sound process trees (seq, choice, parallel, loop) — natural for reasoning.
-   - Handles noise and incompleteness.
-   - Scalable; can handle large trace datasets.
-   - Variants: IMF for filtering infrequent paths, IMD for directly-follows graph based (fastest).
+#### Enhancement（用於 Phase 2-3）
+- **Performance analysis**：把 token cost 投影到 process model 上，看哪些 step 最耗 token
+- **Decision mining**：在推理的 decision point（如「要不再算一次？」），分析什麼因素影響決定
 
-2. **Heuristic Miner**: Good for preliminary analysis.
-   - Frequency-based dependency graph → identifies common reasoning transitions.
-   - Handles noise via thresholding.
-   - Fast and simple.
+### PM-Derived Path Quality Metrics
 
-3. **Fuzzy Miner**: For unstructured reasoning (Spaghetti).
-   - Groups related low-frequency activities into subprocesses.
-   - Hierarchical abstraction helps manage complexity.
-   - Good for initial exploration.
+從 PM 分析中可以提取的指標（這些是我們的新貢獻）：
 
-4. **Trace Clustering (preprocessing)**: Essential for Spaghetti reasoning.
-   - k-means, SOM, or distance-based clustering on trace features.
-   - Discover multiple simple models (one per cluster) instead of one complex model.
-   - Clusters themselves may reveal distinct reasoning strategies.
+| 指標 | 來源 | 意義 |
+|------|------|------|
+| **Path Length** | process model | 推理路徑的結構長度（不是 token 數，是 step 數） |
+| **Loop Count** | process model | 迴路次數 = 重做的次數 = overthinking 指標 |
+| **Conformance Deviation** | conformance checking | 偏離理想路徑的程度 |
+| **Path Complexity** | process model | 模型複雜度（cyclomatic complexity） |
+| **Determinism** | variant analysis | 不同題之間路徑的一致性 |
+| **Token-per-Step** | enhancement | 每個 step 的平均 token 成本 |
+| **Redundant Step Ratio** | conformance checking | 不在理想路徑上的 step 比例 |
 
-5. **α-algorithm**: Pedagogical value only. Too limited for real reasoning traces (no loops, no noise, no concurrency).
+### Research Story 用 PM 概念重新表述
 
-### Conformance Checking methods we can use
+```
+學姐證明：IRT 難度信號 → LCAE 校準改善
 
-1. **Token replay**: Fast fitness check.
-   - Replay reasoning traces on the expected protocol model.
-   - Count missing/remaining tokens → fitness score.
-   - Good for quick conformance assessment.
+我們的研究：
+1. [Discovery] 對不同 LCAE 模型的 CoT trace 做 process discovery
+   → 高 LCAE 模型和低 LCAE 模型的 discovered process model 有沒有結構差異？
 
-2. **Alignments**: Precise deviation diagnostics.
-   - Optimal matching of trace to model path.
-   - Identifies exactly which steps are skipped, added, or substituted.
-   - Essential for detailed error analysis.
-   - Computationally expensive — use for detailed case studies, not large-scale screening.
+2. [Conformance] 用高 LCAE 模型的路徑當 reference model
+   → 低 LCAE 模型的 conformance deviation 是否顯著更高？
 
-3. **Footprint comparison**: Fast model-to-model comparison.
-   - Compare directly-follows relations of expected vs. discovered models.
-   - Quick sanity check; less precise than alignments.
+3. [Enhancement] 把 token cost 投影到 process model 上
+   → 偏離理想路徑的 step 是否消耗了最多的 excess token？
 
-### Potential mapping: LLM reasoning → PM event log
+4. [Causal] LCAE → path quality → token efficiency 的因果鏈
+   → PM 指標是否中介了 LCAE 和 token efficiency 的關係？
+```
 
-| PM Concept | LLM Reasoning Trace Equivalent | Notes |
-|---|---|---|
-| **Case ID** | (question_id, model_id, run_id) | Each reasoning attempt is a case |
-| **Activity** | Reasoning step type | E.g., "decompose", "compute", "verify", "answer", "reflect" |
-| **Timestamp** | Token position / generation order | Sequential, not wall-clock. Use index as proxy timestamp. |
-| **Resource** | Model name + config | E.g., "gpt-4-turbo, temp=0.7" |
-| **Trace** | Complete reasoning trace | Ordered sequence of reasoning steps for one question |
-| **Event log** | Collection of reasoning traces | Multiple questions × multiple models × multiple runs |
-| **Process model** | Reasoning protocol / strategy | E.g., "decompose → solve sub-problems → combine → verify → answer" |
-| **Conformance** | Protocol adherence | Does the actual reasoning follow the expected protocol? |
-| **Fitness** | Protocol coverage | What fraction of traces follow the protocol? |
-| **Precision** | Protocol specificity | Does the model avoid permitting invalid reasoning? |
-| **Bottleneck** | Token-heavy step | Which reasoning step consumes the most tokens? |
-| **Concept drift** | Model update / prompt change | Process changes when model or prompt changes |
-| **Noise** | Atypical reasoning | Infrequent/exceptional reasoning paths |
-| **De jure model** | Designed reasoning protocol | E.g., chain-of-thought, tree-of-thought, reAct |
-| **De facto model** | Discovered reasoning pattern | What the model actually does, not what it's told to do |
-| **Pre mortem data** | Partial reasoning trace | During generation — for real-time monitoring |
-| **Post mortem data** | Completed reasoning trace | After generation — for offline analysis |
+### Open Questions / Research Inspirations
 
-**Important caveats:**
-- **Timestamp mapping is imperfect**: PM assumes real time; reasoning traces are sequentially ordered but not time-stamped. Token position is a reasonable proxy, but PM's time analysis (waiting time, processing time) doesn't directly translate. Instead, "time" = token count.
-- **Concurrency is rare**: LLM reasoning is mostly sequential. Parallel reasoning (e.g., tree-of-thought, multi-path exploration) can be modeled as concurrency, but it's less common. The discovery algorithms' ability to handle concurrency is less critical than for business processes.
-- **Activity labeling is non-trivial**: Reasoning steps don't have natural labels. We need to define a taxonomy of reasoning step types (annotation scheme). This is a key preprocessing challenge — similar to PM's challenge of mapping low-level events to business-level activities.
-- **Loops are important**: Reasoning often involves iteration (try → check → revise). The process tree's loop construct (↺) is essential. Inductive miner handles this well.
-- **Case correlation is simpler**: Each reasoning trace is naturally a complete case — no need to correlate events from multiple sources. But grouping traces by question (for cross-model comparison) is an additional layer.
+1. **「Overthinking =迴路」假設**：如果高 LCAE 模型的 process model 沒有迴路（不重做），低 LCAE 模型有迴路，這就直接用 PM 證明了 overthinking 的結構性來源
+
+2. **「Underthinking = 路徑太短」假設**：低 LCAE + 低 accuracy 的模型可能路徑太短（跳過了 verify 步驟），PM 可以直接看到
+
+3. **Decision Mining 應用**：在推理的 decision point（如「算了 → 給答案」vs「算了 → 再驗證一次」），用 decision mining 分析 LCAE 是否影響了這個決定
+
+4. **Variant Analysis**：同一道題，不同模型的 variant 分佈——如果高 LCAE 模型的 variant 更集中（路徑更一致），說明校準好 → 推理更穩定
+
+5. **Spaghetti vs Lasanna**：LLM 推理可能是「半結構化」——大框架固定（理解→解題→驗證→答案）但細節高度變異。PM 的 Lasagna/Spaghetti 分析框架可以直接套用
+
+6. **Token as Resource**：PM 的 resource perspective 傳統分析「誰做的」，我們可以重新定義為「花了多少 token」。這讓 token cost 成為 PM 分析的一等公民，而不是附加指標
+
+7. **Progressive Crystallization 對接**：如果發現高 LCAE 模型的路徑模式穩定，可以把這些路徑 crystallize 成 deterministic pattern，減少未來推理的 token 消耗（對接 Phase 3）
 
 ---
 
-## Open Questions / Research Inspirations
+## TODO: Chapters Still to Read
 
-1. **Reasoning step taxonomy**: What is the right set of "activities" for reasoning traces? Too fine-grained = Spaghetti; too coarse = Lasagna. Need a principled taxonomy. Could use PM's dotted chart for initial exploration, then cluster low-level steps into higher-level activities (analogous to PM's event abstraction).
+- [ ] Ch10: Operational Support（預測性分析，可能用於 Phase 3）
+- [ ] Ch11: Tool Support（ProM 功能，PM4Py 對應）
+- [ ] Ch12: Process Mining in the Large（大規模分解技術）
+- [ ] Ch15: Cartography and Navigation（process map 概念）
 
-2. **De jure vs. de facto reasoning models**: Given a prompting strategy (CoT, ToT, ReAct), the expected protocol is the de jure model. The discovered pattern from actual traces is the de facto model. The gap between them is a key research finding — how much do LLMs actually follow the intended reasoning protocol?
-
-3. **Token efficiency as a "time" perspective**: PM's time perspective (bottleneck analysis, flow time) maps directly to token efficiency. Which reasoning steps are "bottlenecks" (consume disproportionate tokens)? Can we "optimize" the reasoning process by identifying and shortening high-token steps?
-
-4. **Reasoning pattern discovery across models**: Discover process models for different LLMs and compare them. Do different models have different "reasoning styles" (different de facto models)? This is analogous to comparing processes across organizations.
-
-5. **Predicting answer correctness from partial traces**: Using PM's operational support techniques (prediction on pre mortem data), can we predict whether a reasoning trace will produce the correct answer before it's complete? This would enable early termination of doomed reasoning chains — a direct token saving.
-
-6. **Conformance checking for reasoning errors**: Use alignments to classify reasoning errors. Are errors mostly "missing steps" (skipped verification), "extra steps" (unnecessary computation), or "wrong order" (premature answering)? This taxonomy of errors could inform prompt design.
-
-7. **Decision mining for strategy selection**: At choice points in reasoning, what question features predict which branch is taken? Decision trees on question features → predict reasoning strategy. Could we recommend the optimal strategy for each question type?
-
-8. **Concept drift in LLM reasoning**: As models are updated (fine-tuned, RLHF'd), their reasoning patterns change. Can we detect "concept drift" in reasoning traces across model versions? This is analogous to PM's concept drift detection in business processes.
-
-9. **Reasoning as Spaghetti → clustering first**: Since LLM reasoning is likely Spaghetti, trace clustering before discovery is essential. What features to cluster on? Raw step sequences? Token distributions? Error patterns? The clusters themselves may reveal distinct reasoning strategies.
-
-10. **Process cubes for multi-dimensional reasoning analysis**: Treat the reasoning trace dataset as a process cube. Dimensions: question type, difficulty, model, prompt strategy, temperature. Slice and dice to find how reasoning patterns vary across dimensions. E.g., "Do harder questions trigger more verification steps?"
-
-11. **"N = All" for reasoning analysis**: Unlike business processes where sampling is common, we can potentially analyze ALL reasoning traces from a model on a benchmark. This enables exhaustive conformance checking — check every trace, not just a sample. But beware Bonferroni's principle: spurious patterns will appear in large datasets by chance.
-
-12. **Reasoning model repair**: If conformance checking reveals systematic deviations (e.g., a model consistently skips verification), can we "repair" the protocol (update the prompt) to fix this? This is PM's model repair applied to prompting strategy.
-
-13. **Streaming PM for real-time reasoning monitoring**: During generation, apply streaming PM techniques to monitor reasoning in real-time. Detect deviations, predict outcomes, recommend next steps. This could enable dynamic token budget allocation — stop early if prediction is confident, continue if uncertain.
-
-14. **MapReduce for large-scale reasoning analysis**: For datasets with millions of reasoning traces, use MapReduce to compute directly-follows graphs. Map = emit (step_i → step_i+1) per trace; Reduce = sum frequencies. This is embarrassingly parallel.
-
-15. **Process tree as a compact representation of reasoning**: Process trees (seq, choice, parallel, loop) are a compact, interpretable representation of reasoning patterns. They could serve as a "summary" of a model's reasoning behavior — more informative than aggregate accuracy metrics.
-
----
-
-## TODO: Chapters still to read
-
-- [ ] Chapter 13: Analyzing "Lasagna" Processes (pp. 391–406) — browsed only
-- [ ] Chapter 14: Analyzing "Spaghetti" Processes (pp. 407–422) — browsed only  
-- [ ] Chapter 15: Process Cartography (pp. 423–446) — browsed only
-- [ ] Chapter 16: Epilogue (pp. 447–458) — browsed only
-
-These chapters are more about practical application and future directions. The key technical content for our research is in chapters 1–12. Chapters 13–14 provide useful vocabulary (Lasagna/Spaghetti) but no new techniques. Chapter 15's cartography metaphor is useful for framing but not technical. Chapter 16's epilogue mentions PM for AI as a future direction — directly relevant to our research agenda.
+核心章節（Ch1-2, Ch5-9）已讀完，足夠支撐研究提案。
