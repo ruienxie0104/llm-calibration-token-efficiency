@@ -311,13 +311,109 @@ The revised confidence assessment (with conversation context) reveals a fundamen
 
 **Implication for LCAE framework:** Raw Brier score is insufficient for comparing calibration across models. Confidence gap (or a similar discrimination metric) better captures the practically important property: *can the model detect its own errors?* GPT-OSS-20B, despite low accuracy, could be deployed with a confidence threshold to achieve high precision. DeepSeek, despite high accuracy, is harder to filter via confidence.
 
-### 5.3 The Reference Model Tension
+### 5.3 The Reference Model Problem and Alternative Approaches
 
 GLM-5.2 was chosen as the reference model because it has the highest accuracy (98%). However, it also has 100 unique trace variants — every question elicits a different reasoning pattern. This means its discovered Petri net is highly permissive (fitness ≥ 0.999 for all models), and deviation counts are dominated by "model moves" (extra steps) rather than "log moves" (missing steps).
 
-**Why this is still useful:** The deviation count measures how much a model's reasoning *diverges structurally* from the reference pattern. DeepSeek's lower deviation count (2,962) reflects its shorter, more direct traces — it takes fewer "extra" steps. GPT-OSS-20B's higher count (3,720) reflects its longer, wandering traces.
+**Testing an alternative reference:** We re-ran conformance checking using DeepSeek-V4-Flash as the reference model (89 variants, 97% accuracy, shortest traces). The result: alignment deviations were **0 for all models**, and TBR deviations *increased* (DeepSeek net: 37 places, 52 transitions — more complex than GLM-5.2's net). The ranking remained identical (DeepSeek < GPT-OSS-120B < GPT-OSS-20B < GLM-5.2). Switching reference models does not solve the fundamental problem.
 
-**Limitation:** A model with stable, repeatable reasoning patterns (e.g., a hypothetical "always: understand → calculate → answer" model) would produce a more discriminative Petri net. Using such a model as reference would yield more informative conformance metrics. This is a direction for future work.
+**Root cause:** With ~90–100 unique variants per model, Inductive Miner produces near-flower models that accept any behavior. This is not a reference selection issue — it is a **discovery method limitation** at high variability.
+
+**Solution: Entropy-based and step-type analysis (no reference model needed).** Inspired by Back et al. (2019) on log entropy and Berti et al. (2025) on step-type classification for LRM reasoning, we adopted two model-free approaches:
+
+#### 5.3.1 Trace Entropy (A1–A2)
+
+We computed Shannon entropy at two levels:
+
+| Model | Per-Trace Entropy (mean) | Variant Entropy (normalized) | # Variants |
+|-------|-------------------------|------------------------------|-----------|
+| GPT-OSS-20B | 1.762 | 0.982 | 95 |
+| DeepSeek-V4-Flash | 1.766 | 0.963 | 89 |
+| GPT-OSS-120B | 1.728 | 0.947 | 87 |
+| GLM-5.2-756B | **1.879** | **1.000** | **100** |
+
+![Per-Trace Entropy Distribution](figures/fig_a1_trace_entropy.png)
+
+**Findings:**
+- Per-trace entropy is similar across models (1.73–1.88 bits) — within-trace activity diversity is comparable
+- GLM-5.2 has the highest variant entropy (1.0 = every trace is unique), confirming that Petri net conformance is not meaningful for this model
+- GPT-OSS-120B has the lowest variant entropy (0.947), suggesting slightly more repeatable reasoning patterns
+
+#### 5.3.2 Pairwise Levenshtein Distance (A3)
+
+We computed average normalized Levenshtein distance between traces (50×50 random sample per pair):
+
+| | GPT-OSS-20B | DeepSeek | GPT-OSS-120B | GLM-5.2 |
+|---|---|---|---|---|
+| **GPT-OSS-20B** | 0.645 | 0.671 | 0.643 | 0.672 |
+| **DeepSeek** | 0.669 | 0.561 | 0.624 | 0.686 |
+| **GPT-OSS-120B** | 0.648 | 0.628 | 0.616 | 0.672 |
+| **GLM-5.2** | 0.654 | 0.679 | 0.650 | 0.628 |
+
+![Levenshtein Distance Heatmap](figures/fig_a3_levenshtein_heatmap.png)
+![Hierarchical Clustering](figures/fig_a3b_dendrogram.png)
+
+**Findings:**
+- Self-distance < cross-model distance for all models (expected — intra-model traces are more similar)
+- DeepSeek has the tightest self-distance (0.561), consistent with its short, consistent traces
+- **Cross-model distances are compressed** (0.62–0.69), limiting discriminative power — Levenshtein distance alone is insufficient to distinguish reasoning styles
+
+#### 5.3.3 Step Type Frequency Distribution (C1)
+
+Following Berti et al. (2025)'s approach of classifying reasoning steps by type, we analyzed activity frequency distributions:
+
+| Activity | GPT-OSS-20B | DeepSeek | GPT-OSS-120B | GLM-5.2 |
+|----------|------------|----------|-------------|---------|
+| understand | 8.6% | **18.0%** | 10.0% | 12.2% |
+| recall | 0.8% | 1.1% | 0.5% | 1.5% |
+| plan | 2.7% | 2.2% | 2.3% | 2.9% |
+| calculate | 30.0% | 26.6% | 30.6% | **33.5%** |
+| reason | **36.3%** | 20.5% | 30.2% | 31.2% |
+| evaluate | 3.0% | 3.6% | 2.7% | 4.7% |
+| verify | 0.6% | 0.2% | 0.9% | 1.9% |
+| reconsider | 0.7% | 0.0% | 0.2% | 0.6% |
+| answer | 17.3% | **27.7%** | 22.6% | 11.5% |
+
+![Step Type Frequency](figures/fig_c1_step_frequency.png)
+
+**Findings:**
+- **DeepSeek has a fundamentally different profile**: highest `understand` (18%) and `answer` (28%), lowest `reason` (21%) — it understands the problem, states the answer, and moves on
+- **GPT-OSS-20B is `reason`-dominant** (36%) — it reasons extensively but often incorrectly
+- **GLM-5.2 is the most balanced** — `calculate` (34%) + `reason` (31%) + `understand` (12%) + `answer` (12%), with the highest `verify` (1.9%)
+- The step-type distribution provides clearer differentiation than Levenshtein distance or Petri net conformance
+
+#### 5.3.4 Jensen-Shannon Divergence (C2–C3)
+
+We quantified distributional differences using JSD (base 2):
+
+**Step type distribution (C2):**
+
+| | GPT-OSS-20B | DeepSeek | GPT-OSS-120B | GLM-5.2 |
+|---|---|---|---|---|
+| **GPT-OSS-20B** | 0 | 0.206 | 0.084 | 0.115 |
+| **DeepSeek** | 0.206 | 0 | 0.147 | **0.222** |
+| **GPT-OSS-120B** | 0.084 | 0.147 | 0 | 0.144 |
+| **GLM-5.2** | 0.115 | **0.222** | 0.144 | 0 |
+
+**Transition (bigram) distribution (C3):**
+
+| | GPT-OSS-20B | DeepSeek | GPT-OSS-120B | GLM-5.2 |
+|---|---|---|---|---|
+| **GPT-OSS-20B** | 0 | 0.318 | 0.178 | 0.232 |
+| **DeepSeek** | 0.318 | 0 | 0.298 | **0.356** |
+| **GPT-OSS-120B** | 0.178 | 0.298 | 0 | 0.276 |
+| **GLM-5.2** | 0.232 | **0.356** | 0.276 | 0 |
+
+![JSD Heatmaps](figures/fig_c2_c3_jsd_heatmaps.png)
+![Top Transitions](figures/fig_c3c_top_transitions.png)
+
+**Findings:**
+- **DeepSeek vs GLM-5.2 is the most divergent pair** (JSD = 0.22 step-type, 0.36 bigram) — they have fundamentally different reasoning patterns despite similar accuracy (97% vs 98%)
+- **GPT-OSS-20B vs GPT-OSS-120B is the most similar pair** (JSD = 0.08) — both are `reason`+`calculate` heavy with similar profiles
+- **Bigram JSD is consistently higher than step-type JSD** — transition patterns are more model-specific than activity frequencies
+- **DeepSeek is the most distinctive model** — highest average JSD to all others (0.18 step-type, 0.32 bigram)
+
+**Implication:** Two models can achieve nearly identical accuracy (97% vs 98%) through radically different reasoning processes. DeepSeek's "understand → answer" style and GLM-5.2's "calculate + reason + verify" style are both effective, but structurally dissimilar. This finding — invisible to accuracy-based or Brier-based comparison — is only revealed through step-type distributional analysis.
 
 ### 5.4 Token Efficiency and Path Quality
 
@@ -354,7 +450,7 @@ GLM-5.2 was chosen as the reference model because it has the highest accuracy (9
 
 2. **Confidence prompt design matters**: The initial context-free prompt produced invalid results. While the revised multi-turn prompt is a significant improvement, confidence scores may still be sensitive to prompt phrasing.
 
-3. **Single reference model**: Using GLM-5.2 (with 100 unique variants) as reference produces a permissive Petri net. A more stable reference would yield more discriminative conformance metrics.
+3. **Single reference model limitation**: Using GLM-5.2 (with 100 unique variants) as reference produces a permissive Petri net. Testing DeepSeek as an alternative reference yielded identical rankings with 0 alignment deviations. This is a fundamental limitation of Inductive Miner at high variability — addressed in Section 5.3 with entropy-based and step-type analysis that require no reference model.
 
 4. **Model retirement**: GLM-4.7-357B was retired mid-experiment, preventing confidence re-evaluation and reducing the model count from 5 to 4.
 
@@ -439,10 +535,12 @@ This suggests that **confidence gap** — the ability to detect one's own errors
 | `results/raw_responses_v2.json` | Full API responses with revised confidences |
 | `results/traces_final.json` | Segmented and labeled traces (4 models) |
 | `results/calibration_final.json` | Brier scores, confidence gaps, averages |
-| `results/conformance_final.json` | Fitness and deviation counts per model |
+| `results/conformance_final.json` | Fitness and deviation counts per model (GLM-5.2 ref) |
+| `results/conformance_deepseek_ref.json` | Conformance with DeepSeek as reference model |
+| `results/entropy_step_analysis.json` | Entropy metrics, JSD matrices, step-type frequencies |
 | `results/discovery_final.json` | Variant counts per model |
 | `results/full_metrics_final.csv` | Summary metrics table |
-| `report/figures/` | 6 visualization figures |
+| `report/figures/` | 12 visualization figures (6 original + 6 entropy/step-type) |
 
 ### 8.2 Error Analysis
 
@@ -492,6 +590,13 @@ Deviations are alignment-based: each deviation represents a step where the model
 6. OpenAI (2025). "GPT-OSS: Open-Weight Models for Reasoning."
 7. DeepSeek (2026). "DeepSeek-V4: Frontier MoE Models."
 8. Z.AI (2026). "GLM-5.2: Flagship Long-Horizon Model."
+9. Back, C.O., Debois, S. & Slaats, T. (2019). "Entropy as a Measure of Log Variability." *Journal on Data Semantics.*
+10. Polyvyanyy, A. et al. (2020). "Entropia: A Family of Entropy-Based Conformance Checking Measures for Process Mining." *arXiv:2008.09558.*
+11. Berti, A. et al. (2025). "Configuring Large Reasoning Models Using Process Mining: A Benchmark and a Case Study." *ICPM 2025.*
+12. Pfeiffer, P. & Fettke, P. (2024). "Trace vs. Time: Entropy Analysis and Event Predictability of Traceless Event Sequencing." *BPM 2024.*
+13. Zandkarimi, F. et al. (2020). "A Generic Framework for Trace Clustering in Process Mining." *ICPM 2020.*
+14. Rubensson, C., Mendling, J. & Weidlich, M. (2024). "Variants of Variants: Context-Based Variant Analysis for Process Mining." *BPM 2024.*
+15. Karunaratne, A. & Polyvyanyy, A. (2024). "The Role of Log Representativeness in Estimating Generalization in Process Mining." *ICPM 2024.*
 
 ---
 

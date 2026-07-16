@@ -1,0 +1,514 @@
+{
+  "A1_trace_entropy": {
+    "GPT-OSS-20B": {
+      "mean": 1.761602728595713,
+      "std": 0.36283107188980407,
+      "median": 1.8098739643138297,
+      "min": 0.9682448352060217,
+      "max": 2.49155327022262
+    },
+    "DeepSeek-V4-Flash-158B": {
+      "mean": 1.7661987083369908,
+      "std": 0.3473742132738702,
+      "median": 1.7924812503605778,
+      "min": 0.8795064608120066,
+      "max": 2.7192945256669794
+    },
+    "GPT-OSS-120B": {
+      "mean": 1.7281836403008544,
+      "std": 0.3000405031730323,
+      "median": 1.7554820237218407,
+      "min": 0.8112781244591328,
+      "max": 2.4116022179746714
+    },
+    "GLM-5.2-756B": {
+      "mean": 1.878690935287405,
+      "std": 0.34295602858687835,
+      "median": 1.8713824698038108,
+      "min": 0.9864267287308424,
+      "max": 2.807354922057604
+    }
+  },
+  "A2_variant_entropy": {
+    "GPT-OSS-20B": {
+      "num_variants": 95,
+      "raw_entropy": 6.5238561897747385,
+      "normalized_entropy": 0.9819382002601632
+    },
+    "DeepSeek-V4-Flash-158B": {
+      "num_variants": 89,
+      "raw_entropy": 6.401209564709833,
+      "normalized_entropy": 0.963478043754418
+    },
+    "GPT-OSS-120B": {
+      "num_variants": 87,
+      "raw_entropy": 6.288758439731466,
+      "normalized_entropy": 0.9465524629220943
+    },
+    "GLM-5.2-756B": {
+      "num_variants": 100,
+      "raw_entropy": 6.6438561897747395,
+      "normalized_entropy": 1.0000000000000022
+    }
+  },
+  "A3_levenshtein_distance": {
+    "matrix": [
+      [
+        0.6447550437010531,
+        0.6714661744310652,
+        0.6434235168014395,
+        0.6720505925734251
+      ],
+      [
+        0.6689186887133601,
+        0.5606625025121078,
+        0.6237403846243753,
+        0.68589217474535
+      ],
+      [
+        0.648167856067104,
+        0.6277652421480391,
+        0.6159826437433868,
+        0.6715344117912501
+      ],
+      [
+        0.6539253434762381,
+        0.6794640989792302,
+        0.6497635861969521,
+        0.6281436219118572
+      ]
+    ],
+    "std_matrix": [
+      [
+        0.17634175044690514,
+        0.15091146565040928,
+        0.15640881690960237,
+        0.13515244373578936
+      ],
+      [
+        0.15094535017607005,
+        0.16409666350912314,
+        0.15407134916286933,
+        0.12973855189925257
+      ],
+      [
+        0.16237500561364465,
+        0.158757543725585,
+        0.17168099201558065,
+        0.1375377701338593
+      ],
+      [
+        0.14624231603323443,
+        0.1295943649495438,
+        0.13685966849002792,
+        0.14933673468732755
+      ]
+    ],
+    "models": [
+      "GPT-OSS-20B",
+      "DeepSeek-V4-Flash-158B",
+      "GPT-OSS-120B",
+      "GLM-5.2-756B"
+    ]
+  },
+  "C1_step_frequency": {
+    "GPT-OSS-20B": {
+      "answer": 0.1727810650887574,
+      "calculate": 0.3,
+      "evaluate": 0.03017751479289941,
+      "plan": 0.027218934911242602,
+      "reason": 0.3633136094674556,
+      "recall": 0.008284023668639054,
+      "reconsider": 0.00650887573964497,
+      "understand": 0.08579881656804733,
+      "verify": 0.005917159763313609
+    },
+    "DeepSeek-V4-Flash-158B": {
+      "answer": 0.27692307692307694,
+      "calculate": 0.26593406593406593,
+      "evaluate": 0.03626373626373627,
+      "plan": 0.02197802197802198,
+      "reason": 0.20549450549450549,
+      "recall": 0.01098901098901099,
+      "reconsider": 0.0,
+      "understand": 0.18021978021978022,
+      "verify": 0.002197802197802198
+    },
+    "GPT-OSS-120B": {
+      "answer": 0.2264591439688716,
+      "calculate": 0.3058365758754864,
+      "evaluate": 0.027237354085603113,
+      "plan": 0.022568093385214007,
+      "reason": 0.3019455252918288,
+      "recall": 0.004669260700389105,
+      "reconsider": 0.0015564202334630351,
+      "understand": 0.10038910505836576,
+      "verify": 0.00933852140077821
+    },
+    "GLM-5.2-756B": {
+      "answer": 0.11543367346938775,
+      "calculate": 0.3354591836734694,
+      "evaluate": 0.046556122448979595,
+      "plan": 0.028698979591836735,
+      "reason": 0.3125,
+      "recall": 0.014668367346938776,
+      "reconsider": 0.005739795918367347,
+      "understand": 0.12181122448979592,
+      "verify": 0.01913265306122449
+    }
+  },
+  "C2_jsd_step_type": {
+    "matrix": [
+      [
+        0.0,
+        0.20569059813507257,
+        0.08441943776068421,
+        0.11445000769301632
+      ],
+      [
+        0.20569059813507257,
+        0.0,
+        0.14730540519482235,
+        0.22168235706177972
+      ],
+      [
+        0.08441943776068421,
+        0.14730540519482235,
+        0.0,
+        0.14414279441292907
+      ],
+      [
+        0.11445000769301632,
+        0.22168235706177972,
+        0.14414279441292907,
+        0.0
+      ]
+    ],
+    "models": [
+      "GPT-OSS-20B",
+      "DeepSeek-V4-Flash-158B",
+      "GPT-OSS-120B",
+      "GLM-5.2-756B"
+    ]
+  },
+  "C3_jsd_bigram": {
+    "matrix": [
+      [
+        0.0,
+        0.31778045027701013,
+        0.17807006189031094,
+        0.23165436031234043
+      ],
+      [
+        0.31778045027701013,
+        0.0,
+        0.2982286593526425,
+        0.3556651541628557
+      ],
+      [
+        0.17807006189031094,
+        0.2982286593526425,
+        0.0,
+        0.27603248476279907
+      ],
+      [
+        0.23165436031234043,
+        0.3556651541628557,
+        0.27603248476279907,
+        0.0
+      ]
+    ],
+    "models": [
+      "GPT-OSS-20B",
+      "DeepSeek-V4-Flash-158B",
+      "GPT-OSS-120B",
+      "GLM-5.2-756B"
+    ],
+    "all_bigrams": [
+      [
+        "answer",
+        "answer"
+      ],
+      [
+        "answer",
+        "calculate"
+      ],
+      [
+        "answer",
+        "evaluate"
+      ],
+      [
+        "answer",
+        "plan"
+      ],
+      [
+        "answer",
+        "reason"
+      ],
+      [
+        "answer",
+        "recall"
+      ],
+      [
+        "answer",
+        "understand"
+      ],
+      [
+        "answer",
+        "verify"
+      ],
+      [
+        "calculate",
+        "answer"
+      ],
+      [
+        "calculate",
+        "calculate"
+      ],
+      [
+        "calculate",
+        "evaluate"
+      ],
+      [
+        "calculate",
+        "plan"
+      ],
+      [
+        "calculate",
+        "reason"
+      ],
+      [
+        "calculate",
+        "recall"
+      ],
+      [
+        "calculate",
+        "reconsider"
+      ],
+      [
+        "calculate",
+        "understand"
+      ],
+      [
+        "calculate",
+        "verify"
+      ],
+      [
+        "evaluate",
+        "answer"
+      ],
+      [
+        "evaluate",
+        "calculate"
+      ],
+      [
+        "evaluate",
+        "evaluate"
+      ],
+      [
+        "evaluate",
+        "plan"
+      ],
+      [
+        "evaluate",
+        "reason"
+      ],
+      [
+        "evaluate",
+        "recall"
+      ],
+      [
+        "evaluate",
+        "reconsider"
+      ],
+      [
+        "evaluate",
+        "understand"
+      ],
+      [
+        "evaluate",
+        "verify"
+      ],
+      [
+        "plan",
+        "answer"
+      ],
+      [
+        "plan",
+        "calculate"
+      ],
+      [
+        "plan",
+        "evaluate"
+      ],
+      [
+        "plan",
+        "plan"
+      ],
+      [
+        "plan",
+        "reason"
+      ],
+      [
+        "plan",
+        "understand"
+      ],
+      [
+        "plan",
+        "verify"
+      ],
+      [
+        "reason",
+        "answer"
+      ],
+      [
+        "reason",
+        "calculate"
+      ],
+      [
+        "reason",
+        "evaluate"
+      ],
+      [
+        "reason",
+        "plan"
+      ],
+      [
+        "reason",
+        "reason"
+      ],
+      [
+        "reason",
+        "recall"
+      ],
+      [
+        "reason",
+        "reconsider"
+      ],
+      [
+        "reason",
+        "understand"
+      ],
+      [
+        "reason",
+        "verify"
+      ],
+      [
+        "recall",
+        "answer"
+      ],
+      [
+        "recall",
+        "calculate"
+      ],
+      [
+        "recall",
+        "evaluate"
+      ],
+      [
+        "recall",
+        "plan"
+      ],
+      [
+        "recall",
+        "reason"
+      ],
+      [
+        "recall",
+        "recall"
+      ],
+      [
+        "recall",
+        "understand"
+      ],
+      [
+        "recall",
+        "verify"
+      ],
+      [
+        "reconsider",
+        "answer"
+      ],
+      [
+        "reconsider",
+        "calculate"
+      ],
+      [
+        "reconsider",
+        "evaluate"
+      ],
+      [
+        "reconsider",
+        "reason"
+      ],
+      [
+        "reconsider",
+        "reconsider"
+      ],
+      [
+        "understand",
+        "answer"
+      ],
+      [
+        "understand",
+        "calculate"
+      ],
+      [
+        "understand",
+        "evaluate"
+      ],
+      [
+        "understand",
+        "plan"
+      ],
+      [
+        "understand",
+        "reason"
+      ],
+      [
+        "understand",
+        "recall"
+      ],
+      [
+        "understand",
+        "reconsider"
+      ],
+      [
+        "understand",
+        "understand"
+      ],
+      [
+        "understand",
+        "verify"
+      ],
+      [
+        "verify",
+        "answer"
+      ],
+      [
+        "verify",
+        "calculate"
+      ],
+      [
+        "verify",
+        "evaluate"
+      ],
+      [
+        "verify",
+        "reason"
+      ],
+      [
+        "verify",
+        "reconsider"
+      ],
+      [
+        "verify",
+        "understand"
+      ],
+      [
+        "verify",
+        "verify"
+      ]
+    ]
+  }
+}

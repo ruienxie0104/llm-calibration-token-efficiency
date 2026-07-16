@@ -1,0 +1,30 @@
+{
+  "GPT-OSS-20B": {
+    "reference_model": "DeepSeek-V4-Flash-158B",
+    "avg_fitness": 0.9988,
+    "tbr_deviations": 5939,
+    "alignment_deviations": 0,
+    "method": "alignment"
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "reference_model": "DeepSeek-V4-Flash-158B",
+    "avg_fitness": 1.0,
+    "tbr_deviations": 4536,
+    "alignment_deviations": 0,
+    "method": "alignment"
+  },
+  "GPT-OSS-120B": {
+    "reference_model": "DeepSeek-V4-Flash-158B",
+    "avg_fitness": 0.9989,
+    "tbr_deviations": 4960,
+    "alignment_deviations": 0,
+    "method": "alignment"
+  },
+  "GLM-5.2-756B": {
+    "reference_model": "DeepSeek-V4-Flash-158B",
+    "avg_fitness": 0.9981,
+    "tbr_deviations": 6136,
+    "alignment_deviations": 0,
+    "method": "alignment"
+  }
+}
