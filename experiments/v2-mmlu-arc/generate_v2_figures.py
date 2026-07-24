@@ -10,15 +10,16 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 FIG_DIR = os.path.join(OUTPUT_DIR, "figures")
 os.makedirs(FIG_DIR, exist_ok=True)
 
-with open(f"{OUTPUT_DIR}/raw_responses.json") as f:
+with open(f"{OUTPUT_DIR}/raw_responses_v2.json") as f:
     raw = json.load(f)
-with open(f"{OUTPUT_DIR}/traces.json") as f:
+with open(f"{OUTPUT_DIR}/traces_final.json") as f:
     traces_data = json.load(f)
-with open(f"{OUTPUT_DIR}/conformance.json") as f:
+with open(f"{OUTPUT_DIR}/conformance_final.json") as f:
     conformance = json.load(f)
 
 models = list(raw.keys())
@@ -172,7 +173,7 @@ print("Figure 3 saved")
 # ---- Figure 4: Calibration (Brier vs Confidence Gap) ----
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
-with open(f"{OUTPUT_DIR}/calibration.json") as f:
+with open(f"{OUTPUT_DIR}/calibration_final.json") as f:
     calib = json.load(f)
 
 brier_scores = [calib[m]['brier_score'] for m in models]

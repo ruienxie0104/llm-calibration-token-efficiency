@@ -5,6 +5,16 @@
 **Repository:** llm-calibration-token-efficiency  
 **Status:** Experiment completed, confidence re-evaluated
 
+> **Reproducibility notice (2026-07-24):** The original inputs needed to
+> regenerate the final V2 tables are not present in this repository. The
+> committed DeepSeek-reference conformance file used an incorrect alignment
+> deviation field, and the committed entropy analysis used an asymmetric
+> sampled-distance matrix and Jensen–Shannon distance labeled as divergence.
+> The code has been corrected, but the numerical conformance, Levenshtein, JSD,
+> and downstream conclusions in this report remain historical and must not be
+> treated as validated until `python scripts/check_v2_results.py` passes after
+> a full rerun.
+
 ---
 
 ## 1. Research Background

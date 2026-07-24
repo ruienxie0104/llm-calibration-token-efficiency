@@ -8,12 +8,14 @@ sys.path.insert(0, '.')
 
 import pm4py
 import pandas as pd
+from analysis_utils import count_alignment_deviations
 from experiment_v2 import build_traces, build_event_log, compute_calibration_metrics
 
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 
 # Load existing data
-with open(f"{OUTPUT_DIR}/raw_responses.json") as f:
+with open(f"{OUTPUT_DIR}/raw_responses_v2.json") as f:
     all_results = json.load(f)
 
 # Build traces and event log
@@ -27,7 +29,7 @@ ref_model = max(accuracy_by_model, key=accuracy_by_model.get)
 print(f"Reference model: {ref_model} (accuracy={accuracy_by_model[ref_model]:.0%})")
 
 # Load existing conformance
-conf_file = f"{OUTPUT_DIR}/conformance.json"
+conf_file = f"{OUTPUT_DIR}/conformance_final.json"
 with open(conf_file) as f:
     conformance_results = json.load(f)
 print(f"Existing conformance: {list(conformance_results.keys())}")
@@ -71,10 +73,7 @@ for model_name in remaining:
         
         signal.alarm(0)  # Cancel alarm
         
-        total_dev = sum(
-            1 for a in alignments for move in a["alignment"]
-            if (move[0] != ">>" and move[1] == ">>") or (move[0] == ">>" and move[1] != ">>")
-        )
+        total_dev = count_alignment_deviations(alignments)
         conformance_results[model_name] = {"avg_fitness": avg_fitness, "total_deviations": total_dev}
         print(f"    Alignment deviations: {total_dev}")
         
@@ -112,7 +111,7 @@ print("-" * 130)
 calibration = compute_calibration_metrics(all_results)
 
 # Discovery: load from existing
-with open(f"{OUTPUT_DIR}/discovery.json") as f:
+with open(f"{OUTPUT_DIR}/discovery_final.json") as f:
     discovery_summary = json.load(f)
 
 metrics = []
@@ -146,12 +145,12 @@ for model_name in all_traces.keys():
 
 metrics_df = pd.DataFrame(metrics)
 print(metrics_df.to_string(index=False))
-metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics.csv", index=False)
+metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics_final.csv", index=False)
 
 # Save traces and calibration too
-with open(f"{OUTPUT_DIR}/traces.json", "w") as f:
+with open(f"{OUTPUT_DIR}/traces_final.json", "w") as f:
     json.dump({k: [{kk: vv for kk, vv in v.items()} for v in vs] for k, vs in all_traces.items()}, f, indent=2)
-with open(f"{OUTPUT_DIR}/calibration.json", "w") as f:
+with open(f"{OUTPUT_DIR}/calibration_final.json", "w") as f:
     json.dump(calibration, f, indent=2)
 
 print(f"\nAll results saved to {OUTPUT_DIR}/")

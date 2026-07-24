@@ -7,10 +7,11 @@ os.environ['PM4PY_SHOW_WARNINGS'] = '0'
 sys.path.insert(0, '.')
 from experiment_v2 import build_traces, build_event_log, run_pm_analysis
 
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 
 # Load existing data
-with open(f"{OUTPUT_DIR}/raw_responses.json") as f:
+with open(f"{OUTPUT_DIR}/raw_responses_v2.json") as f:
     all_results = json.load(f)
 
 # Build traces
@@ -30,7 +31,7 @@ try:
     discovery_results, conformance_results, accuracy = run_pm_analysis(all_traces, log_df)
     
     # Save conformance results
-    with open(f"{OUTPUT_DIR}/conformance.json", "w") as f:
+    with open(f"{OUTPUT_DIR}/conformance_final.json", "w") as f:
         json.dump({k: v for k, v in conformance_results.items()}, f, indent=2, default=str)
     
     # Save discovery variant counts
@@ -40,7 +41,7 @@ try:
             discovery_summary[m] = {"variants": r["variants"]}
         else:
             discovery_summary[m] = {"variants": None}
-    with open(f"{OUTPUT_DIR}/discovery.json", "w") as f:
+    with open(f"{OUTPUT_DIR}/discovery_final.json", "w") as f:
         json.dump(discovery_summary, f, indent=2)
     
     # Save visualizations
@@ -98,7 +99,7 @@ try:
     metrics_df = pd.DataFrame(metrics)
     print("\n" + "="*130)
     print(metrics_df.to_string(index=False))
-    metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics.csv", index=False)
+    metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics_final.csv", index=False)
     print(f"\nResults saved to {OUTPUT_DIR}/")
     print("Experiment v2 complete!")
     

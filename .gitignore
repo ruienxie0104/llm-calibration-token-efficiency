@@ -29,5 +29,18 @@ Thumbs.db
 
 # Results
 results/
+!experiments/v2-mmlu-arc/results/
+experiments/v2-mmlu-arc/results/*
+!experiments/v2-mmlu-arc/results/README.md
+!experiments/v2-mmlu-arc/results/raw_responses_v2.json
+!experiments/v2-mmlu-arc/results/traces_final.json
+!experiments/v2-mmlu-arc/results/calibration_final.json
+!experiments/v2-mmlu-arc/results/conformance_final.json
+!experiments/v2-mmlu-arc/results/conformance_deepseek_ref.json
+!experiments/v2-mmlu-arc/results/discovery_final.json
+!experiments/v2-mmlu-arc/results/entropy_step_analysis.json
+!experiments/v2-mmlu-arc/results/full_metrics_final.csv
 runs/
-*.logpilot_results/
+*.log
+pilot_real_results/
+experiment_v2_results/

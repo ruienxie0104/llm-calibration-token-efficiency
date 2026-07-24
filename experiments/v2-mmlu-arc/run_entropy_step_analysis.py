@@ -14,7 +14,7 @@ C) Step type frequency analysis (inspired by Berti et al. 2025)
    - Jensen-Shannon divergence between model distributions
 """
 
-import json, math, numpy as np
+import json, math, os, numpy as np
 from collections import Counter, defaultdict
 from itertools import combinations
 from scipy.stats import entropy as scipy_entropy
@@ -24,9 +24,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+from analysis_utils import avg_pairwise_distance
 
-RESULTS_DIR = "experiments/v2-mmlu-arc/results"
-FIGURES_DIR = "experiments/v2-mmlu-arc/results/figures"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(BASE_DIR, "results")
+FIGURES_DIR = os.path.join(RESULTS_DIR, "figures")
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 with open(f"{RESULTS_DIR}/traces_final.json") as f:
     all_traces = json.load(f)
@@ -86,51 +89,16 @@ for m in MODELS:
 # ============================================================
 print("\n=== A3: Pairwise Model Distance (avg Levenshtein) ===")
 
-def levenshtein(s1, s2):
-    """Compute Levenshtein distance between two sequences."""
-    if len(s1) < len(s2):
-        return levenshtein(s2, s1)
-    if len(s2) == 0:
-        return len(s1)
-    prev = list(range(len(s2) + 1))
-    for i, c1 in enumerate(s1):
-        curr = [i + 1]
-        for j, c2 in enumerate(s2):
-            ins = prev[j+1] + 1
-            dele = curr[j] + 1
-            sub = prev[j] + (c1 != c2)
-            curr.append(min(ins, dele, sub))
-        prev = curr
-    return prev[-1]
-
-def avg_pairwise_distance(traces1, traces2, sample_size=50):
-    """Average Levenshtein distance between random samples from two models."""
-    import random
-    random.seed(42)
-    t1 = random.sample(traces1, min(sample_size, len(traces1)))
-    t2 = random.sample(traces2, min(sample_size, len(traces2)))
-    distances = []
-    for a in t1:
-        for b in t2:
-            d = levenshtein(a['trace'], b['trace'])
-            # Normalize by max length
-            max_len = max(len(a['trace']), len(b['trace']))
-            distances.append(d / max_len if max_len > 0 else 0)
-    return np.mean(distances), np.std(distances)
-
 # Compute model distance matrix
 n_models = len(MODELS)
 dist_matrix = np.zeros((n_models, n_models))
 dist_std = np.zeros((n_models, n_models))
 for i, m1 in enumerate(MODELS):
-    for j, m2 in enumerate(MODELS):
-        if i == j:
-            # Self-distance: average intra-model distance
-            avg_d, std_d = avg_pairwise_distance(all_traces[m1], all_traces[m1])
-        else:
-            avg_d, std_d = avg_pairwise_distance(all_traces[m1], all_traces[m2])
-        dist_matrix[i][j] = avg_d
-        dist_std[i][j] = std_d
+    for j in range(i + 1, n_models):
+        m2 = MODELS[j]
+        avg_d, std_d = avg_pairwise_distance(all_traces[m1], all_traces[m2])
+        dist_matrix[i, j] = dist_matrix[j, i] = avg_d
+        dist_std[i, j] = dist_std[j, i] = std_d
     print(f"  {m1}: " + ", ".join(f"{MODELS[j]}={dist_matrix[i][j]:.3f}" for j in range(n_models)))
 
 # ============================================================
@@ -162,7 +130,8 @@ for i, m1 in enumerate(MODELS):
         p2 = p2 + 1e-10
         p1 = p1 / p1.sum()
         p2 = p2 / p2.sum()
-        jsd = jensenshannon(p1, p2, base=2.0)
+        # scipy returns Jensen-Shannon distance; square it to obtain divergence.
+        jsd = jensenshannon(p1, p2, base=2.0) ** 2
         jsd_matrix[i][j] = jsd
     print(f"  {m1}: " + ", ".join(f"{MODELS[j]}={jsd_matrix[i][j]:.4f}" for j in range(n_models)))
 
@@ -192,7 +161,8 @@ for i, m1 in enumerate(MODELS):
         p2 = np.array([bigram_freq[m2].get(bg, 0) for bg in all_bigrams_sorted]) + 1e-10
         p1 = p1 / p1.sum()
         p2 = p2 / p2.sum()
-        jsd = jensenshannon(p1, p2, base=2.0)
+        # scipy returns Jensen-Shannon distance; square it to obtain divergence.
+        jsd = jensenshannon(p1, p2, base=2.0) ** 2
         jsd_bg_matrix[i][j] = jsd
     print(f"  {m1}: " + ", ".join(f"{MODELS[j]}={jsd_bg_matrix[i][j]:.4f}" for j in range(n_models)))
 

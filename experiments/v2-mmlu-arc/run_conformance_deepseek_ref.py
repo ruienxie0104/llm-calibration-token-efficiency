@@ -2,8 +2,10 @@
 """Re-run conformance checking with DeepSeek as reference model."""
 import json, os, sys, time, signal
 import pm4py
+from analysis_utils import count_alignment_deviations, token_count
 
-RESULTS_DIR = "experiments/v2-mmlu-arc/results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(BASE_DIR, "results")
 TRACES_FILE = f"{RESULTS_DIR}/traces_final.json"
 
 # Load traces
@@ -12,6 +14,11 @@ with open(TRACES_FILE) as f:
 
 MODELS = list(all_traces.keys())
 REF_MODEL = "DeepSeek-V4-Flash-158B"
+
+
+def alignment_timeout_handler(signum, frame):
+    raise TimeoutError("Alignment exceeded the 300-second limit")
+
 
 def traces_to_event_log(traces_list, model_name):
     """Convert trace data to pm4py event log."""
@@ -62,13 +69,9 @@ for m in MODELS:
     # Count deviations from TBR
     tbr_deviations = 0
     for t in tbr:
-        # TBR results may have different structures across pm4py versions
         if isinstance(t, dict):
-            tbr_deviations += int(t.get('missing_tokens', 0) if isinstance(t.get('missing_tokens'), (int, dict)) else 0)
-            tbr_deviations += int(t.get('consumed_tokens', 0) if isinstance(t.get('consumed_tokens'), (int, dict)) else 0)
-            # Also check for produced but not consumed
-            if 'produced_tokens' in t and isinstance(t['produced_tokens'], (int, dict)):
-                pass  # produced is less relevant
+            tbr_deviations += token_count(t.get('missing_tokens', 0))
+            tbr_deviations += token_count(t.get('remaining_tokens', 0))
         else:
             tbr_deviations += 1  # fallback
     
@@ -78,13 +81,11 @@ for m in MODELS:
     # Alignment (slower but more precise)
     print(f"  Running alignment...")
     try:
-        signal.alarm(300)  # 5 min timeout
+        if hasattr(signal, "SIGALRM"):
+            signal.signal(signal.SIGALRM, alignment_timeout_handler)
+            signal.alarm(300)
         aligned_traces = pm4py.conformance_diagnostics_alignments(log, net, im, fm)
-        signal.alarm(0)
-        
-        total_dev = 0
-        for at in aligned_traces:
-            total_dev += at.get('deviation', 0)
+        total_dev = count_alignment_deviations(aligned_traces)
         
         results[m] = {
             'reference_model': REF_MODEL,
@@ -94,8 +95,16 @@ for m in MODELS:
             'method': 'alignment',
         }
         print(f"  Alignment deviations: {total_dev}")
+    except TimeoutError as e:
+        print(f"  Alignment timed out: {e}; using TBR only")
+        results[m] = {
+            'reference_model': REF_MODEL,
+            'avg_fitness': round(avg_fitness, 4),
+            'tbr_deviations': tbr_deviations,
+            'alignment_deviations': None,
+            'method': 'alignment_timeout',
+        }
     except Exception as e:
-        signal.alarm(0)
         print(f"  Alignment failed: {e}, using TBR only")
         results[m] = {
             'reference_model': REF_MODEL,
@@ -104,6 +113,9 @@ for m in MODELS:
             'alignment_deviations': None,
             'method': 'tbr_only',
         }
+    finally:
+        if hasattr(signal, "SIGALRM"):
+            signal.alarm(0)
 
 # Save
 with open(f"{RESULTS_DIR}/conformance_deepseek_ref.json", 'w') as f:
@@ -121,7 +133,9 @@ try:
         glm_ref = json.load(f)
     for m in MODELS:
         glm_dev = glm_ref.get(m, {}).get('total_deviations', 'N/A')
-        ds_dev = results[m]['alignment_deviations'] or results[m]['tbr_deviations']
+        ds_dev = results[m]['alignment_deviations']
+        if ds_dev is None:
+            ds_dev = results[m]['tbr_deviations']
         print(f"  {m}: GLM-5.2 ref={glm_dev} → DeepSeek ref={ds_dev}")
 except:
     pass

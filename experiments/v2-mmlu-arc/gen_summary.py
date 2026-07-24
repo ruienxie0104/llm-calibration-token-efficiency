@@ -9,11 +9,12 @@ sys.path.insert(0, '.')
 import pandas as pd
 from experiment_v2 import build_traces, compute_calibration_metrics
 
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 
-with open(f"{OUTPUT_DIR}/raw_responses.json") as f:
+with open(f"{OUTPUT_DIR}/raw_responses_v2.json") as f:
     all_results = json.load(f)
-with open(f"{OUTPUT_DIR}/conformance.json") as f:
+with open(f"{OUTPUT_DIR}/conformance_final.json") as f:
     conformance_results = json.load(f)
 
 all_traces = build_traces(all_results)
@@ -66,16 +67,16 @@ print("=" * 150)
 print("Experiment v2 — Full Results Summary")
 print("=" * 150)
 print(metrics_df.to_string(index=False))
-metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics.csv", index=False)
+metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics_final.csv", index=False)
 
 # Also save traces and calibration
-with open(f"{OUTPUT_DIR}/traces.json", "w") as f:
+with open(f"{OUTPUT_DIR}/traces_final.json", "w") as f:
     json.dump({k: [{kk: vv for kk, vv in v.items()} for v in vs] for k, vs in all_traces.items()}, f, indent=2)
-with open(f"{OUTPUT_DIR}/calibration.json", "w") as f:
+with open(f"{OUTPUT_DIR}/calibration_final.json", "w") as f:
     json.dump(calibration, f, indent=2)
 
 # Save discovery summary
-with open(f"{OUTPUT_DIR}/discovery.json", "w") as f:
+with open(f"{OUTPUT_DIR}/discovery_final.json", "w") as f:
     json.dump(variant_counts, f, indent=2)
 
 print(f"\nAll results saved to {OUTPUT_DIR}/")

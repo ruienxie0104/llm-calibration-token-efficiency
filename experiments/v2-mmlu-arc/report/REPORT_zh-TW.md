@@ -5,6 +5,13 @@
 **Repository：** llm-calibration-token-efficiency  
 **狀態：** 實驗完成，信心評估已修正重跑
 
+> **可重現性公告（2026-07-24）：** 目前倉庫缺少重建 V2 最終表格所需的原始輸入。
+> 已提交的 DeepSeek 參考一致性結果讀取了錯誤的 alignment deviation 欄位；
+> 熵分析則使用了非對稱的抽樣距離矩陣，並把 Jensen–Shannon distance 標示為
+> divergence。程式碼已修正，但本報告中的 conformance、Levenshtein、JSD 數值及
+> 其下游結論目前僅屬歷史結果；完整重跑且
+> `python scripts/check_v2_results.py` 通過前，不應視為已驗證結論。
+
 ---
 
 ## 1. 研究背景

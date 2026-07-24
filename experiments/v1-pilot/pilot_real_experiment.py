@@ -21,7 +21,8 @@ import pandas as pd
 # ============================================================
 
 OLLAMA_API_URL = "https://ollama.com/api/chat"
-OLLAMA_API_KEY = "7d30048207d541afa72fceb4a639852f._kuPlqyToP_iFGGYEek_UIcA"
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY")
 
 MODELS = [
     ("gpt-oss:20b-cloud", "GPT-OSS-20B"),
@@ -65,6 +66,17 @@ GSM8K_QUESTIONS = [
 
 def call_ollama_api(model, prompt):
     """Call ollama cloud via HTTP API."""
+    if not OLLAMA_API_KEY:
+        return {
+            "response": "",
+            "thinking": "",
+            "elapsed": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "error": "OLLAMA_API_KEY is not set",
+        }
+
     payload = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -124,6 +136,15 @@ def call_ollama_api(model, prompt):
             "error": str(e),
         }
 
+
+def save_json_atomic(path, value):
+    """Write a checkpoint atomically so interrupted runs do not corrupt it."""
+    temp_path = f"{path}.tmp"
+    with open(temp_path, "w") as f:
+        json.dump(value, f, indent=2)
+    os.replace(temp_path, path)
+
+
 def run_experiment():
     """Call all models on all questions."""
     results_file = f"{OUTPUT_DIR}/raw_responses.json"
@@ -131,15 +152,6 @@ def run_experiment():
     if os.path.exists(results_file):
         with open(results_file) as f:
             existing = json.load(f)
-        # Check if all models are done
-        all_done = all(
-            model_name in existing and len(existing[model_name]) >= NUM_QUESTIONS
-            for _, model_name in MODELS
-        )
-        if all_done:
-            print("  All models already done, loading cached results.")
-            return existing
-        # Otherwise, keep partial results and continue
         all_results = existing
     else:
         all_results = {}
@@ -150,14 +162,29 @@ def run_experiment():
         if model_name not in all_results:
             all_results[model_name] = []
         
-        # Skip already completed questions
-        done_count = len(all_results[model_name])
-        if done_count >= NUM_QUESTIONS:
-            print(f"  Already complete ({done_count} questions)")
+        existing_indexes = {
+            result.get("question_id"): index
+            for index, result in enumerate(all_results[model_name])
+            if result.get("question_id") is not None
+        }
+        completed = sum(
+            1
+            for question in GSM8K_QUESTIONS
+            if question["id"] in existing_indexes
+            and not all_results[model_name][existing_indexes[question["id"]]].get("error")
+        )
+        if completed >= NUM_QUESTIONS:
+            print(f"  Already complete ({completed} questions)")
             continue
-        
-        for i in range(done_count, NUM_QUESTIONS):
+
+        for i in range(NUM_QUESTIONS):
             q = GSM8K_QUESTIONS[i]
+            existing_index = existing_indexes.get(q["id"])
+            if (
+                existing_index is not None
+                and not all_results[model_name][existing_index].get("error")
+            ):
+                continue
             prompt = f"""Solve this math problem step by step. Show your reasoning clearly.
 
 Problem: {q['question']}
@@ -202,14 +229,17 @@ Think step by step and give your final answer as a number after 'Answer:'."""
                 "total_tokens": result["total_tokens"],
                 "error": result["error"],
             }
-            all_results[model_name].append(entry)
+            if existing_index is None:
+                all_results[model_name].append(entry)
+                existing_indexes[q["id"]] = len(all_results[model_name]) - 1
+            else:
+                all_results[model_name][existing_index] = entry
             
             status = "OK" if entry["correct"] else "X"
             print(f"{status} ({result['elapsed']:.1f}s, {result['total_tokens']} tok)")
             
             # Save incrementally
-            with open(results_file, "w") as f:
-                json.dump(all_results, f, indent=2)
+            save_json_atomic(results_file, all_results)
     
     return all_results
 
@@ -278,9 +308,11 @@ def build_traces(all_results):
     all_traces = {}
     
     for model_name, responses in all_results.items():
-        all_traces[model_name] = []
+        model_traces = []
         
         for resp in responses:
+            if resp.get("error"):
+                continue
             # Combine thinking + response as the full CoT
             full_cot = ""
             if resp.get("thinking"):
@@ -299,7 +331,7 @@ def build_traces(all_results):
             if not trace or trace[0] != "understand":
                 trace.insert(0, "understand")
             
-            all_traces[model_name].append({
+            model_traces.append({
                 "case_id": f"{model_name}_Q{resp['question_id']}",
                 "model": model_name,
                 "question_id": resp["question_id"],
@@ -313,6 +345,8 @@ def build_traces(all_results):
                 "completion_tokens": resp.get("completion_tokens", 0),
                 "raw_steps": steps,
             })
+        if model_traces:
+            all_traces[model_name] = model_traces
     
     return all_traces
 
@@ -438,18 +472,25 @@ def main():
     # Stats
     print("\n[Step 1 Results]")
     for model_name, responses in all_results.items():
-        if not responses:
+        valid_responses = [response for response in responses if not response.get("error")]
+        if not valid_responses:
+            print(f"  {model_name}: no successful responses")
             continue
-        correct = sum(1 for r in responses if r["correct"])
-        avg_time = sum(r["elapsed"] for r in responses) / len(responses)
-        total_time = sum(r["elapsed"] for r in responses)
-        avg_tokens = sum(r.get("total_tokens", 0) for r in responses) / len(responses)
+        correct = sum(1 for r in valid_responses if r["correct"])
+        avg_time = sum(r["elapsed"] for r in valid_responses) / len(valid_responses)
+        avg_tokens = sum(r.get("total_tokens", 0) for r in valid_responses) / len(valid_responses)
         errors = sum(1 for r in responses if r.get("error"))
-        print(f"  {model_name}: {correct}/{len(responses)} correct ({correct/len(responses):.0%}), avg {avg_time:.1f}s/qa, avg {avg_tokens:.0f} tokens, {errors} errors")
+        print(
+            f"  {model_name}: {correct}/{len(valid_responses)} correct "
+            f"({correct/len(valid_responses):.0%}), avg {avg_time:.1f}s/qa, "
+            f"avg {avg_tokens:.0f} tokens, {errors} errors"
+        )
     
     # Step 2: Segment and label
     print("\n[Step 2] Segmenting CoT traces...")
     all_traces = build_traces(all_results)
+    if not all_traces:
+        raise RuntimeError("No successful responses are available for trace analysis")
     
     for model_name, traces in all_traces.items():
         avg_steps = sum(t["num_steps"] for t in traces) / len(traces)

@@ -20,24 +20,27 @@ import random
 
 import pm4py
 import pandas as pd
+from analysis_utils import count_alignment_deviations
+from confidence_utils import make_confidence_prompt_with_context
 
 # ============================================================
 # Config
 # ============================================================
 
 OLLAMA_API_URL = "https://ollama.com/api/chat"
-OLLAMA_API_KEY = "7d30048207d541afa72fceb4a639852f._kuPlqyToP_iFGGYEek_UIcA"
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY")
 
 MODELS = [
     ("gpt-oss:20b-cloud", "GPT-OSS-20B"),
     ("deepseek-v4-flash:cloud", "DeepSeek-V4-Flash-158B"),
     ("gpt-oss:120b-cloud", "GPT-OSS-120B"),
-    ("glm-4.7:cloud", "GLM-4.7-357B"),
     ("glm-5.2:cloud", "GLM-5.2-756B"),
 ]
 
 NUM_QUESTIONS_PER_BENCHMARK = 50  # 50 MMLU STEM + 50 ARC = 100 total
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ============================================================
@@ -130,11 +133,26 @@ def load_arc_challenge():
 # API Call
 # ============================================================
 
-def call_ollama_api(model, prompt):
+def call_ollama_api(model, prompt_or_messages):
     """Call ollama cloud via HTTP API."""
+    if not OLLAMA_API_KEY:
+        return {
+            "response": "",
+            "thinking": "",
+            "elapsed": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "error": "OLLAMA_API_KEY is not set",
+        }
+
     payload = json.dumps({
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": (
+            prompt_or_messages
+            if isinstance(prompt_or_messages, list)
+            else [{"role": "user", "content": prompt_or_messages}]
+        ),
         "stream": False,
     }).encode()
     
@@ -201,14 +219,6 @@ Choices:
 
 Think step by step, then give your answer as a single letter (A, B, C, or D) after 'Answer:'."""
 
-def make_confidence_prompt(answer):
-    """Create prompt for self-assessment."""
-    return f"""You just answered: {answer}
-
-How confident are you that this answer is correct? Give a single number from 0 to 100 (0 = completely unsure, 100 = absolutely certain).
-
-Confidence:"""
-
 def extract_answer(response, q):
     """Extract answer letter from response."""
     # Try "Answer: X" pattern
@@ -244,6 +254,41 @@ def extract_confidence(response):
             return val
     return None
 
+
+def save_json_atomic(path, value):
+    """Write a checkpoint atomically so interrupted runs do not corrupt it."""
+    temp_path = f"{path}.tmp"
+    with open(temp_path, "w") as f:
+        json.dump(value, f, indent=2)
+    os.replace(temp_path, path)
+
+
+def promote_completed_results(all_results, questions):
+    """Publish a stable raw artifact only after every expected case succeeds."""
+    completed_results = {}
+    for _, model_name in MODELS:
+        by_question = {
+            result.get("question_id"): result
+            for result in all_results.get(model_name, [])
+            if result.get("question_id")
+        }
+        ordered = []
+        for question in questions:
+            result = by_question.get(question["id"])
+            if (
+                result is None
+                or result.get("error")
+                or result.get("confidence") is None
+                or result.get("confidence_error")
+            ):
+                return False
+            ordered.append(result)
+        completed_results[model_name] = ordered
+
+    save_json_atomic(os.path.join(OUTPUT_DIR, "raw_responses_v2.json"), completed_results)
+    return True
+
+
 def run_experiment(questions):
     """Run the full experiment."""
     results_file = f"{OUTPUT_DIR}/raw_responses.json"
@@ -259,14 +304,30 @@ def run_experiment(questions):
         
         if model_name not in all_results:
             all_results[model_name] = []
-        
-        done = len(all_results[model_name])
-        if done >= len(questions):
-            print(f"  Already complete ({done} questions)")
+
+        existing_indexes = {
+            result.get("question_id"): index
+            for index, result in enumerate(all_results[model_name])
+            if result.get("question_id")
+        }
+        completed = sum(
+            1
+            for question in questions
+            if question["id"] in existing_indexes
+            and not all_results[model_name][existing_indexes[question["id"]]].get("error")
+        )
+        if completed >= len(questions):
+            print(f"  Already complete ({completed} questions)")
             continue
-        
-        for i in range(done, len(questions)):
-            q = questions[i]
+
+        for i, q in enumerate(questions):
+            existing_index = existing_indexes.get(q["id"])
+            if (
+                existing_index is not None
+                and not all_results[model_name][existing_index].get("error")
+            ):
+                continue
+
             prompt = make_reasoning_prompt(q)
             
             print(f"  [{i+1}/{len(questions)}] {q['benchmark']}... ", end="", flush=True)
@@ -276,7 +337,7 @@ def run_experiment(questions):
             
             if result["error"]:
                 print(f"ERROR: {result['error'][:50]}")
-                all_results[model_name].append({
+                entry = {
                     "model": model_name, "model_id": model_id,
                     "question_id": q['id'], "benchmark": q['benchmark'],
                     "question": q['question'], "choices": q['choices'],
@@ -287,17 +348,27 @@ def run_experiment(questions):
                     "elapsed": result["elapsed"],
                     "total_tokens": 0, "prompt_tokens": 0, "completion_tokens": 0,
                     "error": result["error"],
-                })
-                with open(results_file, "w") as f:
-                    json.dump(all_results, f, indent=2)
+                }
+                if existing_index is None:
+                    all_results[model_name].append(entry)
+                    existing_indexes[q["id"]] = len(all_results[model_name]) - 1
+                else:
+                    all_results[model_name][existing_index] = entry
+                save_json_atomic(results_file, all_results)
                 continue
             
             predicted = extract_answer(result["response"], q)
             correct = (predicted == q['answer_letter']) if predicted else False
             
             # Step 2: Ask for confidence
-            conf_prompt = make_confidence_prompt(predicted or "unknown")
-            conf_result = call_ollama_api(model_id, conf_prompt)
+            confidence_messages = make_confidence_prompt_with_context(
+                q["question"],
+                q["choices"],
+                predicted or "unknown",
+                result["response"],
+                result["thinking"],
+            )
+            conf_result = call_ollama_api(model_id, confidence_messages)
             confidence = extract_confidence(conf_result["response"])
             
             entry = {
@@ -317,19 +388,31 @@ def run_experiment(questions):
                 "prompt_tokens": result["prompt_tokens"],
                 "completion_tokens": result["completion_tokens"],
                 "confidence_tokens": conf_result.get("total_tokens", 0),
+                "confidence_error": conf_result.get("error"),
                 "error": result["error"],
             }
-            all_results[model_name].append(entry)
+            if existing_index is None:
+                all_results[model_name].append(entry)
+                existing_indexes[q["id"]] = len(all_results[model_name]) - 1
+            else:
+                all_results[model_name][existing_index] = entry
             
             status = "OK" if correct else "X"
             conf_str = f" conf={confidence}%" if confidence is not None else " conf=?"
             print(f"{status} ({result['elapsed']:.1f}s, {result['total_tokens']}tok{conf_str})")
-            
+
             # Save incrementally
-            with open(results_file, "w") as f:
-                json.dump(all_results, f, indent=2)
-    
-    return all_results
+            save_json_atomic(results_file, all_results)
+
+    active_results = {
+        model_name: all_results.get(model_name, [])
+        for _, model_name in MODELS
+    }
+    if promote_completed_results(active_results, questions):
+        print(f"  Promoted complete run to {OUTPUT_DIR}/raw_responses_v2.json")
+    else:
+        print("  Run remains a checkpoint; failed or incomplete cases still need retrying.")
+    return active_results
 
 # ============================================================
 # Step Segmentation & Labeling (same as v1)
@@ -390,8 +473,10 @@ def label_step(step_text):
 def build_traces(all_results):
     all_traces = {}
     for model_name, responses in all_results.items():
-        all_traces[model_name] = []
+        model_traces = []
         for resp in responses:
+            if resp.get("error"):
+                continue
             full_cot = ""
             if resp.get("thinking"):
                 full_cot += resp["thinking"] + "\n\n"
@@ -405,7 +490,7 @@ def build_traces(all_results):
             if not trace or trace[0] != "understand":
                 trace.insert(0, "understand")
             
-            all_traces[model_name].append({
+            model_traces.append({
                 "case_id": f"{model_name}_{resp['question_id']}",
                 "model": model_name,
                 "question_id": resp["question_id"],
@@ -419,6 +504,8 @@ def build_traces(all_results):
                 "total_tokens": resp.get("total_tokens", 0),
                 "confidence": resp.get("confidence"),
             })
+        if model_traces:
+            all_traces[model_name] = model_traces
     return all_traces
 
 # ============================================================
@@ -476,10 +563,7 @@ def run_pm_analysis(all_traces, log_df):
                 fitness = pm4py.conformance_diagnostics_token_based_replay(model_log, ref_net, ref_im, ref_fm)
                 avg_fitness = sum(t["trace_fitness"] for t in fitness) / len(fitness)
                 alignments = pm4py.conformance_diagnostics_alignments(model_log, ref_net, ref_im, ref_fm)
-                total_dev = sum(
-                    1 for a in alignments for move in a["alignment"]
-                    if (move[0] != ">>" and move[1] == ">>") or (move[0] == ">>" and move[1] != ">>")
-                )
+                total_dev = count_alignment_deviations(alignments)
                 conformance_results[model_name] = {"avg_fitness": avg_fitness, "total_deviations": total_dev}
             except Exception as e:
                 print(f"  Conformance failed for {model_name}: {e}")
@@ -550,20 +634,25 @@ def main():
     # Stats
     print("\n[Step 1 Results]")
     for model_name, responses in all_results.items():
-        if not responses:
+        valid_responses = [response for response in responses if not response.get("error")]
+        if not valid_responses:
+            print(f"  {model_name}: no successful responses")
             continue
-        correct = sum(1 for r in responses if r["correct"])
+        correct = sum(1 for r in valid_responses if r["correct"])
         errors = sum(1 for r in responses if r.get("error"))
-        valid_conf = [r for r in responses if r.get("confidence") is not None]
-        avg_time = sum(r["elapsed"] for r in responses) / len(responses)
-        avg_tok = sum(r.get("total_tokens", 0) for r in responses) / len(responses)
+        valid_conf = [r for r in valid_responses if r.get("confidence") is not None]
+        avg_time = sum(r["elapsed"] for r in valid_responses) / len(valid_responses)
+        avg_tok = sum(r.get("total_tokens", 0) for r in valid_responses) / len(valid_responses)
         avg_conf = sum(r["confidence"] for r in valid_conf) / len(valid_conf) if valid_conf else 0
-        print(f"  {model_name}: {correct}/{len(responses)} correct ({correct/len(responses):.0%}), "
+        print(f"  {model_name}: {correct}/{len(valid_responses)} correct "
+              f"({correct/len(valid_responses):.0%}), "
               f"avg {avg_time:.1f}s, {avg_tok:.0f}tok, conf={avg_conf:.0f}%, {errors} errors")
     
     # Step 2: Segmentation
     print("\n[Step 2] Segmenting CoT traces...")
     all_traces = build_traces(all_results)
+    if not all_traces:
+        raise RuntimeError("No successful responses are available for trace analysis")
     
     for model_name, traces in all_traces.items():
         avg_steps = sum(t["num_steps"] for t in traces) / len(traces)
@@ -626,13 +715,19 @@ def main():
     print(metrics_df.to_string(index=False))
     
     # Save
-    metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics.csv", index=False)
-    with open(f"{OUTPUT_DIR}/traces.json", "w") as f:
+    metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics_final.csv", index=False)
+    with open(f"{OUTPUT_DIR}/traces_final.json", "w") as f:
         json.dump({k: [{kk: vv for kk, vv in v.items()} for v in vs] for k, vs in all_traces.items()}, f, indent=2)
-    with open(f"{OUTPUT_DIR}/conformance.json", "w") as f:
+    with open(f"{OUTPUT_DIR}/conformance_final.json", "w") as f:
         json.dump({k: v for k, v in conformance_results.items()}, f, indent=2, default=str)
-    with open(f"{OUTPUT_DIR}/calibration.json", "w") as f:
+    with open(f"{OUTPUT_DIR}/calibration_final.json", "w") as f:
         json.dump(calibration, f, indent=2)
+    discovery_summary = {
+        model_name: {"variants": result["variants"] if result else None}
+        for model_name, result in discovery_results.items()
+    }
+    with open(f"{OUTPUT_DIR}/discovery_final.json", "w") as f:
+        json.dump(discovery_summary, f, indent=2)
     
     # Save visualizations
     for model_name, result in discovery_results.items():

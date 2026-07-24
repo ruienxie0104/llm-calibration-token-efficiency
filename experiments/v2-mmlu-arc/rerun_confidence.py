@@ -4,27 +4,38 @@ Only re-calls the confidence step (not the answer step).
 Saves to raw_responses_v2.json to preserve original data.
 """
 import json, os, sys, time, re, urllib.request, urllib.error
+from confidence_utils import make_confidence_prompt_with_context
 warnings = sys.modules.get('warnings')
 if warnings:
     import warnings as w
     w.filterwarnings("ignore")
 
-API_KEY = '7d30048207d541afa72fceb4a639852f._kuPlqyToP_iFGGYEek_UIcA'
-API_URL = 'https://ollama.com/api/chat'
+API_KEY = os.getenv("OLLAMA_API_KEY")
+API_URL = os.getenv("OLLAMA_API_URL", "https://ollama.com/api/chat")
 
-INPUT_DIR = "experiments/v2-mmlu-arc/results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INPUT_DIR = os.path.join(BASE_DIR, "results")
 OUTPUT_FILE = f"{INPUT_DIR}/raw_responses_v2.json"
 
 MODELS = [
     ("gpt-oss:20b-cloud", "GPT-OSS-20B"),
     ("deepseek-v4-flash:cloud", "DeepSeek-V4-Flash-158B"),
     ("gpt-oss:120b-cloud", "GPT-OSS-120B"),
-    ("glm-4.7:cloud", "GLM-4.7-357B"),
     ("glm-5.2:cloud", "GLM-5.2-756B"),
 ]
 
 def call_ollama_api(model, messages, timeout=120):
     """Call ollama cloud via HTTP API with multi-turn messages."""
+    if not API_KEY:
+        return {
+            "response": "",
+            "elapsed": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "error": "OLLAMA_API_KEY is not set",
+        }
+
     payload = json.dumps({
         "model": model,
         "messages": messages,
@@ -90,41 +101,13 @@ def extract_confidence(response):
             return val
     return None
 
-def make_confidence_prompt_with_context(question, choices, predicted_answer, model_response):
-    """Create a conversation with context for confidence assessment."""
-    # Build the question text
-    if isinstance(choices, dict):
-        choices_text = "\n".join([f"  {k}. {v}" for k, v in choices.items()])
-    elif isinstance(choices, list):
-        letters = ['A', 'B', 'C', 'D', 'E']
-        choices_text = "\n".join([f"  {letters[i]}. {v}" for i, v in enumerate(choices)])
-    else:
-        choices_text = str(choices)
-    
-    user_msg = f"""{question}
+def save_json_atomic(path, value):
+    """Avoid leaving a truncated checkpoint when a run is interrupted."""
+    temp_path = f"{path}.tmp"
+    with open(temp_path, "w") as f:
+        json.dump(value, f, indent=2)
+    os.replace(temp_path, path)
 
-Choices:
-{choices_text}
-
-What is the correct answer? Give only the letter."""
-
-    # The model's original answer (truncated if too long)
-    response_snippet = model_response[:500] if len(model_response) > 500 else model_response
-
-    confidence_msg = f"""You previously answered "{predicted_answer}" for this question. 
-
-Your reasoning was:
-{response_snippet}
-
-Based on your reasoning, how confident are you that "{predicted_answer}" is the correct answer? 
-
-Give ONLY a single number from 0 to 100 (0 = completely unsure, 100 = absolutely certain). Do not include any other text."""
-
-    return [
-        {"role": "user", "content": user_msg},
-        {"role": "assistant", "content": model_response[:1000] if len(model_response) > 1000 else model_response},
-        {"role": "user", "content": confidence_msg},
-    ]
 
 # Load existing data
 with open(f"{INPUT_DIR}/raw_responses.json") as f:
@@ -133,45 +116,63 @@ with open(f"{INPUT_DIR}/raw_responses.json") as f:
 # Re-run confidence for all models
 for model_id, model_name in MODELS:
     print(f"\n=== {model_name} ({model_id}) ===")
+    if model_name not in all_results:
+        print("  Model not present in input; skipping.")
+        continue
     results = all_results[model_name]
     
-    # Check if already done
     done_file = f"{INPUT_DIR}/confidence_v2_{model_name.replace(' ', '_').replace('/', '_')}.json"
     if os.path.exists(done_file):
-        print(f"  Already done, loading from {done_file}")
+        print(f"  Loading checkpoint from {done_file}")
         with open(done_file) as f:
             new_confs = json.load(f)
+        if len(new_confs) > len(results):
+            raise ValueError(f"{done_file} has more entries than the input data")
     else:
         new_confs = []
-        for i, r in enumerate(results):
-            if r.get("error"):
-                new_confs.append({"confidence": None, "confidence_tokens": 0, "confidence_error": "skipped (answer error)"})
-                continue
-            
+
+    for i, r in enumerate(results):
+        existing = new_confs[i] if i < len(new_confs) else None
+        if existing and existing.get("question_id") not in (None, r.get("question_id")):
+            raise ValueError(f"Checkpoint/input mismatch at index {i} in {done_file}")
+        if existing and existing.get("confidence") is not None and not existing.get("confidence_error"):
+            continue
+
+        if r.get("error"):
+            record = {
+                "question_id": r.get("question_id"),
+                "confidence": None,
+                "confidence_tokens": 0,
+                "confidence_error": "skipped (answer error)",
+            }
+        else:
             predicted = r.get("predicted_letter", "unknown")
-            question = r.get("question", "")
-            choices = r.get("choices", {})
-            response = r.get("response", "")
-            
-            # Build contextual messages
-            messages = make_confidence_prompt_with_context(question, choices, predicted, response)
-            
-            print(f"  Q{i+1}/100...", end="", flush=True)
+            messages = make_confidence_prompt_with_context(
+                r.get("question", ""),
+                r.get("choices", {}),
+                predicted,
+                r.get("response", ""),
+                r.get("thinking", ""),
+            )
+
+            print(f"  Q{i+1}/{len(results)}...", end="", flush=True)
             conf_result = call_ollama_api(model_id, messages, timeout=120)
-            
             confidence = extract_confidence(conf_result["response"])
-            new_confs.append({
+            record = {
+                "question_id": r.get("question_id"),
                 "confidence": confidence,
                 "confidence_tokens": conf_result.get("total_tokens", 0),
                 "confidence_raw": conf_result["response"][:200],
                 "confidence_error": conf_result.get("error"),
-            })
-            
-            # Save incrementally
-            with open(done_file, "w") as f:
-                json.dump(new_confs, f, indent=2)
-        
-        print()
+            }
+
+        if i < len(new_confs):
+            new_confs[i] = record
+        else:
+            new_confs.append(record)
+        save_json_atomic(done_file, new_confs)
+
+    print()
     
     # Print summary
     valid_confs = [c["confidence"] for c in new_confs if c["confidence"] is not None]
@@ -187,6 +188,8 @@ for model_id, model_name in MODELS:
 # Now merge new confidences into the data and save
 print("\n=== Merging new confidences ===")
 for model_id, model_name in MODELS:
+    if model_name not in all_results:
+        continue
     done_file = f"{INPUT_DIR}/confidence_v2_{model_name.replace(' ', '_').replace('/', '_')}.json"
     if os.path.exists(done_file):
         with open(done_file) as f:
@@ -195,20 +198,29 @@ for model_id, model_name in MODELS:
         results = all_results[model_name]
         for i, r in enumerate(results):
             if i < len(new_confs):
+                checkpoint_id = new_confs[i].get("question_id")
+                if checkpoint_id not in (None, r.get("question_id")):
+                    raise ValueError(f"Checkpoint/input mismatch at index {i} in {done_file}")
                 r["confidence_old"] = r.get("confidence")
                 r["confidence"] = new_confs[i]["confidence"]
                 r["confidence_tokens_old"] = r.get("confidence_tokens", 0)
                 r["confidence_tokens"] = new_confs[i].get("confidence_tokens", 0)
                 r["confidence_raw"] = new_confs[i].get("confidence_raw", "")
 
-# Save merged data
-with open(OUTPUT_FILE, "w") as f:
-    json.dump(all_results, f, indent=2)
+# Save only the current, supported model set.
+final_results = {
+    model_name: all_results[model_name]
+    for _, model_name in MODELS
+    if model_name in all_results
+}
+save_json_atomic(OUTPUT_FILE, final_results)
 print(f"\nSaved to {OUTPUT_FILE}")
 
 # Print final comparison
 print("\n=== Confidence Comparison (old → new) ===")
 for model_id, model_name in MODELS:
+    if model_name not in all_results:
+        continue
     results = all_results[model_name]
     old_confs = [r.get("confidence_old") for r in results if r.get("confidence_old") is not None]
     new_confs = [r.get("confidence") for r in results if r.get("confidence") is not None]

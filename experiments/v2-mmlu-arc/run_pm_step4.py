@@ -8,12 +8,14 @@ sys.path.insert(0, '.')
 
 import pm4py
 import pandas as pd
+from analysis_utils import count_alignment_deviations
 from experiment_v2 import build_traces, build_event_log, compute_calibration_metrics, run_pm_analysis
 
-OUTPUT_DIR = "experiment_v2_results"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "results")
 
 # Load existing data
-with open(f"{OUTPUT_DIR}/raw_responses.json") as f:
+with open(f"{OUTPUT_DIR}/raw_responses_v2.json") as f:
     all_results = json.load(f)
 
 # Build traces
@@ -70,7 +72,7 @@ for model_name in all_traces.keys():
 conformance_results = {}
 
 # Try to load existing partial conformance
-conf_file = f"{OUTPUT_DIR}/conformance.json"
+conf_file = f"{OUTPUT_DIR}/conformance_final.json"
 if os.path.exists(conf_file):
     with open(conf_file) as f:
         conformance_results = json.load(f)
@@ -94,10 +96,7 @@ for model_name in all_traces.keys():
         # Alignments (slow) - this is the bottleneck
         print(f"    Running alignments ({len(model_log)} traces)...")
         alignments = pm4py.conformance_diagnostics_alignments(model_log, ref_net, ref_im, ref_fm)
-        total_dev = sum(
-            1 for a in alignments for move in a["alignment"]
-            if (move[0] != ">>" and move[1] == ">>") or (move[0] == ">>" and move[1] != ">>")
-        )
+        total_dev = count_alignment_deviations(alignments)
         
         conformance_results[model_name] = {"avg_fitness": avg_fitness, "total_deviations": total_dev}
         print(f"    Alignment deviations: {total_dev}")
@@ -115,7 +114,7 @@ for model_name in all_traces.keys():
 discovery_summary = {}
 for m, r in discovery_results.items():
     discovery_summary[m] = {"variants": r["variants"] if r else None}
-with open(f"{OUTPUT_DIR}/discovery.json", "w") as f:
+with open(f"{OUTPUT_DIR}/discovery_final.json", "w") as f:
     json.dump(discovery_summary, f, indent=2)
 
 # Generate full summary
@@ -156,13 +155,13 @@ for model_name in all_traces.keys():
 
 metrics_df = pd.DataFrame(metrics)
 print(metrics_df.to_string(index=False))
-metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics.csv", index=False)
+metrics_df.to_csv(f"{OUTPUT_DIR}/full_metrics_final.csv", index=False)
 
 # Save traces
-with open(f"{OUTPUT_DIR}/traces.json", "w") as f:
+with open(f"{OUTPUT_DIR}/traces_final.json", "w") as f:
     json.dump({k: [{kk: vv for kk, vv in v.items()} for v in vs] for k, vs in all_traces.items()}, f, indent=2)
 
-with open(f"{OUTPUT_DIR}/calibration.json", "w") as f:
+with open(f"{OUTPUT_DIR}/calibration_final.json", "w") as f:
     json.dump(calibration, f, indent=2)
 
 print(f"\nAll results saved to {OUTPUT_DIR}/")
