@@ -11,6 +11,7 @@ sys.path.insert(0, str(V2_DIR))
 
 from analysis_utils import avg_pairwise_distance, count_alignment_deviations, token_count
 from confidence_utils import make_confidence_prompt_with_context
+from experiment_v2 import extract_answer, is_complete_result
 
 
 def test_environment_files_exist():
@@ -92,6 +93,23 @@ def test_confidence_context_keeps_complete_thinking_and_response():
     assert "reasoning-start" in assistant_content
     assert "reasoning-end" in assistant_content
     assert response in assistant_content
+
+
+def test_markdown_answer_parsing_and_completion_contract():
+    question = {"choices": ["A", "B", "C", "D"]}
+    assert extract_answer("Reasoning.\n\n**Answer:** D. Final choice.", question) == "D"
+    assert extract_answer("The correct answer is **B**.", question) == "B"
+
+    complete = {
+        "error": None,
+        "confidence_error": None,
+        "predicted_letter": "A",
+        "confidence": 90,
+    }
+    assert is_complete_result(complete)
+    assert not is_complete_result({**complete, "predicted_letter": None})
+    assert not is_complete_result({**complete, "confidence": None})
+    assert not is_complete_result({**complete, "confidence_error": "failed"})
 
 
 def test_failed_api_case_is_retried_and_replaced(tmp_path, monkeypatch):

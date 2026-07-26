@@ -23,8 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Build allowlisted public site
+        run: |
+          mkdir -p _site/experiments/v1-pilot
+          cp public/index.html _site/index.html
+          cp experiments/v1-pilot/slides.html _site/experiments/v1-pilot/slides.html
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - uses: actions/deploy-pages@v4
         id: deployment

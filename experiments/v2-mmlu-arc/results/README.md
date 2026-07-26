@@ -52,3 +52,21 @@ Check completeness and structural validity with:
 ```bash
 python scripts/check_v2_results.py
 ```
+
+## Activity-label review
+
+`traces_final.json` records both the observed labels and any synthetic boundary activities.
+Generate a deterministic, model-balanced human-review sheet with:
+
+```bash
+python experiments/v2-mmlu-arc/export_activity_label_sample.py \
+  --sample-size 100 \
+  --seed 42
+```
+
+The ignored output is `results/activity_label_sample.csv`. Annotation instructions and label
+definitions are in `../annotation/README.md`.
+
+The report figure generator supports calibration subsets with no wrong answers by rendering an
+unavailable confidence gap as `N/A`, which is useful for small smoke tests. It also uses the
+Matplotlib 3.11 `tick_labels` boxplot API pinned by this project.

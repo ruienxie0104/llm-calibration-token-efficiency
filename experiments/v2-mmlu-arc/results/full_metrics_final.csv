@@ -1,0 +1,5 @@
+Model,Accuracy,Avg_Steps,Avg_Loops,Verify,Variants,Avg_Time_s,Avg_Tokens,Tok/Step,Brier,Avg_Conf,Conf_Gap,Fitness,Deviations
+GPT-OSS-20B,98%,16.8,0.79,35%,97,6.5,907.0,54.1,0.0611,90%,3.8,0.9838,2885
+DeepSeek-V4-Flash-158B,98%,9.2,0.32,34%,82,5.9,878.0,94.9,0.0209,99%,-0.8,0.9754,2080
+GPT-OSS-120B,95%,13.0,0.13,23%,84,6.4,617.0,47.6,0.0532,93%,4.5,0.9892,2275
+GLM-5.2-756B,99%,15.7,0.96,55%,96,5.6,865.0,55.1,0.0104,99%,-0.5,0.9997,2893

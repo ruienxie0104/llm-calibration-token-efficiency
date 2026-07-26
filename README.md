@@ -40,13 +40,13 @@ On macOS, install Graphviz with:
 brew install graphviz
 ```
 
-Create and activate a virtual environment:
+Create and activate a reproducible Python 3.13 environment with uv:
 
 ```bash
-python3 -m venv .venv
+uv python install 3.13
+uv venv --python 3.13 .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt
+uv pip install --python .venv/bin/python -r requirements-dev.txt
 ```
 
 Configure API access only when running experiments that call Ollama:
@@ -70,8 +70,9 @@ python -m compileall -q experiments scripts
 pytest -q
 ```
 
-The dependency versions are defined in `pyproject.toml`. Runtime-only installation
-is also available through `requirements.txt`.
+The dependency versions are defined in `pyproject.toml` and the resolved dependency
+graph is recorded in `uv.lock`. Runtime-only installation is also available through
+`requirements.txt`.
 
 ## Agent Handoff
 

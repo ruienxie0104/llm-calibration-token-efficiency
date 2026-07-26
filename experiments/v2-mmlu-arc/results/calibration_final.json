@@ -1,0 +1,34 @@
+{
+  "GPT-OSS-20B": {
+    "brier_score": 0.061143,
+    "brier_count": 100,
+    "avg_confidence": 90.19,
+    "confidence_correct": 90.26530612244898,
+    "confidence_wrong": 86.5,
+    "confidence_gap": 3.765306122448976
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "brier_score": 0.0209,
+    "brier_count": 100,
+    "avg_confidence": 99.2,
+    "confidence_correct": 99.18367346938776,
+    "confidence_wrong": 100.0,
+    "confidence_gap": -0.816326530612244
+  },
+  "GPT-OSS-120B": {
+    "brier_score": 0.053219,
+    "brier_count": 100,
+    "avg_confidence": 93.31,
+    "confidence_correct": 93.53684210526316,
+    "confidence_wrong": 89.0,
+    "confidence_gap": 4.536842105263162
+  },
+  "GLM-5.2-756B": {
+    "brier_score": 0.010388,
+    "brier_count": 100,
+    "avg_confidence": 99.48,
+    "confidence_correct": 99.47474747474747,
+    "confidence_wrong": 100.0,
+    "confidence_gap": -0.525252525252526
+  }
+}

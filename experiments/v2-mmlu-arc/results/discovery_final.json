@@ -1,0 +1,14 @@
+{
+  "GPT-OSS-20B": {
+    "variants": 97
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "variants": 82
+  },
+  "GPT-OSS-120B": {
+    "variants": 84
+  },
+  "GLM-5.2-756B": {
+    "variants": 96
+  }
+}

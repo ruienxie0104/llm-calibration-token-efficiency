@@ -1,0 +1,18 @@
+{
+  "GPT-OSS-20B": {
+    "avg_fitness": 0.9837593499567729,
+    "total_deviations": 2885
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "avg_fitness": 0.9754340953856137,
+    "total_deviations": 2080
+  },
+  "GPT-OSS-120B": {
+    "avg_fitness": 0.9892176912525577,
+    "total_deviations": 2275
+  },
+  "GLM-5.2-756B": {
+    "avg_fitness": 0.9996564482029597,
+    "total_deviations": 2893
+  }
+}

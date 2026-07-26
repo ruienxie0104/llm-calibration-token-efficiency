@@ -2,7 +2,7 @@
 
 **更新日期：** 2026-07-24  
 **適用範圍：** `llm-calibration-token-efficiency` 全專案  
-**目前狀態：** 程式修正與單元測試已完成；套件尚未安裝，V2 尚未重新執行  
+**目前狀態：** 程式修正與單元測試已完成；Python 3.13 可重現環境已建立，V2 尚未重新執行
 **重要：** 本文件建立時，以下變更仍在工作目錄中，尚未 commit
 
 ## 1. 後續 Agent 開始前必讀
@@ -38,6 +38,10 @@
 - 修正 `.gitignore` 原本黏在一起的 `*.logpilot_results/` 規則。
 - 新增 `scripts/check_environment.py`，檢查 Python、套件、Graphviz 和 API
   環境變數。
+- 已用 uv 建立 Python 3.13.13 的 `.venv`，並保留原始 Python 3.9 實驗環境於
+  `.venv-py39-legacy/`（不追蹤）。
+- 新環境已安裝 `requirements-dev.txt`、通過 `check_environment.py`、
+  `compileall` 與 7 個 pytest 測試；完整依賴圖已記錄於 `uv.lock`。
 
 ### 2.2 Conformance checking
 
@@ -129,15 +133,79 @@
   checkpoint；只有所有題目、模型、答案與 confidence 都成功，才會提升為
   `raw_responses_v2.json`。
 - `.gitignore` 只允許正式 artifact 被追蹤，部分 checkpoint 仍保持忽略。
-- 新增 `scripts/check_v2_results.py` 驗證 artifact 完整性、矩陣對稱性與對角線。
+- `scripts/check_v2_results.py` 現在會驗證 artifact 完整性、四模型 × 100 題、
+  API/confidence 成功狀態、答案與題目集合、trace 對應、跨 artifact model schema、
+  CSV 模型列，以及 Levenshtein/JSD 矩陣。
+- Markdown 強調格式（例如 `**Answer:** D`）已納入答案解析；checkpoint 只有在
+  答案、confidence 與兩次 API 呼叫都完整時才視為完成，否則下次執行會重試。
 - 中英文 V2 報告頂端都已加入「舊數值尚未驗證」警告。
+
+### 2.7 GitHub Pages 部署範圍
+
+- Pages artifact 已從整個 repository root 改成 allowlist 型 `_site/`。
+- 目前只公開：
+  - `public/index.html`
+  - `experiments/v1-pilot/slides.html`
+- Python 原始碼、原始回應、V2 artifacts、環境檔與 repository 其他內容不再進入
+  Pages artifact。
+- `_site/` 已加入 `.gitignore`。
+
+### 2.8 Activity labeling 與人工驗證樣本
+
+- `verify`／`reconsider`／`evaluate` 等具體活動現在優先於一般 `reason`。
+- `first ... then` 已改成真正的 regex；單獨字母 `x` 不再觸發 calculate。
+- Markdown final answer 會保留為觀察到的 `answer` step，純分隔線不再產生事件。
+- `traces_final.json` 會分開記錄：
+  - `observed_trace`
+  - `synthetic_events`
+  - PM-ready `trace`
+- event log 的 `synthetic` 欄位會標記由 pipeline 補入的邊界活動。
+- `export_activity_label_sample.py` 可產生固定 seed、四模型平衡並優先覆蓋各活動的
+  100 筆人工標註 CSV。
+- 標註規則記錄於 `experiments/v2-mmlu-arc/annotation/README.md`。
+
+### 2.9 離線原流程 smoke test
+
+- 使用既有資料中四模型各 5 筆完整案例，未呼叫 API、未覆寫正式 artifacts。
+- 已成功跑過：
+  - CoT segmentation 與 activity labeling
+  - 20 cases／485 events 的 event log
+  - PM discovery、token replay、alignment
+  - calibration
+  - entropy、Levenshtein、step/bigram JSD
+  - 12 張主報告與 entropy 圖表
+- smoke test 發現並修正 `generate_v2_figures.py` 的兩個相容性問題：
+  - 全部答對時 `confidence_gap=None` 會導致 Matplotlib 失敗，現在改顯示 `N/A`。
+  - Matplotlib 3.11 的 boxplot 參數已由 `labels` 改為 `tick_labels`。
+- 已移除圖表程式中未使用的五模型 variants 常數與退休 GLM-4.7 顏色設定。
+
+### 2.10 有界 API smoke test
+
+- 使用者明確允許暫時使用目前已設定的 API key 執行有界 smoke test；credential
+  撤銷／輪替與 Git 歷史問題仍未完成。
+- 設定為 MMLU 2 題＋ARC 2 題、四模型，共 16 cases、32 次 answer/confidence
+  呼叫；所有輸出隔離在 `/tmp/llm-api-smoke.BXLpt1`。
+- 結果：
+  - 16/16 API answers 成功
+  - 16/16 answers 可解析
+  - 16/16 confidence 有效
+  - checkpoint 成功提升為暫存 `raw_responses_v2.json`
+  - 16 traces／353 events
+  - PM discovery、token replay、alignment、calibration、entropy/JSD 全部成功
+  - trace provenance 與 entropy matrices 驗證成功
+  - 12 張圖全部生成
+- 本次共使用 17,765 answer tokens 與 19,534 confidence-turn tokens。直接線性放大
+  到正式 400 cases 約為 932,475 combined tokens；這只是 4 題小樣本的容量估計，
+  不能當成費用或研究結果的精確預測。
+- smoke 的 16 題全部答對，因此 reference model、Brier 與 confidence gap 不具研究
+  解讀價值；本次只驗證工程流程。
 
 ## 3. 已完成的驗證
 
 目前驗證結果：
 
 ```text
-pytest: 7 passed
+pytest: 15 passed
 compileall: passed
 git diff --check: passed
 ```
@@ -152,6 +220,10 @@ git diff --check: passed
 - confidence context 保留超過 1000 字的完整 thinking。
 - API error 會在下次執行被重試並取代，不會產生 duplicate case。
 - 未完成 run 不會提升為正式 artifact；完成後才會提升。
+- 完整合法的 canonical fixture 會通過 V2 validator。
+- 退休模型、不完整答案／confidence 與非對稱矩陣會被 validator 拒絕。
+- Activity precedence、Markdown answer segmentation、synthetic event provenance 與
+  deterministic annotation export。
 
 ## 4. 目前尚未完成／被阻擋的部分
 
@@ -176,24 +248,18 @@ git diff --check: passed
 python scripts/check_v2_results.py
 ```
 
-### 4.2 套件與系統依賴尚未安裝
+### 4.2 端到端 PM4Py 流程尚未驗證
 
-目前本機仍缺：
-
-- `datasets`
-- `pm4py`
-- `python-pptx`
-- Graphviz `dot`
-
-尚未執行端到端 PM4Py 流程。
+Python 3.13、固定相依與 Graphviz 已安裝，且基礎環境檢查與單元測試已通過。
+但尚未以修正後資料完成端到端 PM4Py 流程；這仍需在取得新 API key 並完整重跑
+V2 後驗證。
 
 ### 4.3 外部安全操作尚未完成
 
 - 舊 Ollama key 必須在供應商後台撤銷／輪替。
 - 舊 key 仍存在 Git 歷史。
-- GitHub Pages 仍會上傳整個 repository root。
 
-這三項涉及外部狀態或破壞性 Git 歷史改寫，後續 Agent 不得自行假設已獲授權。
+以上項目涉及外部狀態或破壞性 Git 歷史改寫，後續 Agent 不得自行假設已獲授權。
 
 ## 5. 下一步工作順序
 
@@ -202,12 +268,11 @@ python scripts/check_v2_results.py
 1. 請使用者確認舊 Ollama key 已撤銷。
 2. 建立新 key，只放在本機 `.env`。
 3. 使用者明確授權後，才評估使用 `git filter-repo` 清除歷史並 force-push。
-4. 將 GitHub Pages 部署來源由 `path: .` 改成明確的靜態網站輸出目錄。
 
 完成標準：
 
 - Git 目前版本與歷史掃描都找不到舊 key。
-- Pages artifact 不包含 Python 原始碼、原始回應或 `.env`。
+- Pages artifact 持續只包含 allowlist 中的靜態公開內容。
 
 ### P1：安裝與鎖定環境
 
@@ -266,17 +331,13 @@ python scripts/check_v2_results.py
 
 ### P2：改善研究方法
 
-1. 修正 activity label precedence：
-   `verify`／`reconsider` 應優先於一般 `reason` 關鍵字。
-2. 修正 `"first.*then"` 被當成普通 substring 的問題。
-3. 不應無條件強制加入 `understand` 和 `answer`，需區分觀察到的活動與
-   pipeline 補值。
-4. 建立人工標註樣本，計算 inter-rater reliability。
-5. 對 accuracy、Brier、confidence gap 和 token metrics 加入 bootstrap
+1. 由兩位 reviewer 獨立完成既有 100 筆人工標註樣本，計算 inter-rater
+   reliability，並在解盲後 adjudicate 分歧。
+2. 對 accuracy、Brier、confidence gap 和 token metrics 加入 bootstrap
    confidence interval。
-6. 四個模型點不足以支持「反相關」結論；報告應改成 exploratory
+3. 四個模型點不足以支持「反相關」結論；報告應改成 exploratory
    observation，或增加模型數後正式檢定。
-7. GLM-5.2／DeepSeek 的錯誤樣本只有 2／3 題，confidence-when-wrong
+4. GLM-5.2／DeepSeek 的錯誤樣本只有 2／3 題，confidence-when-wrong
    不應做強結論。
 
 完成標準：
@@ -310,4 +371,3 @@ python scripts/check_v2_results.py
 - V2 英文報告：`experiments/v2-mmlu-arc/report/REPORT.md`
 - V2 中文報告：`experiments/v2-mmlu-arc/report/REPORT_zh-TW.md`
 - 回歸測試：`tests/test_project_environment.py`
-

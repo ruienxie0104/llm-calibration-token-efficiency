@@ -2,10 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
 *.so
 .Python
 venv/
 .venv/
+.venv-py39-legacy/
 env/
 .env
 
@@ -44,3 +46,4 @@ runs/
 *.log
 pilot_real_results/
 experiment_v2_results/
+_site/

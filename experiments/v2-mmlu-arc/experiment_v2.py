@@ -221,25 +221,42 @@ Think step by step, then give your answer as a single letter (A, B, C, or D) aft
 
 def extract_answer(response, q):
     """Extract answer letter from response."""
+    # Models frequently wrap labels in Markdown, for example ``**Answer:** D``.
+    normalized_response = re.sub(r"[*_`]", "", response)
+
     # Try "Answer: X" pattern
-    answer_match = re.findall(r'[Aa]nswer[:\s]*([A-Da-d])\b', response)
+    answer_match = re.findall(r'[Aa]nswer[:\s]*([A-Da-d])\b', normalized_response)
     if answer_match:
         return answer_match[-1].upper()
+
+    # Try common final-answer forms produced by math-capable models.
+    final_answer_patterns = (
+        r"\\boxed\{\s*(?:\\text\{\s*)?([A-Da-d])\b",
+        r"(?:correct\s+)?(?:choice|option)\s+(?:is\s+)?([A-Da-d])\b",
+    )
+    for pattern in final_answer_patterns:
+        answer_match = re.findall(pattern, normalized_response, re.I)
+        if answer_match:
+            return answer_match[-1].upper()
     
     # Try "The answer is X"
-    answer_match = re.findall(r'(?:answer is|correct answer is|answer:)\s*([A-Da-d])\b', response, re.I)
+    answer_match = re.findall(
+        r'(?:answer is|correct answer is|answer:)\s*([A-Da-d])\b',
+        normalized_response,
+        re.I,
+    )
     if answer_match:
         return answer_match[-1].upper()
     
     # Try last standalone letter
-    lines = response.strip().split('\n')
+    lines = normalized_response.strip().split('\n')
     for line in reversed(lines):
         line = line.strip()
         if re.match(r'^[A-D]$', line):
             return line
     
     # Try "(X)" pattern
-    answer_match = re.findall(r'\(([A-Da-d])\)', response)
+    answer_match = re.findall(r'\(([A-Da-d])\)', normalized_response)
     if answer_match:
         return answer_match[-1].upper()
     
@@ -263,6 +280,19 @@ def save_json_atomic(path, value):
     os.replace(temp_path, path)
 
 
+def is_complete_result(result):
+    """Return whether a checkpoint entry is safe to promote as canonical data."""
+    return (
+        isinstance(result, dict)
+        and not result.get("error")
+        and not result.get("confidence_error")
+        and result.get("predicted_letter") in {"A", "B", "C", "D"}
+        and isinstance(result.get("confidence"), (int, float))
+        and not isinstance(result.get("confidence"), bool)
+        and 0 <= result["confidence"] <= 100
+    )
+
+
 def promote_completed_results(all_results, questions):
     """Publish a stable raw artifact only after every expected case succeeds."""
     completed_results = {}
@@ -275,12 +305,7 @@ def promote_completed_results(all_results, questions):
         ordered = []
         for question in questions:
             result = by_question.get(question["id"])
-            if (
-                result is None
-                or result.get("error")
-                or result.get("confidence") is None
-                or result.get("confidence_error")
-            ):
+            if not is_complete_result(result):
                 return False
             ordered.append(result)
         completed_results[model_name] = ordered
@@ -314,7 +339,9 @@ def run_experiment(questions):
             1
             for question in questions
             if question["id"] in existing_indexes
-            and not all_results[model_name][existing_indexes[question["id"]]].get("error")
+            and is_complete_result(
+                all_results[model_name][existing_indexes[question["id"]]]
+            )
         )
         if completed >= len(questions):
             print(f"  Already complete ({completed} questions)")
@@ -322,9 +349,20 @@ def run_experiment(questions):
 
         for i, q in enumerate(questions):
             existing_index = existing_indexes.get(q["id"])
+            if existing_index is not None:
+                existing_result = all_results[model_name][existing_index]
+                if (
+                    not existing_result.get("error")
+                    and existing_result.get("predicted_letter") not in {"A", "B", "C", "D"}
+                    and existing_result.get("response")
+                ):
+                    reparsed = extract_answer(existing_result["response"], q)
+                    if reparsed:
+                        existing_result["predicted_letter"] = reparsed
+                        existing_result["correct"] = reparsed == q["answer_letter"]
             if (
                 existing_index is not None
-                and not all_results[model_name][existing_index].get("error")
+                and is_complete_result(all_results[model_name][existing_index])
             ):
                 continue
 
@@ -415,10 +453,11 @@ def run_experiment(questions):
     return active_results
 
 # ============================================================
-# Step Segmentation & Labeling (same as v1)
+# Step Segmentation & Labeling
 # ============================================================
 
 def segment_cot(response):
+    """Split a reasoning response into observable steps without dropping the final answer."""
     lines = response.split("\n")
     steps = []
     current_step = ""
@@ -429,10 +468,17 @@ def segment_cot(response):
                 steps.append(current_step)
                 current_step = ""
             continue
+        plain_line = re.sub(r"^[*_`\s]+", "", line)
         starts_new = (
             re.match(r'^\d+[\.\)]\s', line) or
             re.match(r'^[-*]\s', line) or
-            re.match(r'^(Step|First|Second|Third|Then|Next|Now|So|Finally|Therefore|Let me|Let\'s|I need|To find|We need)', line, re.I)
+            re.match(
+                r"^(Step|First|Second|Third|Then|Next|Now|So|Finally|Therefore|"
+                r"Let me|Let's|I need|To find|We need)\b",
+                plain_line,
+                re.I,
+            )
+            or re.match(r"^Answer\s*:", plain_line, re.I)
         )
         if starts_new and current_step:
             steps.append(current_step)
@@ -441,34 +487,66 @@ def segment_cot(response):
             current_step = (current_step + " " + line).strip() if current_step else line
     if current_step:
         steps.append(current_step)
-    steps = [s for s in steps if not re.match(r'^[Aa]nswer[:\s]', s)]
-    return steps
+    return [step for step in steps if re.search(r"[A-Za-z0-9]", step)]
+
 
 def label_step(step_text):
+    """Assign one activity using specific actions before the generic reason fallback."""
+    plain_text = re.sub(r"[*_`]", "", step_text)
     text_lower = step_text.lower()
-    if re.search(r'[Aa]nswer[:\s]*[A-Da-d]\b', step_text):
+    if re.search(r"\banswer\s*:\s*[A-Da-d]\b", plain_text, re.I):
         return "answer"
-    if re.search(r'[Aa]nswer[:\s]*\$?[\d,.]+', step_text) or re.search(r'(?:is|=)\s*\$?[\d,.]+\s*$', step_text.strip()):
+    if re.search(r"\b(?:final answer|answer)\s*:\s*\$?[\d,.]+", plain_text, re.I):
         return "answer"
-    if any(w in text_lower for w in ["understand", "problem says", "need to find", "given", "we have", "the problem", "need to determine", "looking for"]):
-        return "understand"
-    if any(w in text_lower for w in ["recall", "know that", "formula", "remember", "the rule", "by definition"]):
-        return "recall"
-    if any(w in text_lower for w in ["plan", "strategy", "approach", "first.*then", "let's break"]):
-        return "plan"
-    if any(w in text_lower for w in ["calculate", "compute", "multiply", "divide", "add", "subtract", "times", "+", "x", "/", "sum", "total", "equals"]):
-        return "calculate"
-    if any(w in text_lower for w in ["because", "since", "so", "therefore", "thus", "which means", "this gives", "that means", "implies", "hence"]):
-        return "reason"
-    if any(w in text_lower for w in ["check", "verify", "let's see", "confirm", "double-check", "makes sense"]):
-        return "verify"
-    if any(w in text_lower for w in ["wait", "no,", "actually", "reconsider", "let me redo", "mistake", "incorrect", "wrong"]):
+
+    if re.search(
+        r"\b(wait|reconsider)\b|\bno,\s|let me redo|"
+        r"\b(?:i|we)\s+(?:was|were|am|are)\s+(?:incorrect|wrong)\b|"
+        r"\b(?:my|our|that|this)\s+(?:answer|calculation|reasoning|result)\s+"
+        r"(?:was|is)\s+(?:incorrect|wrong)\b|"
+        r"\b(?:i|we)\s+(?:made|found)\s+(?:a\s+)?mistake\b",
+        text_lower,
+    ):
         return "reconsider"
-    if any(w in text_lower for w in ["option", "choice", "eliminate", "not correct", "cannot be", "must be"]):
+    if re.search(
+        r"\b(check|verify|confirm|double-check)\b|let's see|makes sense",
+        text_lower,
+    ):
+        return "verify"
+    if re.search(
+        r"\b(plan|strategy|approach)\b|\bfirst\b.*\bthen\b|let's break",
+        text_lower,
+    ):
+        return "plan"
+    if re.search(
+        r"\b(recall|remember|formula)\b|know that|the rule|by definition",
+        text_lower,
+    ):
+        return "recall"
+    if re.search(
+        r"\b(option|choice|eliminate)\b|not correct|cannot be|must be",
+        text_lower,
+    ):
         return "evaluate"
-    if re.search(r'\d+.*[+\-*/].*\d+', text_lower):
+    if re.search(
+        r"\b(calculate|compute|multiply|divide|add|subtract|times|sum|total|equals)\b",
+        text_lower,
+    ) or re.search(r"\d+(?:\.\d+)?\s*(?:[+\-*/×÷=]|x)\s*\d+", text_lower):
         return "calculate"
+    if re.search(
+        r"\bunderstand\b|problem says|need to find|\bgiven\b|\bwe have\b|"
+        r"the problem|need to determine|looking for",
+        text_lower,
+    ):
+        return "understand"
+    if re.search(
+        r"\b(because|since|therefore|thus|implies|hence)\b|"
+        r"which means|this gives|that means",
+        text_lower,
+    ):
+        return "reason"
     return "reason"
+
 
 def build_traces(all_results):
     all_traces = {}
@@ -483,12 +561,29 @@ def build_traces(all_results):
             full_cot += resp["response"]
             
             steps = segment_cot(full_cot)
-            trace = [label_step(s) for s in steps]
-            
-            if not trace or trace[-1] != "answer":
-                trace.append("answer")
+            observed_trace = [label_step(step) for step in steps]
+            trace = list(observed_trace)
+            synthetic_events = []
+
             if not trace or trace[0] != "understand":
                 trace.insert(0, "understand")
+                synthetic_events.append(
+                    {
+                        "position": 0,
+                        "activity": "understand",
+                        "reason": "missing_start_boundary",
+                    }
+                )
+            if not trace or trace[-1] != "answer":
+                position = len(trace)
+                trace.append("answer")
+                synthetic_events.append(
+                    {
+                        "position": position,
+                        "activity": "answer",
+                        "reason": "missing_end_boundary",
+                    }
+                )
             
             model_traces.append({
                 "case_id": f"{model_name}_{resp['question_id']}",
@@ -497,6 +592,9 @@ def build_traces(all_results):
                 "benchmark": resp.get("benchmark", ""),
                 "trace": trace,
                 "num_steps": len(trace),
+                "observed_trace": observed_trace,
+                "num_observed_steps": len(observed_trace),
+                "synthetic_events": synthetic_events,
                 "num_loops": trace.count("reconsider"),
                 "has_verify": "verify" in trace,
                 "correct": resp["correct"],
@@ -516,6 +614,9 @@ def build_event_log(all_traces):
     events = []
     for model_traces in all_traces.values():
         for case in model_traces:
+            synthetic_positions = {
+                event["position"] for event in case.get("synthetic_events", [])
+            }
             for idx, activity in enumerate(case["trace"]):
                 events.append({
                     "case:concept:name": case["case_id"],
@@ -525,6 +626,7 @@ def build_event_log(all_traces):
                     "benchmark": case.get("benchmark", ""),
                     "question_id": str(case["question_id"]),
                     "correct": str(case["correct"]),
+                    "synthetic": str(idx in synthetic_positions),
                 })
     df = pd.DataFrame(events)
     df["case:concept:name"] = df["case:concept:name"].astype(str)

@@ -27,10 +27,15 @@ short_names = {
     'GPT-OSS-20B': 'GPT-OSS\n20B',
     'DeepSeek-V4-Flash-158B': 'DeepSeek-V4\nFlash',
     'GPT-OSS-120B': 'GPT-OSS\n120B',
-    'GLM-4.7-357B': 'GLM-4.7\n357B',
     'GLM-5.2-756B': 'GLM-5.2\n756B',
 }
-colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6']
+model_colors = {
+    'GPT-OSS-20B': '#e74c3c',
+    'DeepSeek-V4-Flash-158B': '#3498db',
+    'GPT-OSS-120B': '#2ecc71',
+    'GLM-5.2-756B': '#9b59b6',
+}
+colors = [model_colors[model] for model in models]
 
 # ---- Figure 1: Accuracy & Token Efficiency ----
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -82,7 +87,6 @@ avg_steps = [statistics.mean([t['num_steps'] for t in traces_data[m]]) for m in 
 std_steps = [statistics.stdev([t['num_steps'] for t in traces_data[m]]) for m in models]
 loops = [statistics.mean([t['num_loops'] for t in traces_data[m]]) for m in models]
 verify_rates = [sum(1 for t in traces_data[m] if t['has_verify'])/len(traces_data[m])*100 for m in models]
-variants = [95, 89, 87, 89, 100]  # from discovery
 deviations = [conformance[m]['total_deviations'] for m in models]
 
 # Panel A: Steps
@@ -178,7 +182,6 @@ with open(f"{OUTPUT_DIR}/calibration_final.json") as f:
 
 brier_scores = [calib[m]['brier_score'] for m in models]
 conf_gaps = [calib[m]['confidence_gap'] for m in models]
-avg_confs = [calib[m]['avg_confidence'] for m in models]
 
 # Panel A: Brier Score (lower is better)
 bars = ax1.bar(x, brier_scores, color=colors, alpha=0.85, edgecolor='black', linewidth=0.5)
@@ -192,13 +195,33 @@ for bar, b in zip(bars, brier_scores):
              ha='center', va='bottom', fontsize=9)
 
 # Panel B: Confidence Gap (positive = well-calibrated)
-bars = ax2.bar(x, conf_gaps, color=colors, alpha=0.85, edgecolor='black', linewidth=0.5)
+plotted_conf_gaps = [gap if gap is not None else 0 for gap in conf_gaps]
+bars = ax2.bar(
+    x,
+    plotted_conf_gaps,
+    color=colors,
+    alpha=0.85,
+    edgecolor='black',
+    linewidth=0.5,
+)
 ax2.set_ylabel('Confidence Gap (positive = better)', fontsize=11)
 ax2.set_title('(B) Confidence Gap (Correct - Wrong)', fontsize=12, fontweight='bold')
 ax2.set_xticks(x)
 ax2.set_xticklabels([short_names[m] for m in models], fontsize=8)
 ax2.axhline(y=0, color='black', linewidth=0.5)
 for bar, g in zip(bars, conf_gaps):
+    if g is None:
+        bar.set_hatch('//')
+        bar.set_alpha(0.4)
+        ax2.text(
+            bar.get_x() + bar.get_width()/2,
+            1,
+            'N/A',
+            ha='center',
+            va='bottom',
+            fontsize=9,
+        )
+        continue
     y = bar.get_height()
     va = 'bottom' if y >= 0 else 'top'
     offset = 2 if y >= 0 else -2
@@ -214,7 +237,7 @@ print("Figure 4 saved")
 fig, ax = plt.subplots(figsize=(10, 6))
 
 trace_lengths = [[t['num_steps'] for t in traces_data[m]] for m in models]
-bp = ax.boxplot(trace_lengths, labels=[short_names[m] for m in models], 
+bp = ax.boxplot(trace_lengths, tick_labels=[short_names[m] for m in models],
                 patch_artist=True, widths=0.6, showfliers=True,
                 medianprops=dict(color='black', linewidth=2))
 for patch, color in zip(bp['boxes'], colors):
