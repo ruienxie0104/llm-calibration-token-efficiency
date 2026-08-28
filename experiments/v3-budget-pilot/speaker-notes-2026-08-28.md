@@ -46,21 +46,15 @@ V1 教訓：需要更難的題目、信心收集、更細的活動分類。
 
 ---
 
-## 6 — V2
+## 6 — V2（含 Rebuild）
 
-MMLU+ARC 100 題，4 模型（GLM-4.7 退休），加入信心收集和校準指標。
+V2 換成 MMLU+ARC 100 題，4 模型，加入信心收集和校準指標。
 
-信心 prompt 有個教訓：最初無上下文問「你有多確定」→ DeepSeek 回傳 2%，完全失真。改成多輪對話式，根據完整推理過程問 → 99%。這本身就是一個 methodology finding。
+信心 prompt 有個教訓：最初無上下文問「你有多確定」→ DeepSeek 回傳 2%。改成多輪對話式 → 99%。這本身就是一個 methodology finding。
 
----
+但執行後發現多個 bug——conformance 讀錯欄位、Levenshtein 非對稱、JSD 標錯。修正後數據完全不同：GPT-20B 從 56% 跳到 98%，信心差距全部縮小到趨近於零。前一版「信心差距反相關」的發現直接被推翻。
 
-## 7 — V2 Rebuild
-
-執行中發現多個 bug。Conformance 讀錯欄位，alignment 全 0。Levenshtein 非對稱。JSD 標錯。Confidence 截斷文字。
-
-修正後數據完全不同——GPT-20B 從 56% 跳到 98%，信心差距全部縮小到趨近於零。前一版「信心差距與準確率反相關」的核心發現被推翻。
-
-V2 校準分析價值下降，但 PM pipeline 驗證成功。重要的是暴露了 prompt sensitivity、confidence scarcity 等問題，後續不會重複犯錯。
+結果：V2 校準分析價值下降，但 PM pipeline 驗證成功。重要的是暴露了 prompt sensitivity、confidence scarcity、Petri net flower model 等問題，後續實驗不會重複犯錯。
 
 ---
 

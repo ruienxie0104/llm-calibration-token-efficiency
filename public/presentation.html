@@ -19,6 +19,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  html { scroll-behavior: smooth; }
   .slide { max-width: 1100px; margin: 0 auto; padding: 40px 30px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; border-bottom: 1px solid var(--border); }
   .slide h1 { font-size: 2.4em; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
   .slide h2 { font-size: 1.8em; font-weight: 700; margin: 24px 0 12px; color: var(--accent); }
@@ -148,7 +149,7 @@
 </div>
 
 <!-- SECTION 2 -->
-<div class="section-title"><h1>初步實驗探索</h1><p>V1 → V2 → V2 Rebuild：從可行性驗證到 Bug 修正</p></div>
+<div class="section-title"><h1>初步實驗探索</h1><p>V1 → V2（含 Rebuild）：從可行性驗證到經驗學習</p></div>
 
 <div class="slide">
   <h1>V1：Process Mining 可行性驗證</h1>
@@ -200,11 +201,10 @@
   </table>
 
   <div class="ibox"><strong>信心 Prompt 教訓：</strong>無上下文 prompt（「你回答了 D，有多確定？」）→ DeepSeek 回傳 2%（無效）。改成多輪對話式 → DeepSeek 99%（有效）。<strong>無上下文的信心 prompt 會產生完全失真的數據。</strong></div>
-</div>
 
-<div class="slide">
-  <h1>V2 Rebuild：Bug 修正與數據翻轉</h1>
-  
+  <h3>過程中的重要轉折：Bug 修正與數據翻轉</h3>
+  <p>V2 執行後發現多個程式 bug，進行了完整 rebuild。修正後的數據與初版完全不同。</p>
+
   <table>
     <tr><th>Bug</th><th>原本問題</th><th>修正</th></tr>
     <tr><td>Conformance</td><td>讀取不存在欄位 → alignment 全 0</td><td>只計 log/model move</td></tr>
@@ -213,7 +213,7 @@
     <tr><td>Confidence</td><td>只傳 response，截斷 500 字</td><td>完整 thinking+response</td></tr>
   </table>
 
-  <div class="grid2" style="margin-top:16px;">
+  <div class="grid2">
     <div class="card card-r">
       <h4>Rebuild 前（有 bug）</h4>
       <ul><li>GPT-20B 準確率 56%</li><li>信心差距 +33~+81</li><li>「反相關」核心發現</li><li>Alignment 全 0</li></ul>
@@ -224,7 +224,7 @@
     </div>
   </div>
 
-  <div class="ibox"><strong>影響：</strong>V2 作為校準分析的價值大幅下降（準確率變異消失）。但作為 PM pipeline 驗證仍成功 ─ 暴露了 prompt sensitivity、confidence scarcity、Petri net flower model 等問題，後續實驗不會重複犯錯。</div>
+  <div class="ibox"><strong>教訓：</strong>V2 校準分析價值下降（準確率變異消失），但 PM pipeline 驗證成功。重要的是暴露了 prompt sensitivity、confidence scarcity、Petri net flower model 等問題，後續實驗不會重複犯錯。</div>
 </div>
 
 <!-- SECTION 3 -->
