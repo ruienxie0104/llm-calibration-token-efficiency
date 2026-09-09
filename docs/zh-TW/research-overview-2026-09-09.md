@@ -14,13 +14,11 @@
 
 Chen et al. (IEEE IRI 2026) 提出了 **LCAE（Latent Confidence Alignment Error）** 框架，核心方法是使用 **IRT（Item Response Theory）的 Rasch Model**：
 
-\[
-P(\text{模型 m 答對題目 i}) = \sigma(\theta_m - \beta_i)
-\]
+$$P(\text{模型 m 答對題目 i}) = \sigma(\theta_m - \beta_i)$$
 
-- \(\theta_m\)：模型 m 的 latent ability（能力）
-- \(\beta_i\)：題目 i 的 latent difficulty（難度）
-- \(\sigma\)：logistic function
+- $\theta_m$：模型 m 的 latent ability（能力）
+- $\beta_i$：題目 i 的 latent difficulty（難度）
+- $\sigma$：logistic function
 
 這把模型能力和題目難度放在同一把尺上，可以客觀計算出模型在每題的答錯機率。
 
