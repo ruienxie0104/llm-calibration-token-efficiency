@@ -1,0 +1,118 @@
+{
+  "GPT-OSS-20B": {
+    "256": {
+      "n": 178,
+      "n_correct": 0,
+      "brier": 0.7469280898876405,
+      "avg_confidence": 78.57303370786516,
+      "conf_correct": 0,
+      "conf_wrong": 78.57303370786516,
+      "confidence_gap": -78.57303370786516
+    },
+    "512": {
+      "n": 178,
+      "n_correct": 34,
+      "brier": 0.6182325842696634,
+      "avg_confidence": 85.28089887640449,
+      "conf_correct": 98.26470588235294,
+      "conf_wrong": 82.21527777777777,
+      "confidence_gap": 16.04942810457517
+    },
+    "1024": {
+      "n": 178,
+      "n_correct": 86,
+      "brier": 0.44063033707865196,
+      "avg_confidence": 93.85393258426966,
+      "conf_correct": 97.6046511627907,
+      "conf_wrong": 90.34782608695652,
+      "confidence_gap": 7.256825075834186
+    }
+  },
+  "GPT-OSS-120B": {
+    "256": {
+      "n": 180,
+      "n_correct": 0,
+      "brier": 0.45053833333333393,
+      "avg_confidence": 52.205555555555556,
+      "conf_correct": 0,
+      "conf_wrong": 52.205555555555556,
+      "confidence_gap": -52.205555555555556
+    },
+    "512": {
+      "n": 180,
+      "n_correct": 31,
+      "brier": 0.40230333333333385,
+      "avg_confidence": 64.26666666666667,
+      "conf_correct": 97.12903225806451,
+      "conf_wrong": 57.42953020134228,
+      "confidence_gap": 39.69950205672223
+    },
+    "1024": {
+      "n": 180,
+      "n_correct": 91,
+      "brier": 0.32013111111111114,
+      "avg_confidence": 83.42222222222222,
+      "conf_correct": 96.05494505494505,
+      "conf_wrong": 70.50561797752809,
+      "confidence_gap": 25.54932707741696
+    }
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "256": {
+      "n": 173,
+      "n_correct": 33,
+      "brier": 0.6047687861271677,
+      "avg_confidence": 80.90173410404624,
+      "conf_correct": 100.0,
+      "conf_wrong": 76.4,
+      "confidence_gap": 23.599999999999994
+    },
+    "512": {
+      "n": 177,
+      "n_correct": 89,
+      "brier": 0.3718525423728814,
+      "avg_confidence": 88.14124293785311,
+      "conf_correct": 100.0,
+      "conf_wrong": 76.14772727272727,
+      "confidence_gap": 23.852272727272734
+    },
+    "1024": {
+      "n": 180,
+      "n_correct": 119,
+      "brier": 0.28387055555555557,
+      "avg_confidence": 94.7388888888889,
+      "conf_correct": 100.0,
+      "conf_wrong": 84.47540983606558,
+      "confidence_gap": 15.52459016393442
+    }
+  },
+  "GLM-5.2-756B": {
+    "256": {
+      "n": 179,
+      "n_correct": 0,
+      "brier": 0.9158463687150836,
+      "avg_confidence": 91.94972067039106,
+      "conf_correct": 0,
+      "conf_wrong": 91.94972067039106,
+      "confidence_gap": -91.94972067039106
+    },
+    "512": {
+      "n": 179,
+      "n_correct": 8,
+      "brier": 0.9039486033519551,
+      "avg_confidence": 95.12849162011173,
+      "conf_correct": 100.0,
+      "conf_wrong": 94.90058479532163,
+      "confidence_gap": 5.099415204678365
+    },
+    "1024": {
+      "n": 180,
+      "n_correct": 66,
+      "brier": 0.6097116666666667,
+      "avg_confidence": 97.62777777777778,
+      "conf_correct": 99.77272727272727,
+      "conf_wrong": 96.3859649122807,
+      "confidence_gap": 3.3867623604465678
+    }
+  }
+}
