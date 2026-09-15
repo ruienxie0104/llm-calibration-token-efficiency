@@ -1,7 +1,7 @@
 # LLM 自我評估校準與推理 Token 分配效率之研究
 
 > **完整敘事：從研究動機到最新發現**
-> 最後更新：2026-09-11
+> 最後更新：2026-09-15（加入 Soft Constraint Pilot 結果）
 
 ---
 
@@ -9,25 +9,26 @@
 
 ### 背景：為什麼要研究這個問題？
 
-大型語言模型（LLM）在進行推理時，會產生大量的 token 消耗。每個 API 呼叫的 token 成本直接反映在運算時間與金錢成本上。隨著 LLM 被廣泛應用在各種場景，如何有效率地使用 token — 特別是在推理過程中 — 成為一個重要的研究問題。
+LLM 推理消耗大量 token，每個 API 呼叫都有成本。現有 adaptive reasoning 研究（如 Think Just Enough）假設模型對自己的信心可以直接作為推理深度的控制信號。但這個假設建立在一個未被檢驗的前提上——模型信心的校準品質是否足夠可靠？
 
-然而，目前大部分推理效率的研究（如 adaptive reasoning、early stopping）都假設模型對自己的信心可以直接作為推理深度的控制信號，但這個假設的基礎 — 模型信心的校準品質 — 本身卻很少被檢驗。
+更根本的問題是：這些研究在設計預算約束實驗時，普遍沒有區分 **hard constraint（API 層截斷）** 和 **soft constraint（prompt 指示）**。如果兩種機制下模型的行為根本不同，那麼所有基於「預算約束下模型表現」的結論都需要重新檢視。
 
 ### 核心研究問題
 
-> **LLM 自我評估的校準品質，能否預測並改善推理 Token 的分配效率？更具體地說：校準品質越好的模型，是否能在 token 預算有限的情況下，做出更合理的資源分配，從而在相同 token 成本下達到更高的準確率？**
+本研究試圖回答兩個問題：
 
-這個問題可以拆解為兩個層次：
-
-1. **測量層次：** 如何準確評估 LLM 的自我評估校準品質？（傳統 Brier Score vs IRT-based LCAE）
-2. **應用層次：** 校準品質是否能實際預測模型在不同 token 預算下的表現變化？（Budget Sensitivity）
+- **RQ1（方法論）：** Hard constraint 與 soft constraint 兩種預算機制，對模型推理行為的影響是否根本不同？文獻中對這個區分的缺失是否會影響現有結論？
+- **RQ2（校準與效率）：** 在軟約束（有 agency）的情境下，模型能夠自主分配 token 時，校準品質與 token 效率之間的關係是什麼？adaptive reasoning 所依賴的校準信號在這種情境下是否仍然有效？
 
 ### 核心假設
 
-校準好的模型不一定在無限制情況下使用更少的 token，但它的分配應該更合理：
-- **簡單題 / 高把握題：** 避免 overthinking，用較少 token 即可
-- **困難題 / 低把握題：** 保留足夠的推理預算
-- **結果：** 在相同 token 總預算下，校準好的模型能達到更高的準確率
+**原始假設：** 校準好的模型分配更合理——簡單題少 token、困難題多 token。
+
+**這個假設在 hard constraint 下無法被驗證**——模型沒有分配 agency，輸出只是被截斷。經過 soft pilot 實驗後，我們發現了一個更根本的問題：
+
+> **模型在有 agency 的情境下（soft constraint），準確率大幅提升，但校準能力反而下降——adaptive reasoning 依賴的校準信號在它最需要的情境下消失了。**
+>
+> 這不是 trade-off，而是對這個領域最重要的警告。
 
 ---
 
@@ -35,188 +36,166 @@
 
 ### 學姐論文：LCAE 框架 (Chen et al., IEEE IRI 2026)
 
-本研究的直接起點是學姐的 LCAE（Latent Confidence Alignment Error）框架，該框架使用 **IRT（Item Response Theory）的 Rasch Model**：
+本研究直接起點是學姐的 LCAE 框架（IRT Rasch Model：$\sigma(\theta_m - \beta_i)$）。學姐證明了能力強 ≠ 自評準、IDS 可改善校準，並提到 cost 關聯但未驗證。這是我的切入點。
 
-$$P(\text{模型 } m \text{ 答對題目 } i) = \sigma(\theta_m - \beta_i)$$
+### 預算機制在文獻中的缺失
 
-其中 $\theta_m$ 是模型能力、$\beta_i$ 是題目難度、$\sigma$ 是 logistic function。
+經 survey 發現，現有 token 預算相關研究可分為五類，但**沒有任何一篇論文明確討論或比較 hard constraint 與 soft constraint 的差異**：
 
-學姐的三個關鍵發現：
-1. **能力強 ≠ 自評準** — GPT-5 能力最強但自評不是最好
-2. **IDS（給難度訊號）**最有效改善校準，且不傷能力
-3. 提到 reliability 與 inference cost 有關聯，但未深入驗證
+| 類別 | 代表論文 | 約束機制 | 明確說明機制？ |
+|------|---------|---------|--------------|
+| Hard constraint | R³-Bench (2026)、TALE (2025) | API 層截斷（推測） | ❌ 未說明 |
+| Soft constraint | TALE (2025)、Steering LLM (2026) | Prompt 指示 | ❌ 未說明 |
+| 動態停止 | Think Just Enough (2026) | 無固定預算 | ✅ N/A |
+| 訓練-based | SelfBudgeter (2026)、CAT (2026) | 訓練階段學習 | ✅ 不同範式 |
+| 事後截斷 | 常見 baseline | 生成後剪裁 | ❌ 未說明 |
+
+**關鍵觀察：** 即使是明確使用了 soft constraint 的論文（如 TALE），也未驗證模型是否真的遵守預算指示。遵從性假設被忽略。
 
 ### 競爭者分析
 
-| 工作 | 方法 | 與本研究的差異 |
-|------|------|----------------|
-| **Think Just Enough** (EACL 2026) | 自評信心做 stopping signal | 信心未經校準 → 我們比較 raw vs IRT-calibrated |
-| **SelfBudgeter** (ACL 2026) | 訓練模型預估 token 預算 | 需要訓練 → 我們是 training-free |
-| **Capability Calibration** (arXiv 2026) | 校準品質指導 best-of-k 配置 | 配置 sampling 次數 → 我們配置 reasoning length |
-| **Sonata / Adaptive Thinking** (ICLR 2026) | Hidden-state adapter 預測 consistency | 需 hidden states → 我們只需 verbalized confidence |
-
-### 本研究的差異化定位
-
-| 面向 | 競爭者 | 本研究 |
-|------|--------|--------|
-| 校準方法 | raw confidence / hidden state | **IRT/LCAE psychometric calibration** |
-| 訓練需求 | SFT + RL / preference optimization | **Training-free** |
-| 模型存取 | hidden states / logits | **Black-box compatible** |
-| 配置對象 | sampling 次數 / best-of-k | **Single-trajectory reasoning length** |
-| 因果驗證 | cross-model correlation | **IDS intervention（可驗證因果鏈）** |
-| 機制分析 | 無 | **Process Mining 行為診斷** |
+| 競爭者 | 我們可差異化 |
+|--------|------------|
+| Think Just Enough | 信心未經校準 vs IRT-calibrated |
+| SelfBudgeter | 需 training vs training-free |
+| Sonata | 需 hidden states vs black-box |
+| R³-Bench | 無區分 hard/soft vs 我們證明兩者不同 |
 
 ---
 
-## 三、使用的方法
+## 三、方法
 
-### 3.1 校準評估方法
-
-本研究同時使用兩種校準指標進行比較：
-
-**Brier Score（傳統基準）：**
-$$Brier = \frac{1}{N}\sum_{i=1}^{N}(conf_i - correct_i)^2$$
-- 比較模型信心與當次答對/答錯的差距
-- 文獻標準（Guo et al., 2017; Kadavath et al., 2022）
-
-**LCAE（IRT-based，學姐方法）：**
-$$LCAE_m = \frac{1}{N}\sum_{i}((1 - conf_i/100) - (1 - \sigma(\theta_m - \beta_i)))^2$$
-- 利用 IRT 同時考慮模型能力 $\theta_m$ 與題目難度 $\beta_i$
-- 比 Brier 多了解釋層面
-
-### 3.2 Controlled Budget Sweep（本研究原創方法）
-
-這是我們的核心實驗設計。概念上類似藥物試驗中的劑量反應曲線：
-
-**做法：** 讓同一個模型用不同的 token 預算回答同一題目，記錄不同預算下的準確率變化。
-
-```
-Budget 256: 模型只能產出 256 tokens → 記錄答對/答錯
-Budget 512: 模型可以產出 512 tokens → 記錄答對/答錯
-Budget 1024: 接近無限制 → 作為對照組
-```
-
-**為什麼這樣設計：** 如果我們直接比較不同模型在無限制情況下的 token 使用量，無法區分「模型本來就比較簡潔」和「模型因為校準好而更有效率」。透過固定預算，我們讓所有模型在「相同的資源限制」下競爭，能更公平地比較 token 使用效率。
-
-### 3.3 Process Mining（輔助分析）
-
-將模型的 Chain-of-Thought 切成活動序列（understand / reason / calculate / evaluate / verify / reconsider / answer），使用 pm4py 進行流程發現、熵分析、Jensen-Shannon 散度分析。
+- **Brier Score：「信心−對錯」的差距，標準 baseline**
+- **LCAE（IRT-based）：** 同時考慮 $\theta_m$ 與 $\beta_i$，比 Brier 多了解釋層面
+- **Controlled Budget Sweep：** 固定 token 預算比較模型表現（**hard constraint 設計**）
+- **Soft Constraint Prompt：** prompt 中指示模型在 N tokens 內完成（**新設計，比較用**）
+- **Process Mining：** 活動序列分析，診斷推理行為的結構差異
 
 ---
 
 ## 四、實驗設計
 
-### 4.1 模型選擇
+### 模型
 
-| 模型 | 參數量 | 架構 | 校準預期 |
-|------|--------|------|---------|
-| GPT-OSS-20B | 21B | Dense | 校準較差（小模型） |
-| GPT-OSS-120B | 117B | Dense | 校準中等 |
-| DeepSeek-V4-Flash | 158B | MoE (13B active) | 校準較好 |
-| GLM-5.2 | 756B | MoE (40B active) | 最大模型，校準未知 |
+| 模型 | 參數量 | 架構 |
+|------|--------|------|
+| GPT-OSS-20B | 21B | Dense |
+| GPT-OSS-120B | 117B | Dense |
+| DeepSeek-V4-Flash | 158B | MoE (13B active) |
+| GLM-5.2 | 756B | MoE (40B active) |
 
-**選擇策略：** 覆蓋從 21B 到 756B 的能力光譜，且包含不同架構（Dense vs MoE）與不同校準特性。
+### 題目
 
-### 4.2 題目選擇
+MATH-500 Level 3 + Level 4，共 60 題（Phase 3）/ 30 題（Soft Pilot）
 
-**MATH-500（Level 3 + Level 4）：**
-- 標準化 benchmark（MATH 被 Think Just Enough、TALE、SelfBudgeter 等論文廣泛使用）
-- Level 3（中等難度 30 題）+ Level 4（中高難度 30 題）= 60 題
-- 排除 Level 1-2（太簡單）和 Level 5（太難，連高預算都答不出來）
+### 預算設定
 
-### 4.3 Token 預算設定
-
-| Budget | 佔自然用量比例 | 預期效果 |
-|--------|--------------|---------|
-| 256 | ~30% | 顯著壓縮，多數模型無法完整推理 |
-| 512 | ~60% | 中等壓縮，開始能看到差異 |
-| 1024 | ~110% | 接近無限制，作為對照組 |
-
-**設計邏輯：** 自然用量平均約 600-900 tokens。256 是「極度不足」、512 是「勉強夠用」、1024 是「接近充足」。三個等級涵蓋從不足到充足的連續變化。
-
-### 4.4 實驗規模
-
-**Phase 2（先導）：** 2 模型 × 30 題 × 4 budgets × 2 reps = 480 calls
-**Phase 3（決定性）：** 4 模型 × 60 題 × 3 budgets × 3 reps = 2,160 次答題 + 2,160 次信心評估 = **4,320 次 API 呼叫**
+| Budget | 效果 |
+|--------|------|
+| 256 | 極度不足 — 多數模型 hard 下 0% |
+| 512 | 中等壓縮 |
+| 1024 | 接近無限制（對照組） |
 
 ---
 
 ## 五、最新發現
 
-### 5.1 Budget Sensitivity：誰在低資源下表現最好？
+### 5.1 Phase 3：Hard Constraint 下的四個發現
 
-| 模型 | @ 256 | @ 512 | @ 1024 | 能力 θ | LCAE |
-|------|-------|-------|--------|-------|------|
-| GPT-OSS-20B | 0.0% | 19.4% | 48.3% | −0.086 | 0.341 |
-| GPT-OSS-120B | 0.0% | 17.2% | 50.6% | +0.003 | **0.247** |
-| **DeepSeek** | **18.3%** | **49.4%** | **66.1%** | **+0.649** | 0.303 |
-| GLM-5.2 | 0.0% | 4.4% | 36.7% | −0.566 | 0.438 |
+#### 發現一：能力 θ 與校準 LCAE 是兩個獨立維度
 
-**核心發現：只有 DeepSeek 在 256 時還有 18.3% 準確率，其他三個模型全部 0%。**
+| 模型 | Acc@1024 | 能力 θ | LCAE |
+|------|---------|-------|------|
+| DeepSeek | **66.1%** | **+0.649** | 0.303 |
+| GPT-120B | 50.6% | +0.003 | **0.247** |
+| GPT-20B | 48.3% | −0.086 | 0.341 |
+| GLM-5.2 | 36.7% | −0.566 | 0.438 |
 
-### 5.2 能力 vs 校準：兩個獨立維度
+#### 發現二：Brier vs LCAE 排名不同
 
-| 模型 | 能力 θ | LCAE | 能力排名 | 校準排名 |
-|------|-------|------|---------|---------|
-| DeepSeek | **+0.649** | 0.303 | 1 | 2 |
-| GPT-120B | +0.003 | **0.247** | 2 | **1** |
-| GPT-20B | −0.086 | 0.341 | 3 | 3 |
-| GLM-5.2 | −0.566 | 0.438 | 4 | 4 |
+Brier 看 DeepSeek 最好；LCAE 看 GPT-120B 最好。選擇指標影響模型判斷。
 
-**發現：能力最強的模型（DeepSeek）校準不是最好的。校準最好的模型（GPT-120B）能力不是最強的。** 這呼應學姐論文的核心論點：能力強 ≠ 自評準。
+#### 發現三：信心差距可做代理指標
 
-### 5.3 Brier vs LCAE：選擇指標影響模型判斷
+GPT-120B（+25.5）> DeepSeek（+15.5）> GPT-20B（+7.3）> GLM-5.2（+3.4）。與 LCAE 排序一致。
 
-| 模型 | Brier（越低越好） | LCAE（越低越好） |
-|------|-----------------|----------------|
-| DeepSeek | **0.284**（第 1 名） | 0.303（第 2 名） |
-| GPT-120B | 0.320（第 2 名） | **0.247**（第 1 名） |
+#### 發現四：IDS 改善校準但不改善準確率
 
-**發現：Brier 和 LCAE 對同批模型的校準排名給出不同答案。** 如果你只看 Brier，會認為 DeepSeek 校準最好；如果你看 LCAE，會認為 GPT-120B 校準最好。這證明 LCAE 捕捉到了 Brier 看不到的訊息——它考慮了題目難度和模型能力的差異。
+| 效果 | 結果 |
+|------|------|
+| 校準改善？ | ✅ GPT-120B Brier ↓, 答錯信心 ↓ |
+| 準確率提升？ | ❌ 無顯著變化 |
 
-### 5.4 信心差距：誰知道自己錯了？
+這條線索讓我們開始懷疑：hard constraint 下模型是否有 agency？
 
-（@1024 預算下）
+### 5.2 PM 分析：Hard 下模型被截斷
 
-| 模型 | 答對時信心 | 答錯時信心 | **差距** | 自覺程度 |
-|------|---------|---------|---------|---------|
-| GPT-20B | 98% | 90% | +7.3 | 稍能自覺 |
-| **GPT-120B** | **96%** | **71%** | **+25.5** | **最有自知之明** |
-| DeepSeek | 100% | 84% | +15.5 | 中等 |
-| **GLM-5.2** | **100%** | **96%** | **+3.4** | **最沒自覺** |
+256 tokens 下模型平均只有 1-2 個 step，answer 全部為 0%。
 
-**發現：GPT-120B 答錯時信心降到 71%（知道自己不會），GLM-5.2 答錯時還有 96%（完全不知道自己錯了）。** 信心差距的排序與 LCAE 完全一致，因此可以做為一個簡易的校準代理指標。
+| 模型 | @256 步數 | @1024 步數 | Answer@256 |
+|------|----------|-----------|-----------|
+| GPT-120B | 1.8 | 12.7 | 0.0% |
+| DeepSeek | 2.3 | 6.6 | 0.0% |
 
-### 5.5 雙維度框架
+**解釋了 IDS 為什麼無效：** 模型沒有分配 agency，校準訊號沒有作用空間。
 
-綜合以上發現，我們提出一個新的理解框架：
+### 5.3 Soft Constraint Pilot：兩種機制根本不同（核心發現）
 
-> **模型在資源受限時的推理表現，由兩個獨立維度共同決定：**
-> 1. **校準品質（知道自己會不會）** — 以 LCAE 測量
-> 2. **推理效率（把 token 花在刀口上）** — 以 budget sensitivity 測量
+#### Soft vs Hard 準確率
 
-這兩個維度過去被分開研究，但我們證明兩者獨立且都重要。最理想的模型是兩者兼備，但目前的模型尚未達到。
+| 模型 | Budget | Hard 準確率 | Soft 準確率 | 差距 |
+|------|--------|-----------|-----------|------|
+| **GPT-120B** | **256** | **0.0%** | **74.4%** | **+74%** |
+| GPT-120B | 512 | 17.2% | 76.7% | +60% |
+| DeepSeek | 256 | 18.3% | 80.0% | +62% |
+| DeepSeek | 512 | 49.4% | 82.2% | +33% |
+
+#### 遵從性分析
+
+| 模型 | Budget | 遵守預算 | 超過預算 |
+|------|--------|---------|---------|
+| GPT-120B | 256 | 31/90 | 59/90 |
+| DeepSeek | 256 | 74/90 | 16/90 |
+
+即使低遵從性，soft 仍大幅優於 hard — 「有 agency」本身比「精確遵守預算」更重要。
+
+#### 最重要的發現：Soft 下校準變差了
+
+| 模型 | Budget | Hard 差距 | **Soft 差距** |
+|------|--------|----------|-------------|
+| GPT-120B | 256 | −52.2（全錯，能自覺） | **+1.5（幾乎沒區分力）** |
+| GPT-120B | 512 | +39.7（最好校準） | **−0.5（校準消失）** |
+| DeepSeek | 256 | +23.6 | **0.0** |
+| DeepSeek | 512 | +23.9 | **−0.1** |
+
+**模型在有 agency 的情況下，準確率大大提高，但同時失去了校準能力——它不知道自己在瞎猜。** 這直接回應了研究動機：adaptive reasoning 所依賴的校準信號，在它最需要被使用的場景下（soft constraint with agency）反而失效了。
+
+### 五維對比
+
+| 面向 | Hard Constraint | Soft Constraint |
+|------|---------------|----------------|
+| 準確率 @256 | 0-18% | **74-80%** |
+| 校準品質 | **✅ 較好** | ❌ 較差（差距趨近 0） |
+| 模型 agency | ❌ 無（截斷） | ✅ 有 |
+| DeepSeek vs GPT-120B | DeepSeek 大勝 | 兩者接近 |
+| IDS 效果 | 改善校準，不改善準確率 | 📝 待測試 |
 
 ---
 
-## 六、研究貢獻總結
+## 六、研究貢獻
 
-1. **新的研究問題：** 首次系統性探討「校準品質是否能預測 token 分配效率」
-2. **新的實驗方法：** 設計 Controlled Budget Sweep 作為標準化評估框架
-3. **新的發現：**
-   - 能力 θ 與校準 LCAE 是兩個獨立維度
-   - Brier vs LCAE 對模型排名給出不同答案
-   - 信心差距可做為簡易校準代理指標
-   - 首次公開 4 模型 × 3 預算的完整準確率曲線
-4. **新的整合框架：** 校準品質 × 推理效率 = 資源受限表現
+1. **新的方法論洞察：** 首次區分 hard constraint 與 soft constraint 兩種預算機制，並證明兩者行為根本不同——但文獻中從未被明確討論
+2. **新的發現 — 校準效率 trade-off：** 模型在 soft constraint 下準確率高但校準能力消失，直接挑戰 adaptive reasoning 的核心假設
+3. **新的方法論貢獻：** 用 Process Mining 診斷推理截斷的行為機制，提供可視化的行為序列分析
+4. **誠實的負面結果：** IDS 改善校準但不改善準確率，揭示因果鏈的斷點在模型 agency 的缺失
 
 ---
 
 ## 七、下一步
 
-| 項目 | 優先級 | 說明 |
-|------|--------|------|
-| **IDS Intervention** | 最高 | 驗證因果鏈：IDS 改善 LCAE → 改善 token 分配。跟學姐論文最直接銜接 |
-| 論文投稿 | 高 | 目標 IEEE Big Data 2026（10 月截止）或 BPM/ICPM |
-| Activity Labeling 驗證 | 中 | 人工標註 100 段樣本，驗證規則式分割可靠性 |
-| PM 機制分析 | 中 | 將 Phase 3 資料跑 entropy/JSD 分析 |
+| 優先級 | 項目 | 說明 |
+|--------|------|------|
+| **最高** | Soft + IDS 實驗 | 在有 agency 的情境下，IDS 是否能改善 token 分配？ |
+| 高 | 論文初稿 | 以「校準效率 trade-off 與 hard/soft 機制區分」為核心敘事 |
+| 中 | Activity Labeling | 人工標註 100 段樣本 |
+| 低 | Post-hoc 模擬 | 從 1024 數據模擬事後截斷效果，成本為零 |
