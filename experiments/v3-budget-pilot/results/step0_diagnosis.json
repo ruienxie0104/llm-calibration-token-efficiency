@@ -1,0 +1,10 @@
+{
+  "GPT-OSS-120B": {
+    "n_questions": 30,
+    "n_pos_gain": 1
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "n_questions": 30,
+    "n_pos_gain": 1
+  }
+}
