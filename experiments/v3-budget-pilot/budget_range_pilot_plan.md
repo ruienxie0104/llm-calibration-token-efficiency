@@ -1,17 +1,17 @@
-# Budget-Range Pilot 規劃
+# Budget-Range Pilot 規劃（v2）
 
 > 2026-09-16
-> 目的：掃描多個 Soft budget 設定，找出有效 L/H 區間
+> 目的：掃描 Soft budget 是否真的能形成實際成本差與收益變異
 
 ---
 
-## 為什麼要做？
+## 實驗定位
 
-Step 0 發現 Soft 256/512 的實際成本差只有 51-126 tokens，不足以產生可預測的 gain 變異。
-下一輪需先用少量題目掃描多個預算設定，確認：
-1. 哪些設定能真正拉開實際 token 成本
-2. 哪些設定之間存在 accuracy gain 變異
-3. Soft prompt 是否可靠的成本控制介面
+這輪只回答一個問題：**Soft prompt 是否能可靠地控制推理 token 成本？**
+
+- 不測試 confidence（留到 Phase B）
+- 不預測 gain（只檢查收益分布）
+- 所有 L/H 組合都分析（15 對）
 
 ---
 
@@ -19,59 +19,64 @@ Step 0 發現 Soft 256/512 的實際成本差只有 51-126 tokens，不足以產
 
 ### 模型
 
-一個模型即可（建議 GPT-OSS-120B，因它在 Soft 下遵從度較低、token 差距較大，對成本差更敏感）
+GPT-OSS-120B 優先（Soft 遵從度低、token 範圍廣，對成本差更敏感）
 
 ### 題目
 
-- 30 題 MATH-500 Level 3+4（沿用 Phase 3 題目，與既有數據可比較）
-- 「這只是掃描用的 pilot，目的是找設定，不是做最終結論」
+30 題 MATH-500 Level 3+4（與 Phase 3 相同，便於比較）
 
-### Budgets 掃描
+### Budgets
 
-| Budget | 實際預期 | 測試目的 |
-|--------|---------|---------|
-| **64** | 極低 | 確認是否全面無法完成（截斷或無答案） |
-| **128** | 很低 | 多數題目被截斷，但部分可能完成 |
-| **256** | 中低 | 現有設定，基準線 |
-| **512** | 中 | 現有設定，基準線 |
-| **1024** | 中高 | 接近現有自然用量 |
-| **2048** | 高 | 明顯高於自然用量 |
+64 / 128 / 256 / 512 / 1024 / 2048
 
 ### 規模
 
 ```
-1 模型 × 30 題 × 6 budgets × 2 replicates = 360 calls
-（含信心評估 × 360 = 720 總呼叫）
+1 模型 × 30 題 × 6 budgets × 2 reps = 360 calls
+（不含 confidence calls — 待選定有效 L/H 後再測）
 ```
-
-### 分析
-
-對每個 budget 計算：
-- 實際 completion tokens（平均、分佈）
-- 準確率
-- 超出 Soft 預算比例
-- 被截斷比例（若使用 Hard cap 時）
-- 答案可解析率
-
-對每對相鄰 budget 計算：
-- 實際 token 差
-- Accuracy gain（H − L）
-- 有正 gain 的題目佔比
-
-### 預期輸出
-
-1. 實際成本—預算曲線（token vs budget level）
-2. 準確率—預算曲線
-3. 收益分布直方圖
-4. L/H 建議組合（如 128 vs 1024，或 256 vs 2048）
 
 ---
 
-## Go/No-Go 條件
+## 分析
 
-| 條件 | 如果成立 | 決定 |
-|------|---------|------|
-| 任一組相鄰 budget 的實際成本差 > 500 tokens | 有待測試的 L/H | ✅ 進正式預計 |
-| 所有 budget 的實際 cost 都集中在同一區間 | Soft prompt 不可靠 | ❌ 改 hard cap 或 sampling-based |
-| 有至少 20% 題目在 L→H 間有正 gain | 收益異質性存在 | ✅ 進方向一 |
-| 所有 gain 都來自於截斷（非推理改善） | 收益是偽影 | ⚠️ 需 redesign |
+對每個 budget 計算：
+- 實際 completion tokens（平均、分佈、中位數）
+- 準確率
+- `over_soft_budget_rate`：超過 prompt 建議預算的比例
+- `answer_parse_rate`：可解析答案的比例
+- `api_length_stop_rate`：有 stop reason 時才報告
+
+對所有 15 對 L/H 組合計算：
+- 實際 token 差（中位數、CI）
+- 平均 accuracy gain（H − L）
+- 逐題 gain 分布（正 / 零 / 負比例）
+- 答案可解析率差異
+
+---
+
+## L/H 選擇條件
+
+同時滿足以下四項才選用：
+
+1. **成本可分離**：H 的實際 token 明顯高於 L，bootstrap CI 不大量重疊
+2. **答案有效**：L 不會出現大量無法解析或無最終答案
+3. **收益有變異**：逐題 L→H gain 有正、零兩類以上
+4. **成本與收益有取捨**：不是 H 對所有題都同時更準、更便宜
+
+---
+
+## Go/No-Go
+
+若掃完 64-2048 後仍發現：
+- 不同 Soft budget 的實際 token 幾乎重疊
+- 或模型頻繁超過所有 Soft budget
+- 或成本有差但逐題 gain 幾乎全為零
+
+→ **Soft prompt 不是可靠的成本控制介面**，改用 hard cap 或 sampling-based compute。
+
+---
+
+## 文件註記
+
+> 本輪 30 題僅用於設定選擇。選出的 L/H 必須在新的、未使用題目上進行正式評估。
