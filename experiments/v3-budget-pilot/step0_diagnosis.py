@@ -111,40 +111,37 @@ for model in models:
             # Bootstrap: resample questions with replacement
             idxs = rng.choices(range(n_items), k=n_items)
             o_acc_sum = 0.0; o_cost_sum = 0.0
-            r_acc_sum = 0.0; r_cost_sum = 0.0
+            o_acc_sum = 0.0; o_cost_sum = 0.0
             
             for i in idxs:
                 _, pL, pH, _, cL, cH, _ = gain_data[i]
-                # Oracle
                 uL = pL - lam * cL / 1000
                 uH = pH - lam * cH / 1000
                 if uH > uL:
                     o_acc_sum += pH; o_cost_sum += cH
                 else:
                     o_acc_sum += pL; o_cost_sum += cL
-                # Random (will adjust rate below)
-                if rng.random() < 0.5:
-                    r_acc_sum += pH; r_cost_sum += cH
-                else:
-                    r_acc_sum += pL; r_cost_sum += cL
             
             o_acc = o_acc_sum / n_items
             o_cost = o_cost_sum / n_items
             oracle_accs.append(o_acc)
             oracle_costs.append(o_cost)
             
-            # Analytical cost-matched random expectation
-            avg_CL = sum(cL for _, _, _, _, cL, _, _ in gain_data) / n_items
-            avg_CH = sum(cH for _, _, _, _, _, cH, _ in gain_data) / n_items
-            q = (o_cost - avg_CL) / (avg_CH - avg_CL) if avg_CH != avg_CL else 0.5
+            # Build bootstrap sample
+            sample_rows = [gain_data[i] for i in idxs]
+            
+            # Analytical cost-matched random expectation (on bootstrap sample)
+            avg_CL = np.mean([cL for _, _, _, _, cL, _, _ in sample_rows])
+            avg_CH = np.mean([cH for _, _, _, _, _, cH, _ in sample_rows])
+            q = (o_cost - avg_CL) / (avg_CH - avg_CL) if avg_CH != avg_CL else 0.0
             q = max(0.0, min(1.0, q))
             
-            # Random expected accuracy and cost (analytical, no sampling noise)
-            r_acc = sum((1-q) * pL + q * pH for _, pL, pH, _, _, _, _ in gain_data) / n_items
+            # Random expected accuracy and cost (analytical, on same bootstrap sample)
+            r_acc = np.mean([(1-q) * pL + q * pH for _, pL, pH, _, _, _, _ in sample_rows])
             r_cost = (1-q) * avg_CL + q * avg_CH
             random_accs.append(r_acc)
             random_costs.append(r_cost)
-            headrooms.append((o_acc - r_acc) * 100))
+            headrooms.append((o_acc - r_acc) * 100)
         
         headroom_mean = np.mean(headrooms)
         ci_lo = np.percentile(headrooms, 2.5)
