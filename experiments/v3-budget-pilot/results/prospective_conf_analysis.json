@@ -8,11 +8,11 @@
         70,
         95
       ],
-      "brier": 0.0263,
-      "ece": 0.2069,
-      "auroc": null,
-      "conf_gap": 86.8,
-      "spearman_r": 0.5438
+      "brier": 0.2173,
+      "ece": 0.1824,
+      "auroc": 0.4132,
+      "conf_gap": -2.4,
+      "spearman_r": -0.134
     },
     "retro_256": {
       "n": 89,
@@ -54,11 +54,11 @@
         60,
         97
       ],
-      "brier": 0.0278,
-      "ece": 0.2049,
-      "auroc": null,
-      "conf_gap": 86.6,
-      "spearman_r": 0.6191
+      "brier": 0.2069,
+      "ece": 0.2186,
+      "auroc": 0.2871,
+      "conf_gap": -4.5,
+      "spearman_r": -0.3158
     },
     "retro_512": {
       "n": 85,
@@ -101,11 +101,11 @@
         70,
         100
       ],
-      "brier": 0.0085,
-      "ece": 0.0739,
-      "auroc": null,
-      "conf_gap": 93.6,
-      "spearman_r": null
+      "brier": 0.193,
+      "ece": 0.1783,
+      "auroc": 0.3603,
+      "conf_gap": -3.1,
+      "spearman_r": -0.2111
     },
     "retro_256": {
       "n": 90,
@@ -147,11 +147,11 @@
         70,
         100
       ],
-      "brier": 0.0078,
-      "ece": 0.0694,
-      "auroc": null,
-      "conf_gap": 93.8,
-      "spearman_r": 0.1497
+      "brier": 0.17,
+      "ece": 0.1461,
+      "auroc": 0.4016,
+      "conf_gap": -2.2,
+      "spearman_r": -0.1406
     },
     "retro_512": {
       "n": 90,
