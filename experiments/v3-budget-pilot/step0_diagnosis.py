@@ -133,29 +133,18 @@ for model in models:
             oracle_accs.append(o_acc)
             oracle_costs.append(o_cost)
             
-            # Find random rate that matches oracle cost
-            o_cost_ref = o_cost
-            best_q = 0.5
-            best_diff = float('inf')
-            all_costs = [(cL, cH) for _, _, _, _, cL, cH, _ in gain_data]
-            for qc in [q/100 for q in range(0, 101)]:
-                rc = sum(cH * qc + cL * (1 - qc) for cL, cH in all_costs) / len(all_costs)
-                diff = abs(rc - o_cost_ref)
-                if diff < best_diff:
-                    best_diff = diff
-                    best_q = qc
+            # Analytical cost-matched random expectation
+            avg_CL = sum(cL for _, _, _, _, cL, _, _ in gain_data) / n_items
+            avg_CH = sum(cH for _, _, _, _, _, cH, _ in gain_data) / n_items
+            q = (o_cost - avg_CL) / (avg_CH - avg_CL) if avg_CH != avg_CL else 0.5
+            q = max(0.0, min(1.0, q))
             
-            # Compute random accuracy with matching rate
-            r_acc2 = 0.0; r_cost2 = 0.0
-            for _, pL, pH, _, cL, cH, _ in gain_data:
-                if rng.random() < best_q:
-                    r_acc2 += pH; r_cost2 += cH
-                else:
-                    r_acc2 += pL; r_cost2 += cL
-            r_acc2 /= n_items; r_cost2 /= n_items
-            random_accs.append(r_acc2)
-            random_costs.append(r_cost2)
-            headrooms.append((o_acc - r_acc2) * 100)
+            # Random expected accuracy and cost (analytical, no sampling noise)
+            r_acc = sum((1-q) * pL + q * pH for _, pL, pH, _, _, _, _ in gain_data) / n_items
+            r_cost = (1-q) * avg_CL + q * avg_CH
+            random_accs.append(r_acc)
+            random_costs.append(r_cost)
+            headrooms.append((o_acc - r_acc) * 100))
         
         headroom_mean = np.mean(headrooms)
         ci_lo = np.percentile(headrooms, 2.5)
