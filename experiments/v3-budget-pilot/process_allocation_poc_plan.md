@@ -236,6 +236,11 @@ results/process_poc_accuracy_cost.png
 
 ## 10. Offline PoC 通過後
 
+在付費 pilot 前，必須先執行 [Stage 1.5 robustness plan](process_stage1_5_plan.md)，排除
+answer/conclude shortcut、分開 empty/non-empty traces，並改用 equal Hard-token budget 比較。
+只有 Stage 1.5 的 unfinished conditional analysis 仍支持 structural process signal，才進入下列
+interventional pilot。
+
 第二階段才進行真正 interventional pilot：
 
 1. 2 models：GPT-120B、DeepSeek。

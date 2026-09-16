@@ -8,6 +8,7 @@ response text instead of trusting historical ``correct`` fields.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import statistics
 import sys
@@ -29,6 +30,8 @@ DEFAULT_RAW = SCRIPT_DIR / "results" / "phase3_raw.json"
 DEFAULT_QUESTIONS = SCRIPT_DIR / "data" / "phase3_questions.json"
 DEFAULT_OUTPUT = SCRIPT_DIR / "results" / "process_poc_dataset.json"
 DEFAULT_AUDIT = SCRIPT_DIR / "results" / "process_poc_dataset_audit.md"
+DEFAULT_EVENT_LOG = SCRIPT_DIR / "results" / "process_poc_event_log.json"
+DEFAULT_PARSER_AUDIT = SCRIPT_DIR / "results" / "process_poc_parser_audit.json"
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,6 +40,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--questions", type=Path, default=DEFAULT_QUESTIONS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--audit", type=Path, default=DEFAULT_AUDIT)
+    parser.add_argument("--event-log", type=Path, default=DEFAULT_EVENT_LOG)
+    parser.add_argument("--parser-audit", type=Path, default=DEFAULT_PARSER_AUDIT)
     parser.add_argument("--low-budget", type=int, default=512)
     parser.add_argument("--high-budget", type=int, default=1024)
     return parser.parse_args()
@@ -51,6 +56,14 @@ def load_json(path: Path):
         )
     with path.open(encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def key(row: dict) -> tuple[str, str, int]:
@@ -148,6 +161,14 @@ def make_record(
         "prefix_similarity": common_prefix_ratio(low_content, high_content),
         "activity_sequence": sequence,
         "process_features": process_features,
+        "event_log": [
+            {
+                "event_index": event.index,
+                "activity": event.activity,
+                "segment_text": event.text,
+            }
+            for event in events
+        ],
     }
 
 
@@ -164,7 +185,10 @@ def audit_markdown(records: list[dict], metadata: dict) -> str:
         f"- Unique questions: **{len({r['question_id'] for r in records})}**",
         f"- Models: **{len(models)}**",
         f"- Missing confidence rows: **{sum(r['confidence_missing'] for r in records)}**",
+        f"- Empty observable event logs: **{sum(not r['activity_sequence'] for r in records)}**",
+        f"- Parser label changes: **{metadata['parser_change_count']}**",
         f"- Low/high budgets: **{metadata['low_budget']} → {metadata['high_budget']}**",
+        f"- Raw SHA-256: `{metadata['source_sha256']}`",
         "",
         "## Outcome distribution",
         "",
@@ -229,28 +253,68 @@ def main() -> None:
         raise ValueError("No paired low/high answer rows were found")
 
     records = []
+    parser_changes = []
     for row_key in paired_keys:
         question_id = row_key[1]
         if question_id not in question_map:
             raise KeyError(f"Question metadata missing for {question_id}")
-        records.append(
-            make_record(
-                row_key=row_key,
-                low=low_answers[row_key],
-                high=high_answers[row_key],
-                confidence=low_confidence.get(row_key),
-                question=question_map[question_id],
-                low_budget=args.low_budget,
-                high_budget=args.high_budget,
-            )
+        record = make_record(
+            row_key=row_key,
+            low=low_answers[row_key],
+            high=high_answers[row_key],
+            confidence=low_confidence.get(row_key),
+            question=question_map[question_id],
+            low_budget=args.low_budget,
+            high_budget=args.high_budget,
         )
+        records.append(record)
+        for budget, source_row, prefix in (
+            (args.low_budget, low_answers[row_key], "low"),
+            (args.high_budget, high_answers[row_key], "high"),
+        ):
+            rescored = bool(record[f"{prefix}_correct"])
+            stored = source_row.get("correct")
+            if stored is not None and bool(stored) != rescored:
+                parser_changes.append(
+                    {
+                        "model": row_key[0],
+                        "question_id": row_key[1],
+                        "replicate": row_key[2],
+                        "budget": budget,
+                        "stored_correct": bool(stored),
+                        "rescored_correct": rescored,
+                        "parsed_answer": record[f"{prefix}_parsed_answer"],
+                        "expected_answer": source_row.get("expected_answer", ""),
+                    }
+                )
+
+    event_rows = []
+    dataset_records = []
+    for record in records:
+        clean_record = dict(record)
+        events = clean_record.pop("event_log")
+        dataset_records.append(clean_record)
+        for event in events:
+            event_rows.append(
+                {
+                    "case_id": record["case_id"],
+                    "model": record["model"],
+                    "question_id": record["question_id"],
+                    "replicate": record["replicate"],
+                    **event,
+                }
+            )
 
     metadata = {
-        "schema_version": 1,
+        "schema_version": 2,
         "source": str(args.raw),
+        "source_sha256": sha256_file(args.raw),
         "low_budget": args.low_budget,
         "high_budget": args.high_budget,
         "record_count": len(records),
+        "event_count": len(event_rows),
+        "empty_event_case_count": sum(not record["activity_sequence"] for record in records),
+        "parser_change_count": len(parser_changes),
         "unit": "model-question-replicate",
         "target": "benefit = low incorrect and high correct",
         "warning": (
@@ -260,11 +324,42 @@ def main() -> None:
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.audit.parent.mkdir(parents=True, exist_ok=True)
+    args.event_log.parent.mkdir(parents=True, exist_ok=True)
+    args.parser_audit.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as handle:
-        json.dump({"metadata": metadata, "records": records}, handle, indent=2)
+        json.dump({"metadata": metadata, "records": dataset_records}, handle, indent=2)
+    with args.event_log.open("w", encoding="utf-8") as handle:
+        json.dump(
+            {
+                "metadata": {
+                    "schema_version": 2,
+                    "source_sha256": metadata["source_sha256"],
+                    "event_count": len(event_rows),
+                    "empty_case_count": sum(not record["activity_sequence"] for record in records),
+                },
+                "events": event_rows,
+            },
+            handle,
+            indent=2,
+        )
+    with args.parser_audit.open("w", encoding="utf-8") as handle:
+        json.dump(
+            {
+                "metadata": {
+                    "schema_version": 2,
+                    "source_sha256": metadata["source_sha256"],
+                    "change_count": len(parser_changes),
+                },
+                "changes": parser_changes,
+            },
+            handle,
+            indent=2,
+        )
     args.audit.write_text(audit_markdown(records, metadata), encoding="utf-8")
     print(f"Wrote {len(records)} paired records to {args.output}")
     print(f"Wrote audit report to {args.audit}")
+    print(f"Wrote {len(event_rows)} auditable events to {args.event_log}")
+    print(f"Wrote {len(parser_changes)} parser changes to {args.parser_audit}")
 
 
 if __name__ == "__main__":
