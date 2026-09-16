@@ -1,0 +1,381 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "source": "/Users/ryan/Projects/llm-calibration-token-efficiency/experiments/v3-budget-pilot/results/phase3_raw.json",
+    "low_budget": 512,
+    "high_budget": 1024,
+    "record_count": 720,
+    "unit": "model-question-replicate",
+    "target": "benefit = low incorrect and high correct",
+    "warning": "Low and high outcomes come from independent Phase 3 calls; this is an offline predictive-feasibility dataset, not a causal continuation trial."
+  },
+  "analysis": {
+    "schema_version": 1,
+    "record_count": 720,
+    "benefit_prevalence": 0.3402777777777778,
+    "grouped_cv": {
+      "M0_context": {
+        "n": 720,
+        "prevalence": 0.3402777777777778,
+        "pr_auc": 0.36688666308060636,
+        "roc_auc": 0.5262556390977443,
+        "brier": 0.23630721019339818,
+        "log_loss": 0.672926544519072
+      },
+      "M1_runtime": {
+        "n": 720,
+        "prevalence": 0.3402777777777778,
+        "pr_auc": 0.6159152643153599,
+        "roc_auc": 0.8174607948442535,
+        "brier": 0.17005123092301438,
+        "log_loss": 0.5102700070865515
+      },
+      "M2_confidence": {
+        "n": 720,
+        "prevalence": 0.3402777777777778,
+        "pr_auc": 0.6139189527975664,
+        "roc_auc": 0.8194586466165413,
+        "brier": 0.168970856732241,
+        "log_loss": 0.5093113089158736
+      },
+      "M3_process": {
+        "n": 720,
+        "prevalence": 0.3402777777777778,
+        "pr_auc": 0.7954727392541968,
+        "roc_auc": 0.8750032223415682,
+        "brier": 0.1342174066482205,
+        "log_loss": 0.463868260759709
+      },
+      "M4_combined": {
+        "n": 720,
+        "prevalence": 0.3402777777777778,
+        "pr_auc": 0.7956551989204096,
+        "roc_auc": 0.8765413533834586,
+        "brier": 0.13353032829639705,
+        "log_loss": 0.4645256088727398
+      }
+    },
+    "leave_one_model_out": {
+      "DeepSeek-V4-Flash-158B": {
+        "M0_context": {
+          "n": 180,
+          "prevalence": 0.18333333333333332,
+          "pr_auc": 0.15806924541595538,
+          "roc_auc": 0.4044526901669759,
+          "brier": 0.21501685344809757,
+          "log_loss": 0.6208909960167412
+        },
+        "M1_runtime": {
+          "n": 180,
+          "prevalence": 0.18333333333333332,
+          "pr_auc": 0.6722909985142939,
+          "roc_auc": 0.9311482168625026,
+          "brier": 0.0937088703239943,
+          "log_loss": 0.255424964114222
+        },
+        "M2_confidence": {
+          "n": 180,
+          "prevalence": 0.18333333333333332,
+          "pr_auc": 0.6775628616302499,
+          "roc_auc": 0.9343434343434344,
+          "brier": 0.09245640786328602,
+          "log_loss": 0.25098878182052753
+        },
+        "M3_process": {
+          "n": 180,
+          "prevalence": 0.18333333333333332,
+          "pr_auc": 0.7893755157741686,
+          "roc_auc": 0.9519686662543806,
+          "brier": 0.09267202207820648,
+          "log_loss": 0.26107390190344176
+        },
+        "M4_combined": {
+          "n": 180,
+          "prevalence": 0.18333333333333332,
+          "pr_auc": 0.7970251463758424,
+          "roc_auc": 0.9553700267985983,
+          "brier": 0.09241753559230262,
+          "log_loss": 0.2586307712401124
+        }
+      },
+      "GLM-5.2-756B": {
+        "M0_context": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.32431029694241653,
+          "roc_auc": 0.3166047881193189,
+          "brier": 0.2985139129792885,
+          "log_loss": 0.8218539474209848
+        },
+        "M1_runtime": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.7730868648756021,
+          "roc_auc": 0.8114197926001793,
+          "brier": 0.20718961293081514,
+          "log_loss": 0.592576215720548
+        },
+        "M2_confidence": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.7690984504217528,
+          "roc_auc": 0.8084112149532711,
+          "brier": 0.21695889958626402,
+          "log_loss": 0.6152643737445735
+        },
+        "M3_process": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.7188806260294536,
+          "roc_auc": 0.7589937267955448,
+          "brier": 0.1900355295764413,
+          "log_loss": 0.6298437202919199
+        },
+        "M4_combined": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.7129802432368827,
+          "roc_auc": 0.756369222890795,
+          "brier": 0.19440176251277183,
+          "log_loss": 0.6395530910387871
+        }
+      },
+      "GPT-OSS-120B": {
+        "M0_context": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.40674491599547186,
+          "roc_auc": 0.5289975675329663,
+          "brier": 0.2524406851981795,
+          "log_loss": 0.7016938040809435
+        },
+        "M1_runtime": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.6743630272202229,
+          "roc_auc": 0.8121879400844962,
+          "brier": 0.1778910531123405,
+          "log_loss": 0.5367718394355023
+        },
+        "M2_confidence": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.6633566992802427,
+          "roc_auc": 0.7982332607860709,
+          "brier": 0.19933517094443026,
+          "log_loss": 0.5993576905744318
+        },
+        "M3_process": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.7762703343009364,
+          "roc_auc": 0.8822813980284214,
+          "brier": 0.1289779043200087,
+          "log_loss": 0.5308686888297232
+        },
+        "M4_combined": {
+          "n": 180,
+          "prevalence": 0.40555555555555556,
+          "pr_auc": 0.768930280294931,
+          "roc_auc": 0.8751120215081296,
+          "brier": 0.13400292275410006,
+          "log_loss": 0.5489528133639988
+        }
+      },
+      "GPT-OSS-20B": {
+        "M0_context": {
+          "n": 180,
+          "prevalence": 0.36666666666666664,
+          "pr_auc": 0.37597079512904874,
+          "roc_auc": 0.5342902711323764,
+          "brier": 0.23555800623018175,
+          "log_loss": 0.6668141392910177
+        },
+        "M1_runtime": {
+          "n": 180,
+          "prevalence": 0.36666666666666664,
+          "pr_auc": 0.8015353039707881,
+          "roc_auc": 0.8724082934609251,
+          "brier": 0.1436274452432403,
+          "log_loss": 0.4272913021971904
+        },
+        "M2_confidence": {
+          "n": 180,
+          "prevalence": 0.36666666666666664,
+          "pr_auc": 0.8003852141645674,
+          "roc_auc": 0.8735380116959064,
+          "brier": 0.14230256709617564,
+          "log_loss": 0.4232149046894079
+        },
+        "M3_process": {
+          "n": 180,
+          "prevalence": 0.36666666666666664,
+          "pr_auc": 0.8645460885430578,
+          "roc_auc": 0.9001196172248804,
+          "brier": 0.10607778782699673,
+          "log_loss": 0.38544012796190535
+        },
+        "M4_combined": {
+          "n": 180,
+          "prevalence": 0.36666666666666664,
+          "pr_auc": 0.8647018730894747,
+          "roc_auc": 0.902511961722488,
+          "brier": 0.10630796380828499,
+          "log_loss": 0.3852191813083102
+        }
+      }
+    },
+    "combined_vs_confidence_pr_auc": {
+      "estimate": 0.18173624612284323,
+      "ci_low": 0.06394873507259966,
+      "ci_high": 0.2756332327238523
+    },
+    "policies": {
+      "fixed_low": {
+        "accuracy": 0.31527777777777777,
+        "mean_token_proxy": 461.3847222222222,
+        "upgraded": 0,
+        "upgrade_rate": 0.0
+      },
+      "fixed_high": {
+        "accuracy": 0.6541666666666667,
+        "mean_token_proxy": 714.4027777777778,
+        "upgraded": 720,
+        "upgrade_rate": 1.0
+      },
+      "rates": {
+        "0.25": {
+          "oracle": {
+            "accuracy": 0.5652777777777778,
+            "mean_token_proxy": 517.1680555555556,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "random_expected": {
+            "accuracy": 0.4,
+            "mean_token_proxy": 524.6392361111111,
+            "upgrade_rate": 0.25
+          },
+          "M0_context": {
+            "accuracy": 0.4111111111111111,
+            "mean_token_proxy": 531.2444444444444,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "M1_runtime": {
+            "accuracy": 0.4777777777777778,
+            "mean_token_proxy": 534.025,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "M2_confidence": {
+            "accuracy": 0.475,
+            "mean_token_proxy": 1373.6083333333333,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "M3_process": {
+            "accuracy": 0.525,
+            "mean_token_proxy": 512.05,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "M4_combined": {
+            "accuracy": 0.5277777777777778,
+            "mean_token_proxy": 1349.5416666666667,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          }
+        },
+        "0.5": {
+          "oracle": {
+            "accuracy": 0.6555555555555556,
+            "mean_token_proxy": 554.4680555555556,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "random_expected": {
+            "accuracy": 0.4847222222222222,
+            "mean_token_proxy": 587.89375,
+            "upgrade_rate": 0.5
+          },
+          "M0_context": {
+            "accuracy": 0.4875,
+            "mean_token_proxy": 605.4166666666666,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "M1_runtime": {
+            "accuracy": 0.5930555555555556,
+            "mean_token_proxy": 624.8763888888889,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "M2_confidence": {
+            "accuracy": 0.5944444444444444,
+            "mean_token_proxy": 1462.9916666666666,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "M3_process": {
+            "accuracy": 0.6125,
+            "mean_token_proxy": 615.2402777777778,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "M4_combined": {
+            "accuracy": 0.6125,
+            "mean_token_proxy": 1453.4916666666666,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          }
+        },
+        "0.75": {
+          "oracle": {
+            "accuracy": 0.6555555555555556,
+            "mean_token_proxy": 639.5791666666667,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "random_expected": {
+            "accuracy": 0.5694444444444444,
+            "mean_token_proxy": 651.1482638888889,
+            "upgrade_rate": 0.75
+          },
+          "M0_context": {
+            "accuracy": 0.5722222222222222,
+            "mean_token_proxy": 676.8527777777778,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "M1_runtime": {
+            "accuracy": 0.6527777777777778,
+            "mean_token_proxy": 704.1527777777778,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "M2_confidence": {
+            "accuracy": 0.6527777777777778,
+            "mean_token_proxy": 1541.0194444444444,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "M3_process": {
+            "accuracy": 0.65,
+            "mean_token_proxy": 703.9277777777778,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "M4_combined": {
+            "accuracy": 0.65,
+            "mean_token_proxy": 1540.8430555555556,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          }
+        }
+      },
+      "cost_warning": "incremental_token_proxy is high_completion_tokens-low_completion_tokens. It is not a measured continuation cost because Phase 3 calls were independent."
+    },
+    "guardrail": "All predictions are out-of-fold by question_id. DFG models are fitted on training folds only. Phase 3 low/high calls are not a resumed trajectory."
+  }
+}
