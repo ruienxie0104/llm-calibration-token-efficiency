@@ -1,188 +1,800 @@
 {
-  "GPT-OSS-120B": {
-    "pros_256": {
-      "n": 89,
-      "mean_conf": 86.8,
-      "std_conf": 9.5,
-      "conf_range": [
-        70,
-        95
-      ],
-      "brier": 0.2173,
-      "ece": 0.1824,
-      "auroc": 0.4132,
-      "conf_gap": -2.4,
-      "spearman_r": -0.134
+  "main": {
+    "GPT-OSS-120B": {
+      "pros_256": {
+        "n": 89,
+        "mean_conf": 86.8,
+        "std_conf": 9.5,
+        "brier": 0.2173,
+        "ece": 0.1745,
+        "auroc": 0.4132,
+        "conf_gap": -2.4,
+        "spearman_r": -0.134
+      },
+      "retro_256": {
+        "n": 89,
+        "mean_conf": 95.3,
+        "std_conf": 4.4,
+        "brier": 0.2224,
+        "ece": 0.2033,
+        "auroc": 0.5159,
+        "conf_gap": 1.5,
+        "spearman_r": 0.0272
+      },
+      "paired_n_256": 89,
+      "pros_lcae_256": 0.2222,
+      "retro_lcae_256": 0.298,
+      "tok_corr_256": {
+        "n": 89,
+        "conf_tok_sp": -0.661,
+        "conf_correct_sp": -0.134
+      },
+      "missing_256": {
+        "total": 90,
+        "parsed": 89,
+        "missing": 1,
+        "parse_rate": 98.9
+      },
+      "pros_512": {
+        "n": 85,
+        "mean_conf": 86.6,
+        "std_conf": 9.9,
+        "brier": 0.2069,
+        "ece": 0.1833,
+        "auroc": 0.2871,
+        "conf_gap": -4.5,
+        "spearman_r": -0.3158
+      },
+      "retro_512": {
+        "n": 85,
+        "mean_conf": 96.1,
+        "std_conf": 2.2,
+        "brier": 0.2102,
+        "ece": 0.1847,
+        "auroc": 0.3824,
+        "conf_gap": -0.6,
+        "spearman_r": -0.1862
+      },
+      "paired_n_512": 85,
+      "pros_lcae_512": 0.2213,
+      "retro_lcae_512": 0.3063,
+      "tok_corr_512": {
+        "n": 85,
+        "conf_tok_sp": -0.7557,
+        "conf_correct_sp": -0.3158
+      },
+      "missing_512": {
+        "total": 90,
+        "parsed": 85,
+        "missing": 5,
+        "parse_rate": 94.4
+      },
+      "conf_gain_spearman": -0.1829,
+      "irt_gain_spearman": 0.0329
     },
-    "retro_256": {
-      "n": 89,
-      "mean_conf": 95.3,
-      "std_conf": 4.4,
-      "conf_range": [
-        60,
-        99
-      ],
-      "brier": 0.2224,
-      "ece": 0.2134,
-      "auroc": 0.5159,
-      "conf_gap": 1.5,
-      "spearman_r": 0.0272
-    },
-    "paired_n": 85,
-    "pros_lcae_256": 0.2222,
-    "retro_lcae_256": 0.298,
-    "tok_corr_256": {
-      "n": 89,
-      "conf_tok_sp": -0.661,
-      "conf_correct_sp": -0.134,
-      "low_conf_mean_tok": null,
-      "high_conf_mean_tok": 346.8,
-      "low_conf_n": 0,
-      "high_conf_n": 54
-    },
-    "missing_256": {
-      "total": 90,
-      "parsed": 89,
-      "missing": 1,
-      "parse_rate": 98.9
-    },
-    "pros_512": {
-      "n": 85,
-      "mean_conf": 86.6,
-      "std_conf": 9.9,
-      "conf_range": [
-        60,
-        97
-      ],
-      "brier": 0.2069,
-      "ece": 0.2186,
-      "auroc": 0.2871,
-      "conf_gap": -4.5,
-      "spearman_r": -0.3158
-    },
-    "retro_512": {
-      "n": 85,
-      "mean_conf": 96.1,
-      "std_conf": 2.2,
-      "conf_range": [
-        90,
-        99
-      ],
-      "brier": 0.2102,
-      "ece": 0.2035,
-      "auroc": 0.3824,
-      "conf_gap": -0.6,
-      "spearman_r": -0.1862
-    },
-    "pros_lcae_512": 0.2213,
-    "retro_lcae_512": 0.3063,
-    "tok_corr_512": {
-      "n": 85,
-      "conf_tok_sp": -0.7557,
-      "conf_correct_sp": -0.3158,
-      "low_conf_mean_tok": 785.0,
-      "high_conf_mean_tok": 348.2,
-      "low_conf_n": 2,
-      "high_conf_n": 51
-    },
-    "missing_512": {
-      "total": 90,
-      "parsed": 85,
-      "missing": 5,
-      "parse_rate": 94.4
+    "DeepSeek-V4-Flash-158B": {
+      "pros_256": {
+        "n": 90,
+        "mean_conf": 93.6,
+        "std_conf": 6.7,
+        "brier": 0.193,
+        "ece": 0.1683,
+        "auroc": 0.3603,
+        "conf_gap": -3.1,
+        "spearman_r": -0.2111
+      },
+      "retro_256": {
+        "n": 90,
+        "mean_conf": 100.0,
+        "std_conf": 0.0,
+        "brier": 0.2,
+        "ece": 0.2,
+        "auroc": 0.5,
+        "conf_gap": 0.0,
+        "spearman_r": NaN
+      },
+      "paired_n_256": 90,
+      "pros_lcae_256": 0.2544,
+      "retro_lcae_256": 0.3099,
+      "tok_corr_256": {
+        "n": 90,
+        "conf_tok_sp": -0.6013,
+        "conf_correct_sp": -0.2111
+      },
+      "missing_256": {
+        "total": 90,
+        "parsed": 90,
+        "missing": 0,
+        "parse_rate": 100.0
+      },
+      "pros_512": {
+        "n": 90,
+        "mean_conf": 93.8,
+        "std_conf": 6.3,
+        "brier": 0.17,
+        "ece": 0.145,
+        "auroc": 0.4016,
+        "conf_gap": -2.2,
+        "spearman_r": -0.1406
+      },
+      "retro_512": {
+        "n": 90,
+        "mean_conf": 99.9,
+        "std_conf": 0.5,
+        "brier": 0.1778,
+        "ece": 0.1772,
+        "auroc": 0.4932,
+        "conf_gap": -0.1,
+        "spearman_r": -0.0493
+      },
+      "paired_n_512": 90,
+      "pros_lcae_512": 0.2539,
+      "retro_lcae_512": 0.3095,
+      "tok_corr_512": {
+        "n": 90,
+        "conf_tok_sp": -0.6498,
+        "conf_correct_sp": -0.1406
+      },
+      "missing_512": {
+        "total": 90,
+        "parsed": 90,
+        "missing": 0,
+        "parse_rate": 100.0
+      },
+      "conf_gain_spearman": 0.0767,
+      "irt_gain_spearman": 0.1424
     }
   },
-  "DeepSeek-V4-Flash-158B": {
-    "pros_256": {
-      "n": 90,
-      "mean_conf": 93.6,
-      "std_conf": 6.7,
-      "conf_range": [
-        70,
-        100
-      ],
-      "brier": 0.193,
-      "ece": 0.1783,
-      "auroc": 0.3603,
-      "conf_gap": -3.1,
-      "spearman_r": -0.2111
+  "acc_gain": {
+    "GPT-OSS-120B": {
+      "test/algebra/1519.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 189.3,
+        "token_512": 197.7,
+        "token_increase": 8.3,
+        "prospective_conf": 95.0,
+        "irt_beta": 6.95
+      },
+      "test/algebra/1547.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 479.3,
+        "token_512": 557.0,
+        "token_increase": 77.7,
+        "prospective_conf": 93.5,
+        "irt_beta": -2.36
+      },
+      "test/algebra/2023.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 321.0,
+        "token_512": 373.3,
+        "token_increase": 52.3,
+        "prospective_conf": 90.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2036.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 213.0,
+        "token_512": 255.3,
+        "token_increase": 42.3,
+        "prospective_conf": 93.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2046.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 412.7,
+        "token_512": 420.3,
+        "token_increase": 7.7,
+        "prospective_conf": 93.5,
+        "irt_beta": -1.06
+      },
+      "test/algebra/2080.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 244.7,
+        "token_512": 334.0,
+        "token_increase": 89.3,
+        "prospective_conf": 95.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2232.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 238.3,
+        "token_512": 270.3,
+        "token_increase": 32.0,
+        "prospective_conf": 94.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/694.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 398.0,
+        "token_512": 439.7,
+        "token_increase": 41.7,
+        "prospective_conf": 85.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/824.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 369.0,
+        "token_512": 557.0,
+        "token_increase": 188.0,
+        "prospective_conf": 92.2,
+        "irt_beta": -1.57
+      },
+      "test/algebra/907.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 254.7,
+        "token_512": 268.0,
+        "token_increase": 13.3,
+        "prospective_conf": 92.0,
+        "irt_beta": -6.87
+      },
+      "test/counting_and_probability/230.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 648.7,
+        "token_512": 729.3,
+        "token_increase": 80.7,
+        "prospective_conf": 85.0,
+        "irt_beta": 6.95
+      },
+      "test/geometry/178.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 227.0,
+        "token_512": 327.0,
+        "token_increase": 100.0,
+        "prospective_conf": 93.5,
+        "irt_beta": -6.87
+      },
+      "test/geometry/477.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 819.0,
+        "token_512": 1503.7,
+        "token_increase": 684.7,
+        "prospective_conf": 70.0,
+        "irt_beta": 1.65
+      },
+      "test/intermediate_algebra/1407.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 935.7,
+        "token_512": 1280.0,
+        "token_increase": 344.3,
+        "prospective_conf": 70.0,
+        "irt_beta": 6.95
+      },
+      "test/intermediate_algebra/1981.json": {
+        "accuracy_256": 0.33,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.67,
+        "token_256": 575.3,
+        "token_512": 754.7,
+        "token_increase": 179.3,
+        "prospective_conf": 80.8,
+        "irt_beta": -0.65
+      },
+      "test/intermediate_algebra/207.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 407.0,
+        "token_512": 478.3,
+        "token_increase": 71.3,
+        "prospective_conf": 92.7,
+        "irt_beta": -6.87
+      },
+      "test/intermediate_algebra/2146.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 1037.7,
+        "token_512": 1997.3,
+        "token_increase": 959.7,
+        "prospective_conf": 82.2,
+        "irt_beta": 6.95
+      },
+      "test/intermediate_algebra/591.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 392.7,
+        "token_512": 490.3,
+        "token_increase": 97.7,
+        "prospective_conf": 85.0,
+        "irt_beta": -1.06
+      },
+      "test/intermediate_algebra/776.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 605.7,
+        "token_512": 721.0,
+        "token_increase": 115.3,
+        "prospective_conf": 72.5,
+        "irt_beta": 0.37
+      },
+      "test/number_theory/1032.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 942.3,
+        "token_512": 1445.7,
+        "token_increase": 503.3,
+        "prospective_conf": 70.0,
+        "irt_beta": 1.65
+      },
+      "test/number_theory/22.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 932.7,
+        "token_512": 550.3,
+        "token_increase": -382.3,
+        "prospective_conf": 94.8,
+        "irt_beta": -2.36
+      },
+      "test/number_theory/488.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 959.0,
+        "token_512": 1182.3,
+        "token_increase": 223.3,
+        "prospective_conf": 86.4,
+        "irt_beta": 0.73
+      },
+      "test/number_theory/533.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 557.7,
+        "token_512": 584.3,
+        "token_increase": 26.7,
+        "prospective_conf": 88.3,
+        "irt_beta": -1.06
+      },
+      "test/prealgebra/153.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 260.0,
+        "token_512": 265.7,
+        "token_increase": 5.7,
+        "prospective_conf": 93.5,
+        "irt_beta": 1.65
+      },
+      "test/prealgebra/1686.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 212.3,
+        "token_512": 203.0,
+        "token_increase": -9.3,
+        "prospective_conf": 92.5,
+        "irt_beta": -6.87
+      },
+      "test/prealgebra/1742.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 193.3,
+        "token_512": 199.0,
+        "token_increase": 5.7,
+        "prospective_conf": 94.5,
+        "irt_beta": 6.95
+      },
+      "test/prealgebra/1807.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 256.3,
+        "token_512": 305.7,
+        "token_increase": 49.3,
+        "prospective_conf": 93.7,
+        "irt_beta": -1.57
+      },
+      "test/prealgebra/1995.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 312.3,
+        "token_512": 356.7,
+        "token_increase": 44.3,
+        "prospective_conf": 94.5,
+        "irt_beta": 6.95
+      },
+      "test/prealgebra/914.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 926.7,
+        "token_512": 1150.0,
+        "token_increase": 223.3,
+        "prospective_conf": 70.0,
+        "irt_beta": 6.95
+      },
+      "test/precalculus/1313.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 843.7,
+        "token_512": 749.7,
+        "token_increase": -94.0,
+        "prospective_conf": 66.7,
+        "irt_beta": 0.04
+      }
     },
-    "retro_256": {
-      "n": 90,
-      "mean_conf": 100.0,
-      "std_conf": 0.0,
-      "conf_range": [
-        100,
-        100
-      ],
-      "brier": 0.2,
-      "ece": 0.2,
-      "auroc": 0.5,
-      "conf_gap": 0.0,
-      "spearman_r": NaN
+    "DeepSeek-V4-Flash-158B": {
+      "test/algebra/1519.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 111.3,
+        "token_512": 113.3,
+        "token_increase": 2.0,
+        "prospective_conf": 100.0,
+        "irt_beta": 6.95
+      },
+      "test/algebra/1547.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 184.3,
+        "token_512": 156.0,
+        "token_increase": -28.3,
+        "prospective_conf": 98.3,
+        "irt_beta": -2.36
+      },
+      "test/algebra/2023.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 122.0,
+        "token_512": 118.0,
+        "token_increase": -4.0,
+        "prospective_conf": 95.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2036.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 118.0,
+        "token_512": 126.0,
+        "token_increase": 8.0,
+        "prospective_conf": 100.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2046.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 236.7,
+        "token_512": 224.0,
+        "token_increase": -12.7,
+        "prospective_conf": 100.0,
+        "irt_beta": -1.06
+      },
+      "test/algebra/2080.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 169.3,
+        "token_512": 154.0,
+        "token_increase": -15.3,
+        "prospective_conf": 97.5,
+        "irt_beta": -6.87
+      },
+      "test/algebra/2232.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 142.3,
+        "token_512": 140.7,
+        "token_increase": -1.7,
+        "prospective_conf": 100.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/694.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 185.0,
+        "token_512": 192.7,
+        "token_increase": 7.7,
+        "prospective_conf": 95.0,
+        "irt_beta": -6.87
+      },
+      "test/algebra/824.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 204.3,
+        "token_512": 141.3,
+        "token_increase": -63.0,
+        "prospective_conf": 95.0,
+        "irt_beta": -1.57
+      },
+      "test/algebra/907.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 169.3,
+        "token_512": 173.3,
+        "token_increase": 4.0,
+        "prospective_conf": 95.0,
+        "irt_beta": -6.87
+      },
+      "test/counting_and_probability/230.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 264.3,
+        "token_512": 316.0,
+        "token_increase": 51.7,
+        "prospective_conf": 95.0,
+        "irt_beta": 6.95
+      },
+      "test/geometry/178.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 96.3,
+        "token_512": 91.0,
+        "token_increase": -5.3,
+        "prospective_conf": 99.2,
+        "irt_beta": -6.87
+      },
+      "test/geometry/477.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 148.0,
+        "token_512": 779.0,
+        "token_increase": 631.0,
+        "prospective_conf": 93.3,
+        "irt_beta": 1.65
+      },
+      "test/intermediate_algebra/1407.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 467.3,
+        "token_512": 663.0,
+        "token_increase": 195.7,
+        "prospective_conf": 80.0,
+        "irt_beta": 6.95
+      },
+      "test/intermediate_algebra/1981.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 217.0,
+        "token_512": 297.3,
+        "token_increase": 80.3,
+        "prospective_conf": 85.0,
+        "irt_beta": -0.65
+      },
+      "test/intermediate_algebra/207.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 223.7,
+        "token_512": 183.7,
+        "token_increase": -40.0,
+        "prospective_conf": 95.0,
+        "irt_beta": -6.87
+      },
+      "test/intermediate_algebra/2146.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 670.0,
+        "token_512": 980.7,
+        "token_increase": 310.7,
+        "prospective_conf": 85.0,
+        "irt_beta": 6.95
+      },
+      "test/intermediate_algebra/591.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 206.0,
+        "token_512": 233.0,
+        "token_increase": 27.0,
+        "prospective_conf": 95.0,
+        "irt_beta": -1.06
+      },
+      "test/intermediate_algebra/776.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 211.7,
+        "token_512": 210.0,
+        "token_increase": -1.7,
+        "prospective_conf": 77.5,
+        "irt_beta": 0.37
+      },
+      "test/number_theory/1032.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 441.3,
+        "token_512": 505.0,
+        "token_increase": 63.7,
+        "prospective_conf": 86.7,
+        "irt_beta": 1.65
+      },
+      "test/number_theory/22.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 154.3,
+        "token_512": 171.7,
+        "token_increase": 17.3,
+        "prospective_conf": 95.0,
+        "irt_beta": -2.36
+      },
+      "test/number_theory/488.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 259.7,
+        "token_512": 273.3,
+        "token_increase": 13.7,
+        "prospective_conf": 95.0,
+        "irt_beta": 0.73
+      },
+      "test/number_theory/533.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 219.7,
+        "token_512": 336.7,
+        "token_increase": 117.0,
+        "prospective_conf": 96.7,
+        "irt_beta": -1.06
+      },
+      "test/prealgebra/153.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.67,
+        "accuracy_gain": 0.67,
+        "token_256": 131.0,
+        "token_512": 133.0,
+        "token_increase": 2.0,
+        "prospective_conf": 95.8,
+        "irt_beta": 1.65
+      },
+      "test/prealgebra/1686.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 104.0,
+        "token_512": 109.3,
+        "token_increase": 5.3,
+        "prospective_conf": 96.7,
+        "irt_beta": -6.87
+      },
+      "test/prealgebra/1742.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 63.7,
+        "token_512": 58.7,
+        "token_increase": -5.0,
+        "prospective_conf": 100.0,
+        "irt_beta": 6.95
+      },
+      "test/prealgebra/1807.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 138.7,
+        "token_512": 115.0,
+        "token_increase": -23.7,
+        "prospective_conf": 95.0,
+        "irt_beta": -1.57
+      },
+      "test/prealgebra/1995.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 185.3,
+        "token_512": 218.0,
+        "token_increase": 32.7,
+        "prospective_conf": 97.5,
+        "irt_beta": 6.95
+      },
+      "test/prealgebra/914.json": {
+        "accuracy_256": 0.0,
+        "accuracy_512": 0.0,
+        "accuracy_gain": 0.0,
+        "token_256": 1742.3,
+        "token_512": 1756.7,
+        "token_increase": 14.3,
+        "prospective_conf": 87.5,
+        "irt_beta": 6.95
+      },
+      "test/precalculus/1313.json": {
+        "accuracy_256": 1.0,
+        "accuracy_512": 1.0,
+        "accuracy_gain": 0.0,
+        "token_256": 312.3,
+        "token_512": 462.3,
+        "token_increase": 150.0,
+        "prospective_conf": 85.0,
+        "irt_beta": 0.04
+      }
+    }
+  },
+  "boot": {
+    "GPT-OSS-120B": {
+      "pros_brier_256": {
+        "mean": 0.2222,
+        "ci_lo": 0.1076,
+        "ci_hi": 0.3492
+      },
+      "retro_brier_256": {
+        "mean": 0.227,
+        "ci_lo": 0.0879,
+        "ci_hi": 0.3727
+      },
+      "pros_brier_512": {
+        "mean": 0.2116,
+        "ci_lo": 0.097,
+        "ci_hi": 0.3398
+      },
+      "retro_brier_512": {
+        "mean": 0.2146,
+        "ci_lo": 0.0813,
+        "ci_hi": 0.374
+      }
     },
-    "paired_n": 90,
-    "pros_lcae_256": 0.2544,
-    "retro_lcae_256": 0.3099,
-    "tok_corr_256": {
-      "n": 90,
-      "conf_tok_sp": -0.6013,
-      "conf_correct_sp": -0.2111,
-      "low_conf_mean_tok": null,
-      "high_conf_mean_tok": 187.2,
-      "low_conf_n": 0,
-      "high_conf_n": 70
-    },
-    "missing_256": {
-      "total": 90,
-      "parsed": 90,
-      "missing": 0,
-      "parse_rate": 100.0
-    },
-    "pros_512": {
-      "n": 90,
-      "mean_conf": 93.8,
-      "std_conf": 6.3,
-      "conf_range": [
-        70,
-        100
-      ],
-      "brier": 0.17,
-      "ece": 0.1461,
-      "auroc": 0.4016,
-      "conf_gap": -2.2,
-      "spearman_r": -0.1406
-    },
-    "retro_512": {
-      "n": 90,
-      "mean_conf": 99.9,
-      "std_conf": 0.5,
-      "conf_range": [
-        95,
-        100
-      ],
-      "brier": 0.1778,
-      "ece": 0.1772,
-      "auroc": 0.4932,
-      "conf_gap": -0.1,
-      "spearman_r": -0.0493
-    },
-    "pros_lcae_512": 0.2539,
-    "retro_lcae_512": 0.3095,
-    "tok_corr_512": {
-      "n": 90,
-      "conf_tok_sp": -0.6498,
-      "conf_correct_sp": -0.1406,
-      "low_conf_mean_tok": null,
-      "high_conf_mean_tok": 220.2,
-      "low_conf_n": 0,
-      "high_conf_n": 70
-    },
-    "missing_512": {
-      "total": 90,
-      "parsed": 90,
-      "missing": 0,
-      "parse_rate": 100.0
+    "DeepSeek-V4-Flash-158B": {
+      "pros_brier_256": {
+        "mean": 0.1975,
+        "ci_lo": 0.0718,
+        "ci_hi": 0.3415
+      },
+      "retro_brier_256": {
+        "mean": 0.2039,
+        "ci_lo": 0.0667,
+        "ci_hi": 0.3667
+      },
+      "pros_brier_512": {
+        "mean": 0.1736,
+        "ci_lo": 0.054,
+        "ci_hi": 0.3016
+      },
+      "retro_brier_512": {
+        "mean": 0.1806,
+        "ci_lo": 0.0556,
+        "ci_hi": 0.3222
+      }
     }
   }
 }
