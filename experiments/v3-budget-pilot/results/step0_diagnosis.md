@@ -1,176 +1,73 @@
-# Step 0 診斷報告
+# Step 0 診斷報告 v2（修正版）
 
-> 執行日期：2026-09-16
-> 資料來源：Soft QOQ（360 calls）+ Prospective Confidence（360 calls）
-> 完全零成本，未新增 API 呼叫
+**修正項目：** Soft 截斷判定、Cost-matched random 實作、Bootstrap CI、分 budget 訊號評估
 
----
 
-## 一、為什麼要做 Step 0？
+## GPT-OSS-120B
 
-在投入 budget-range pilot 前，先用現有資料確認：
+### 1. 實際成本分析
+  Budget 256: n=90, avg_tok=506, over_budget=59/90 (66%)
+  Budget 512: n=90, avg_tok=632, over_budget=35/90 (39%)
 
-1. Soft 256/512 之間是否存在足夠的實際成本差？
-2. 是否存在可分配的收益空間（oracle headroom）？
-3. 信心訊號對成本、正確性、額外收益的預測力各是多少？
-4. 信心呼叫本身的成本是否會抵消效益？
+### 2. 收益矩陣
+  Positive gain (>0.05): 1/30
+  Zero gain: 29/30
 
----
+### 3. Oracle 策略（含 Bootstrap CI）
+  λ=  0: Oracle=77.1% cost=513 | Random=74.9% cost=530 | Headroom=2.2pp 95%CI=[-14.4,15.6]
+  λ=  1: Oracle=76.4% cost=494 | Random=74.7% cost=519 | Headroom=1.7pp 95%CI=[-14.4,15.6]
+  λ=  2: Oracle=77.1% cost=495 | Random=74.7% cost=520 | Headroom=2.4pp 95%CI=[-14.4,15.6]
+  λ=  5: Oracle=74.2% cost=489 | Random=74.7% cost=517 | Headroom=-0.5pp 95%CI=[-16.7,14.5]
+  λ= 10: Oracle=74.2% cost=491 | Random=74.7% cost=519 | Headroom=-0.5pp 95%CI=[-16.7,14.4]
 
-## 二、實際成本分析
+### 4. 信心訊號評估
 
-### GPT-OSS-120B
+**Confidence vs Token Cost (per budget):**
+  Budget 256: conf-tok Spearman r=-0.6610 | Top 20% tok=337 Bot 20% tok=833
+  Budget 512: conf-tok Spearman r=-0.7557 | Top 20% tok=323 Bot 20% tok=1163
 
-| Budget | 實際平均 Token | 被截斷 | 無答案率 |
-|--------|-------------|-------|---------|
-| 256 | **506** | 76/90 (84%) | 0% |
-| 512 | **632** | 47/90 (52%) | 0% |
+**Confidence vs Correctness (AUROC, paired):**
+  Budget 256: Pros Brier=0.2173 AUROC=0.4132 | Retro Brier=0.2224 AUROC=0.5159
+  Budget 512: Pros Brier=0.2069 AUROC=0.2871 | Retro Brier=0.2102 AUROC=0.3824
 
-- 256→512 的實際成本差：**+126 tokens（+25%）**
-- 84% 的回答在 256 下被截斷 → 低預算下模型無法完整推理
+### 5. 信心呼叫成本
+  Budget 256: avg_call_cost=265tok (completion=62)
+  Budget 512: avg_call_cost=257tok (completion=55)
 
-### DeepSeek-V4-Flash-158B
+## DeepSeek-V4-Flash-158B
 
-| Budget | 實際平均 Token | 被截斷 | 無答案率 |
-|--------|-------------|-------|---------|
-| 256 | **263** | 29/90 (32%) | 0% |
-| 512 | **314** | 18/90 (20%) | 0% |
+### 1. 實際成本分析
+  Budget 256: n=90, avg_tok=263, over_budget=16/90 (18%)
+  Budget 512: n=90, avg_tok=314, over_budget=13/90 (14%)
 
-- 256→512 的實際成本差：**+51 tokens（+19%）**
-- 截斷率遠低於 GPT → DeepSeek 的推理風格更簡潔
+### 2. 收益矩陣
+  Positive gain (>0.05): 1/30
+  Zero gain: 29/30
 
-**結論：** Soft 256 與 512 的實際成本差距很小（51-126 tokens）。這解釋了為什麼兩者之間幾乎沒有 accuracy gain。
+### 3. Oracle 策略（含 Bootstrap CI）
+  λ=  0: Oracle=82.5% cost=261 | Random=80.6% cost=278 | Headroom=1.9pp 95%CI=[-13.3,15.6]
+  λ=  1: Oracle=82.2% cost=255 | Random=80.5% cost=276 | Headroom=1.7pp 95%CI=[-12.3,15.6]
+  λ=  2: Oracle=82.4% cost=253 | Random=80.6% cost=276 | Headroom=1.9pp 95%CI=[-13.3,14.4]
+  λ=  5: Oracle=81.7% cost=260 | Random=80.6% cost=278 | Headroom=1.0pp 95%CI=[-13.3,13.3]
+  λ= 10: Oracle=82.0% cost=260 | Random=80.6% cost=278 | Headroom=1.4pp 95%CI=[-13.3,14.4]
 
----
+### 4. 信心訊號評估
 
-## 三、收益矩陣
+**Confidence vs Token Cost (per budget):**
+  Budget 256: conf-tok Spearman r=-0.6013 | Top 20% tok=142 Bot 20% tok=545
+  Budget 512: conf-tok Spearman r=-0.6498 | Top 20% tok=132 Bot 20% tok=636
 
-| 模型 | 30 題中有正 gain | 零 gain | 負 gain |
-|------|-----------------|--------|---------|
-| GPT-120B | **1** | **29** | 0 |
-| DeepSeek | **1** | **29** | 0 |
+**Confidence vs Correctness (AUROC, paired):**
+  Budget 256: Pros Brier=0.1930 AUROC=0.3603 | Retro Brier=0.2000 AUROC=0.5000
+  Budget 512: Pros Brier=0.1700 AUROC=0.4016 | Retro Brier=0.1778 AUROC=0.4932
 
-30 題中只有 1 題顯示 256→512 有正收益。這不是信心無效，而是**兩個預算條件之間缺乏足夠的實質差異**。
+### 5. 信心呼叫成本
+  Budget 256: avg_call_cost=147tok (completion=7)
+  Budget 512: avg_call_cost=147tok (completion=7)
 
----
-
-## 四、Oracle 成本—準確率曲線
-
-### GPT-OSS-120B
-
-| 策略 | 準確率 | 平均成本 |
-|------|-------|---------|
-| All-L | 74.8% | 508 |
-| All-H | 76.9% | 635 |
-| Oracle（λ=0） | 76.9% | 514 |
-| Cost-matched random | 74.8% | 514 |
-| **Oracle headroom** | **+2.1pp** | |
-
-### DeepSeek
-
-| 策略 | 準確率 | 平均成本 |
-|------|-------|---------|
-| All-L | 80.5% | 263 |
-| All-H | 82.7% | 316 |
-| Oracle（λ=0） | 82.7% | 263 |
-| Cost-matched random | 80.5% | 263 |
-| **Oracle headroom** | **+2.3pp** | |
-
-Oracle headroom 只有 2pp。但這是因為 L/H 成本差太小，不是因為研究方向無效。
-
----
-
-## 五、信心訊號評估
-
-### 信心 vs Token 成本（連續值）
-
-| 模型 | Spearman r | p-value | 低信心 (<70) 平均 token | 高信心 (>=90) 平均 token |
-|------|-----------|---------|-----------------------|------------------------|
-| GPT-120B | **−0.71** | < 0.001 | 785（n=2） | 347（n=105） |
-| DeepSeek | **−0.62** | < 0.001 | N/A（n=0） | 204（n=140） |
-
-**Prospective confidence 與實際 token 使用量有強負相關。** 這是目前最有價值的訊號。
-
-### 信心 vs Correctness（二元）
-
-| 模型 | Budget | Prospective AUROC | Retrospective AUROC |
-|------|--------|-----------------|-------------------|
-| GPT-120B | 256 | **0.413** | 0.516 |
-| GPT-120B | 512 | **0.287** | 0.382 |
-| DeepSeek | 256 | **0.360** | 0.500 |
-| DeepSeek | 512 | **0.402** | 0.493 |
-
-Prospective AUROC 全部低於 0.5（反向排序），retrospective 接近隨機（~0.5）。
-**信心無法可靠區分答對與答錯。**
-
-### Brier Score 比較
-
-| 模型 | Budget | Prospective | Retrospective |
-|------|--------|------------|-------------|
-| GPT-120B | 256 | **0.217** | 0.222 |
-| GPT-120B | 512 | **0.207** | 0.210 |
-| DeepSeek | 256 | **0.193** | 0.200 |
-| DeepSeek | 512 | **0.170** | 0.178 |
-
-Prospective Brier 略微優於 retrospective，但差距很小，且 AUROC 數據顯示缺乏排序能力。
-
----
-
-## 六、信心呼叫成本
-
-| 模型 | 平均每次呼叫成本 | Completion 部分 |
-|------|---------------|----------------|
-| GPT-120B | **265 tokens** | 58 tokens |
-| DeepSeek | **147 tokens** | 7 tokens |
-
-如果使用信心做 allocation，每次詢問需先付出 147-265 tokens 的成本。對於 DeepSeek（實際 token 差僅 51），這個成本幾乎抵消了可能的節省。
-
----
-
-## 七、核心問題診斷
-
-```
-Soft 256 與 Soft 512 的實際 token 差：
-  GPT-120B：506 → 632（+126，25%）
-  DeepSeek：263 → 314（+51，19%）
-  
-  → 差距太小，無法產生足夠的 accuracy gain 變異
-  → 29/30 題的 gain = 0
-  → Oracle headroom 只有 2pp
-```
-
-**這不是研究方法無效，而是目前的 L/H 設定沒有形成足夠不同的運算條件。**
-
----
-
-## 八、Pilot 設計建議
-
-### L/H 必須重新選擇
-
-現有 Soft 256/512 的實際成本差只有 51-126 tokens。建議下一輪：
-
-- L：使用 Soft 128 或 64（極度壓縮，使模型無法完成完整推理）
-- H：使用 Soft 1024 或 Soft 2048（接近無限制，讓模型充分推理）
-- 確保 L 和 H 之間至少有 500 tokens 的實際成本差
-
-### 題目數量
-
-現有 30 題只有 1 題有正 gain。需要更多題目來產生足夠的收益變異：
-- 建議 60-100 題新數學題
-- 涵蓋容易、中等、困難三個難度區間
-
-### 保留的信心訊號
-
-Prospective confidence 對 token 成本的預測力強（r=−0.6 至 −0.7），值得在 pilot 中繼續測量。
-但對 correctness 和 gain 的預測力弱，不適合做 allocation 的主要決策訊號。
-
----
-
-## 九、檔案
-
-| 項目 | 連結 |
-|------|------|
-| 分析腳本 | `experiments/v3-budget-pilot/step0_diagnosis.py` |
-| 數值結果 | `experiments/v3-budget-pilot/results/step0_diagnosis.json` |
-| Figure: Cost-Benefit | `results/step0_figures/{model}_cost_benefit.png` |
-| Figure: Cost-Accuracy | `results/step0_figures/{model}_cost_accuracy.png` |
+## 總結
+1. Soft 256/512 的實際 token 差距有限 — budget-range pilot 需要重新選擇 L/H
+2. 30 題中幾乎無 visibility gain — 需更多題目
+3. Prospective confidence 與 token 成本有負相關（分 budget Spearman r ≈ −0.5 至 −0.7）
+4. 信心對 correctness 無正向區分力（AUROC < 0.5）
+5. 信心呼叫本身需 150-270 tokens，需計入總成本

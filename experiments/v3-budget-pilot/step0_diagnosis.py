@@ -1,62 +1,66 @@
 #!/usr/bin/env python3
 """
-Step 0: Zero-cost diagnosis of existing Soft QOQ data.
-Outputs: cost-revenue matrix, oracle curve, signal evaluation, pilot recommendations.
+Step 0 v2: Zero-cost diagnosis of existing Soft QOQ data.
+Fixes: Soft truncation, cost-matched random, bootstrap CI, per-budget signal evaluation.
 """
 import json, math, sys, os, random
 from collections import defaultdict
 from pathlib import Path
-sys.path.insert(0, 'experiments/v3-budget-pilot')
-
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from scipy.stats import spearmanr, mannwhitneyu
 
-# Load data
 with open('experiments/v3-budget-pilot/results/soft_pilot_raw.json') as f:
     soft = json.load(f)
 with open('experiments/v3-budget-pilot/results/prospective_conf_full.json') as f:
     pros = json.load(f)
+with open('experiments/v3-budget-pilot/results/irt_phase3.json') as f:
+    irt = json.load(f)
 
 sq_ans = [r for r in soft if r['call_type'] == 'answer']
 sq_conf = [r for r in soft if r['call_type'] == 'confidence']
-
 models = ['GPT-OSS-120B', 'DeepSeek-V4-Flash-158B']
+budgets = [256, 512]
 out_dir = Path('experiments/v3-budget-pilot/results/step0_figures')
 out_dir.mkdir(parents=True, exist_ok=True)
 
-results = {}
+retro_map = {}
+for r in sq_conf:
+    if r['confidence_value'] is not None:
+        retro_map[(r['model'], r['question_id'], r['budget'], r['replicate'])] = r['confidence_value']
+correct_map = {}
+for r in sq_ans:
+    correct_map[(r['model'], r['question_id'], r['budget'], r['replicate'])] = r['correct']
+
+report_lines = []
+def log(s=""):
+    report_lines.append(s)
+    print(s)
+
+log("# Step 0 診斷報告 v2（修正版）")
+log(f"\n**修正項目：** Soft 截斷判定、Cost-matched random 實作、Bootstrap CI、分 budget 訊號評估")
+log(f"")
 
 for model in models:
-    print(f"\n{'='*60}")
-    print(f"  {model}")
-    print(f"{'='*60}")
+    log(f"\n## {model}")
     
-    # ================================================================
-    # 1. Actual cost analysis
-    # ================================================================
-    print("\n--- 1. Actual Cost Analysis ---")
-    for budget in [256, 512]:
+    # ======== 1. Actual Cost Analysis ========
+    log(f"\n### 1. 實際成本分析")
+    for budget in budgets:
         rr = [r for r in sq_ans if r['model']==model and r['budget']==budget]
-        tokens = [r['completion_tokens'] for r in rr]
-        truncated = sum(1 for r in rr if r['completion_tokens']>=budget*0.9)
-        unparsed = sum(1 for r in rr if not r.get('parsed_answer',''))
-        has_answer = sum(1 for r in rr if r.get('parsed_answer',''))
-        print(f"  Budget {budget}: n={len(rr)}, avg_tok={sum(tokens)/len(rr):.0f}, "
-              f"truncated={truncated}, unparsed={unparsed}, answer_rate={has_answer/len(rr)*100:.0f}%")
+        toks = [r['completion_tokens'] for r in rr]
+        exceeded = sum(1 for r in rr if r['completion_tokens'] > budget * 1.1)
+        log(f"  Budget {budget}: n={len(rr)}, avg_tok={np.mean(toks):.0f}, "
+              f"over_budget={exceeded}/{len(rr)} ({exceeded/len(rr)*100:.0f}%)")
     
-    # ================================================================
-    # 2. Revenue matrix (per question)
-    # ================================================================
-    print("\n--- 2. Revenue Matrix ---")
-    qdata = {}
+    # ======== 2. Revenue Matrix ========
+    log(f"\n### 2. 收益矩陣")
+    qdata = defaultdict(lambda: {'256_acc':[], '512_acc':[], '256_tok':[], '512_tok':[]})
     for r in sq_ans:
         if r['model']!=model: continue
         qid = r['question_id']
-        if qid not in qdata:
-            qdata[qid] = {'256_acc':[], '512_acc':[], '256_tok':[], '512_tok':[]}
         if r['budget']==256:
             qdata[qid]['256_acc'].append(1 if r['correct'] else 0)
             qdata[qid]['256_tok'].append(r['completion_tokens'])
@@ -68,243 +72,169 @@ for model in models:
     for qid, d in sorted(qdata.items()):
         pL = np.mean(d['256_acc']); pH = np.mean(d['512_acc'])
         cL = np.mean(d['256_tok']); cH = np.mean(d['512_tok'])
-        gain = pH - pL
-        gain_data.append((qid, pL, pH, gain, cL, cH, cH-cL))
+        gain_data.append((qid, pL, pH, pH-pL, cL, cH, cH-cL))
     
-    n_pos = sum(1 for _,_,_,g,_,_,_ in gain_data if g > 0)
-    n_zero = sum(1 for _,_,_,g,_,_,_ in gain_data if g == 0)
-    n_neg = sum(1 for _,_,_,g,_,_,_ in gain_data if g < 0)
-    print(f"  Positive gain: {n_pos}/{len(gain_data)}")
-    print(f"  Zero gain:     {n_zero}/{len(gain_data)}")
-    print(f"  Negative gain: {n_neg}/{len(gain_data)}")
+    n_pos = sum(1 for _,_,_,g,_,_,_ in gain_data if g > 0.05)
+    n_zero = sum(1 for _,_,_,g,_,_,_ in gain_data if abs(g) <= 0.05)
+    log(f"  Positive gain (>0.05): {n_pos}/{len(gain_data)}")
+    log(f"  Zero gain: {n_zero}/{len(gain_data)}")
     
-    # Scatter plot: ΔC vs ΔP
+    # Scatter plot
+    dc = [d[6] for d in gain_data]; dp = [d[3] for d in gain_data]
     fig, ax = plt.subplots(figsize=(8,6))
-    dc = [d[6] for d in gain_data]
-    dp = [d[3] for d in gain_data]
     ax.scatter(dc, dp, alpha=0.7)
     ax.axhline(y=0, color='gray', linestyle='--', alpha=0.5)
     ax.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
     ax.set_xlabel('ΔCost (tokens)')
     ax.set_ylabel('ΔAccuracy (pp)')
-    ax.set_title(f'{model}: Per-question Cost-Benefit (Hard IRT difficulty colors not available)')
-    fig.savefig(out_dir / f'{model}_cost_benefit.png', dpi=150)
-    plt.close(fig)
-    print(f"  Saved scatter: {model}_cost_benefit.png")
+    ax.set_title(f'{model}: Per-question Cost-Benefit')
+    fig.savefig(out_dir / f'{model}_cost_benefit.png', dpi=150); plt.close()
     
-    # ================================================================
-    # 3. Oracle, Random, Fixed baselines with bootstrap
-    # ================================================================
-    print("\n--- 3. Oracle / Random / Fixed Baselines ---")
+    # ======== 3. Oracle with bootstrap CI ========
+    log(f"\n### 3. Oracle 策略（含 Bootstrap CI）")
+    rng = random.Random(42)
+    n_boot = 1000
+    n_items = len(gain_data)
     
-    def simulate(alloc_fn, lambdas, n_boot=1000):
-        """For each lambda, compute cost-matching random and oracle."""
-        rng = random.Random(42)
-        qids_list = [d[0] for d in gain_data]
-        # For each lambda, compute oracle
-        oracle_accs, oracle_costs = [], []
-        random_accs, random_costs = [], []
-        allL_acc, allL_cost = [], []
-        allH_acc, allH_cost = [], []
+    # Precompute all lambda values
+    lambdas = [0, 1, 2, 5, 10]
+    lam_results = {}
+    
+    for lam in lambdas:
+        headrooms = []
+        oracle_accs = []
+        random_accs = []
+        oracle_costs = []
+        random_costs = []
         
-        for lam in lambdas:
-            boot_o_acc, boot_o_cost = [], []
-            boot_r_acc, boot_r_cost = [], []
-            boot_l_acc, boot_l_cost = [], []
-            boot_h_acc, boot_h_cost = [], []
+        for b in range(n_boot):
+            # Bootstrap: resample questions with replacement
+            idxs = rng.choices(range(n_items), k=n_items)
+            o_acc_sum = 0.0; o_cost_sum = 0.0
+            r_acc_sum = 0.0; r_cost_sum = 0.0
             
-            for b in range(n_boot):
-                sample = rng.choices(list(range(len(qids_list))), k=len(qids_list))
-                o_acc, o_cost = 0, 0
-                r_acc, r_cost = 0, 0
-                l_acc, l_cost = 0, 0
-                h_acc, h_cost = 0, 0
-                
-                for idx in sample:
-                    _, pL, pH, gain, cL, cH, dC = gain_data[idx]
-                    l_acc += pL; l_cost += cL
-                    h_acc += pH; h_cost += cH
-                    # Oracle
-                    uL = pL - lam * cL / 100  # scale lamda to tokens
-                    uH = pH - lam * cH / 100
-                    if uH > uL:
-                        o_acc += pH; o_cost += cH
-                    else:
-                        o_acc += pL; o_cost += cL
-                    # Random (will adjust below)
-                    if rng.random() < 0.5:
-                        r_acc += pH; r_cost += cH
-                    else:
-                        r_acc += pL; r_cost += cL
-                
-                n = len(sample)
-                boot_o_acc.append(o_acc/n); boot_o_cost.append(o_cost/n)
-                boot_r_acc.append(r_acc/n); boot_r_cost.append(r_cost/n)
-                boot_l_acc.append(l_acc/n); boot_l_cost.append(l_cost/n)
-                boot_h_acc.append(h_acc/n); boot_h_cost.append(h_cost/n)
+            for i in idxs:
+                _, pL, pH, _, cL, cH, _ = gain_data[i]
+                # Oracle
+                uL = pL - lam * cL / 1000
+                uH = pH - lam * cH / 1000
+                if uH > uL:
+                    o_acc_sum += pH; o_cost_sum += cH
+                else:
+                    o_acc_sum += pL; o_cost_sum += cL
+                # Random (will adjust rate below)
+                if rng.random() < 0.5:
+                    r_acc_sum += pH; r_cost_sum += cH
+                else:
+                    r_acc_sum += pL; r_cost_sum += cL
             
-            # Cost-matching adjustment: find random rate that matches oracle cost
-            o_mean_cost = np.mean(boot_o_cost)
-            # Simple linear search for matching rate
-            best_rate = 0.5
-            for rate in [r/100 for r in range(0, 101)]:
-                r_acc, r_cost = 0, 0
-                for _, pL, pH, _, cL, cH, _ in gain_data:
-                    if rng.random() < rate:
-                        r_acc += pH; r_cost += cH
-                    else:
-                        r_acc += pL; r_cost += cL
-                r_acc /= len(gain_data); r_cost /= len(gain_data)
-                if abs(r_cost - o_mean_cost) < abs(best_rate * (cH-cL)/len(gain_data)):
-                    best_rate = rate
+            o_acc = o_acc_sum / n_items
+            o_cost = o_cost_sum / n_items
+            oracle_accs.append(o_acc)
+            oracle_costs.append(o_cost)
             
-            # Recompute random with matching rate
-            rng2 = random.Random(42)
-            boot_r2_acc = []
-            for b in range(n_boot):
-                idxs = rng2.choices(range(len(gain_data)), k=len(gain_data))
-                acc = 0; cost = 0
-                for i in idxs:
-                    _, pL, pH, _, cL, cH, _ = gain_data[i]
-                    if rng2.random() < best_rate/100:
-                        acc += pH; cost += cH
-                    else:
-                        acc += pL; cost += cL
-                boot_r2_acc.append(acc/len(idxs))
+            # Find random rate that matches oracle cost
+            o_cost_ref = o_cost
+            best_q = 0.5
+            best_diff = float('inf')
+            all_costs = [(cL, cH) for _, _, _, _, cL, cH, _ in gain_data]
+            for qc in [q/100 for q in range(0, 101)]:
+                rc = sum(cH * qc + cL * (1 - qc) for cL, cH in all_costs) / len(all_costs)
+                diff = abs(rc - o_cost_ref)
+                if diff < best_diff:
+                    best_diff = diff
+                    best_q = qc
             
-            oracle_accs.append(np.mean(boot_o_acc))
-            oracle_costs.append(np.mean(boot_o_cost))
-            random_accs.append(np.mean(boot_r2_acc))
-            random_costs.append(np.mean(boot_o_cost))
-            allL_acc.append(np.mean(boot_l_acc))
-            allL_cost.append(np.mean(boot_l_cost))
-            allH_acc.append(np.mean(boot_h_acc))
-            allH_cost.append(np.mean(boot_h_cost))
+            # Compute random accuracy with matching rate
+            r_acc2 = 0.0; r_cost2 = 0.0
+            for _, pL, pH, _, cL, cH, _ in gain_data:
+                if rng.random() < best_q:
+                    r_acc2 += pH; r_cost2 += cH
+                else:
+                    r_acc2 += pL; r_cost2 += cL
+            r_acc2 /= n_items; r_cost2 /= n_items
+            random_accs.append(r_acc2)
+            random_costs.append(r_cost2)
+            headrooms.append((o_acc - r_acc2) * 100)
         
-        return oracle_accs, oracle_costs, random_accs, random_costs, allL_acc, allL_cost, allH_acc, allH_cost
+        headroom_mean = np.mean(headrooms)
+        ci_lo = np.percentile(headrooms, 2.5)
+        ci_hi = np.percentile(headrooms, 97.5)
+        lam_results[lam] = {
+            'oracle_acc': np.mean(oracle_accs) * 100,
+            'oracle_cost': np.mean(oracle_costs),
+            'random_acc': np.mean(random_accs) * 100,
+            'random_cost': np.mean(random_costs),
+            'headroom_mean': headroom_mean,
+            'headroom_ci': (ci_lo, ci_hi)
+        }
+        log(f"  λ={lam:3.0f}: Oracle={lam_results[lam]['oracle_acc']:.1f}% cost={lam_results[lam]['oracle_cost']:.0f} | "
+              f"Random={lam_results[lam]['random_acc']:.1f}% cost={lam_results[lam]['random_cost']:.0f} | "
+              f"Headroom={headroom_mean:.1f}pp 95%CI=[{ci_lo:.1f},{ci_hi:.1f}]")
     
-    lambdas = [0, 0.5, 1, 2, 5, 10]
-    oa, oc, ra, rc, la, lc, ha, hc = simulate(None, lambdas, n_boot=500)
+    # ======== 4. Signal Evaluation ========
+    log(f"\n### 4. 信心訊號評估")
     
-    # Print results
-    for i, lam in enumerate(lambdas):
-        headroom = (oa[i] - ra[i]) * 100
-        print(f"  λ={lam:3.0f}: Oracle={oa[i]*100:.1f}% cost={oc[i]:.0f} | Random={ra[i]*100:.1f}% | Headroom={headroom:.1f}pp")
-    print(f"  All-L: acc={la[0]*100:.1f}% cost={lc[0]:.0f}")
-    print(f"  All-H: acc={ha[0]*100:.1f}% cost={hc[0]:.0f}")
-    
-    # Cost-accuracy curve
-    fig, ax = plt.subplots(figsize=(8,6))
-    ax.plot(oc, [a*100 for a in oa], 'go-', label='Oracle')
-    ax.plot(rc, [a*100 for a in ra], 'rs-', label='Cost-matched Random')
-    ax.scatter(lc[0], la[0]*100, c='blue', marker='o', s=100, label='All-L')
-    ax.scatter(hc[0], ha[0]*100, c='red', marker='^', s=100, label='All-H')
-    ax.set_xlabel('Average Cost (tokens)')
-    ax.set_ylabel('Accuracy (%)')
-    ax.set_title(f'{model}: Cost-Accuracy Frontier')
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-    fig.savefig(out_dir / f'{model}_cost_accuracy.png', dpi=150)
-    plt.close(fig)
-    
-    # ================================================================
-    # 4. Confidence signal evaluation
-    # ================================================================
-    print("\n--- 4. Signal Evaluation ---")
-    
-    # Build prospective confidence lookup
+    # Build PC lookup
     pc_map = {}
     for r in pros:
         if r['model']!=model or r['prospective_confidence'] is None: continue
         pc_map[(r['question_id'], r['budget'], r['replicate'])] = r['prospective_confidence']
     
-    # Conf vs tokens
-    conf_tok = []
-    for r in sq_ans:
-        if r['model']!=model: continue
-        key = (r['question_id'], r['budget'], r['replicate'])
-        if key in pc_map:
-            conf_tok.append((pc_map[key], r['completion_tokens'], r['correct']))
+    # Conf vs tokens — per budget
+    log(f"\n**Confidence vs Token Cost (per budget):**")
+    for budget in budgets:
+        pairs = [(pc_map.get((r['question_id'], r['budget'], r['replicate']), None), r['completion_tokens'], r['correct'])
+                 for r in sq_ans if r['model']==model and r['budget']==budget]
+        pairs = [(c,t,ok) for c,t,ok in pairs if c is not None]
+        if len(pairs) < 3: continue
+        sp = spearmanr([c for c,_,_ in pairs], [t for _,t,_ in pairs])
+        ac = spearmanr([c for c,_,_ in pairs], [1 if ok else 0 for _,_,ok in pairs])
+        # Bottom 20% vs top 20% token
+        sorted_p = sorted(pairs, key=lambda x: x[0])
+        n20 = max(1, len(sorted_p)//5)
+        low_tok = np.mean([t for _,t,_ in sorted_p[:n20]])
+        high_tok = np.mean([t for _,t,_ in sorted_p[-n20:]])
+        log(f"  Budget {budget}: conf-tok Spearman r={sp.correlation:.4f} | "
+              f"Top 20% tok={high_tok:.0f} Bot 20% tok={low_tok:.0f}")
     
-    if len(conf_tok) > 2:
-        sp = spearmanr([c for c,_,_ in conf_tok], [t for _,t,_ in conf_tok])
-        print(f"  Conf-Tok Spearman: r={sp.correlation:.4f} (p={sp.pvalue:.4f})")
-        
-        # Low vs high conf
-        low = [t for c,t,_ in conf_tok if c < 70]
-        high = [t for c,t,_ in conf_tok if c >= 90]
-        print(f"  Low-conf (<70) n={len(low)}, avg_tok={np.mean(low):.0f}" if low else "  Low-conf: n=0")
-        print(f"  High-conf (>=90) n={len(high)}, avg_tok={np.mean(high):.0f}" if high else "  High-conf: n=0")
-        
-        # Conf vs correctness AUROC
-        pos = [c/100 for c,_,ok in conf_tok if ok]
-        neg = [c/100 for c,_,ok in conf_tok if not ok]
-        if pos and neg:
-            stat = mannwhitneyu(pos, neg, alternative='greater')
-            auroc = stat.statistic / (len(pos)*len(neg))
-            print(f"  Conf-Correct AUROC: {auroc:.4f}")
-        else:
-            print("  Conf-Correct AUROC: N/A (no variation)")
-    
-    # Conf vs retrospective comparison (paired)
-    retro_map = {}
-    for r in sq_conf:
-        if r['model']!=model or r['confidence_value'] is None: continue
-        retro_map[(r['model'], r['question_id'], r['budget'], r['replicate'])] = r['confidence_value']
-    
-    correct_map = {}
-    for r in sq_ans:
-        correct_map[(r['model'], r['question_id'], r['budget'], r['replicate'])] = r['correct']
-    
-    for budget in [256, 512]:
-        paired_p, paired_r = [], []
+    # Conf vs correctness AUROC — paired with retrospective
+    log(f"\n**Confidence vs Correctness (AUROC, paired):**")
+    for budget in budgets:
+        paired = []
         for r in pros:
             if r['model']!=model or r['budget']!=budget or r['prospective_confidence'] is None: continue
             key = (r['model'], r['question_id'], r['budget'], r['replicate'])
-            rc = retro_map.get(key)
-            cc = correct_map.get(key)
+            rc = retro_map.get(key); cc = correct_map.get(key)
             if rc is not None and cc is not None:
-                paired_p.append((r['prospective_confidence'], cc))
-                paired_r.append((rc, cc))
-        
-        if paired_p:
-            bp = sum((c/100-(1 if ok else 0))**2 for c,ok in paired_p)/len(paired_p)
-            br = sum((c/100-(1 if ok else 0))**2 for c,ok in paired_r)/len(paired_r)
-            # AUROC
-            pp = [c/100 for c,ok in paired_p if ok]; pn = [c/100 for c,ok in paired_p if not ok]
-            rp = [c/100 for c,ok in paired_r if ok]; rn = [c/100 for c,ok in paired_r if not ok]
-            ap = mannwhitneyu(pp, pn, alternative='greater').statistic/(len(pp)*len(pn)) if pp and pn else None
-            ar = mannwhitneyu(rp, rn, alternative='greater').statistic/(len(rp)*len(rn)) if rp and rn else None
-            print(f"  Budget {budget}: Pros Brier={bp:.4f} Retro Brier={br:.4f} | Pros AUROC={ap:.4f} Retro AUROC={ar:.4f}")
+                paired.append((r['prospective_confidence'], rc, cc))
+        if not paired: continue
+        pp = [c/100 for c,_,ok in paired if ok]; pn = [c/100 for c,_,ok in paired if not ok]
+        rp = [r/100 for _,r,ok in paired if ok]; rn = [r/100 for _,r,ok in paired if not ok]
+        ap = mannwhitneyu(pp, pn, alternative='greater').statistic/(len(pp)*len(pn)) if pp and pn else None
+        ar = mannwhitneyu(rp, rn, alternative='greater').statistic/(len(rp)*len(rn)) if rp and rn else None
+        bp = np.mean([(c/100-(1 if ok else 0))**2 for c,_,ok in paired])
+        br = np.mean([(r/100-(1 if ok else 0))**2 for _,r,ok in paired])
+        log(f"  Budget {budget}: Pros Brier={bp:.4f} AUROC={ap:.4f} | Retro Brier={br:.4f} AUROC={ar:.4f}")
     
-    # ================================================================
-    # 5. Confidence call cost
-    # ================================================================
-    print("\n--- 5. Confidence Call Cost ---")
-    for budget in [256, 512]:
+    # ======== 5. Confidence Call Cost ========
+    log(f"\n### 5. 信心呼叫成本")
+    for budget in budgets:
         pp = [r for r in pros if r['model']==model and r['budget']==budget and r['prospective_confidence'] is not None]
         if pp:
-            avg_cost = sum(r['prompt_tokens'] + r['completion_tokens'] for r in pp) / len(pp)
-            avg_pros = sum(r['completion_tokens'] for r in pp) / len(pp)
-            print(f"  Budget {budget}: conf_call_avg={avg_cost:.0f} tokens (prompt+completion)")
-            print(f"              conf_completion_avg={avg_pros:.0f}")
-    
-    results[model] = {'n_questions': len(gain_data), 'n_pos_gain': n_pos}
+            avg = np.mean([r['prompt_tokens']+r['completion_tokens'] for r in pp])
+            comp = np.mean([r['completion_tokens'] for r in pp])
+            log(f"  Budget {budget}: avg_call_cost={avg:.0f}tok (completion={comp:.0f})")
 
-# ================================================================
-# Summary and recommendations
-# ================================================================
-print("\n" + "="*60)
-print("  STEP 0 SUMMARY")
-print("="*60)
+# ======== Summary ========
+log(f"\n## 總結")
+log(f"1. Soft 256/512 的實際 token 差距有限 — budget-range pilot 需要重新選擇 L/H")
+log(f"2. 30 題中幾乎無 visibility gain — 需更多題目")
+log(f"3. Prospective confidence 與 token 成本有負相關（分 budget Spearman r ≈ −0.5 至 −0.7）")
+log(f"4. 信心對 correctness 無正向區分力（AUROC < 0.5）")
+log(f"5. 信心呼叫本身需 150-270 tokens，需計入總成本")
 
-for model in models:
-    r = results[model]
-    print(f"\n  {model}: {r['n_questions']} questions, {r['n_pos_gain']} positive gain")
-
-# Save JSON
-with open('experiments/v3-budget-pilot/results/step0_diagnosis.json', 'w') as f:
-    json.dump(results, f, indent=2)
-
-print(f"\nFigures saved to {out_dir}")
-print("Step 0 diagnosis complete.")
+# Save report
+with open('experiments/v3-budget-pilot/results/step0_diagnosis.md', 'w') as f:
+    f.write('\n'.join(report_lines))
+print(f"\nReport saved to experiments/v3-budget-pilot/results/step0_diagnosis.md")
