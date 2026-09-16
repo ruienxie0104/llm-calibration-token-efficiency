@@ -1,0 +1,709 @@
+{
+  "metadata": {
+    "schema_version": 2,
+    "source": "/Users/ryan/Projects/llm-calibration-token-efficiency/experiments/v3-budget-pilot/results/phase3_raw.json",
+    "source_sha256": "d7639312b75e40dd0886c2b90f2fb25155a62785d4ed0b3a3f9a0cf711acf600",
+    "low_budget": 512,
+    "high_budget": 1024,
+    "record_count": 720,
+    "event_count": 2918,
+    "empty_event_case_count": 287,
+    "parser_change_count": 200,
+    "unit": "model-question-replicate",
+    "target": "benefit = low incorrect and high correct",
+    "warning": "Low and high outcomes come from independent Phase 3 calls; this is an offline predictive-feasibility dataset, not a causal continuation trial."
+  },
+  "analysis": {
+    "schema_version": 1,
+    "profiles": {
+      "C0_completion": "Context + tokens + near-cap + parsed-answer presence",
+      "C1_last_activity": "C0 + empty marker + last non-conclusion activity",
+      "C2_activity_counts": "C0 + non-conclusion activity counts/shares/entropy",
+      "C3_dfg_only": "C0 + fold-local DFG features after removing conclude",
+      "C4_structural": "C0 + last activity + counts + structural DFG",
+      "C5_full_process": "C0 + original full process features, including conclude",
+      "C6_structural_confidence": "C4 + retrospective confidence"
+    },
+    "primary_cohort": "unfinished",
+    "primary_contrast": "C4_structural - C0_completion PR-AUC",
+    "cohorts": {
+      "all": {
+        "n": 720,
+        "unique_questions": 60,
+        "benefit_prevalence": 0.3402777777777778,
+        "empty_trace_rate": 0.39861111111111114,
+        "metrics": {
+          "C0_completion": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.6159152643153599,
+            "roc_auc": 0.8174607948442535,
+            "brier": 0.17005123092301438,
+            "log_loss": 0.5102700070865515
+          },
+          "C1_last_activity": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.7968475600176987,
+            "roc_auc": 0.8886229860365199,
+            "brier": 0.12501030847916483,
+            "log_loss": 0.40776613597375044
+          },
+          "C2_activity_counts": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.8056310898996774,
+            "roc_auc": 0.8888464017185822,
+            "brier": 0.12557496480146899,
+            "log_loss": 0.4063126047001328
+          },
+          "C3_dfg_only": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.7630942870050175,
+            "roc_auc": 0.8440386680988184,
+            "brier": 0.14726983149253145,
+            "log_loss": 0.6444491297161054
+          },
+          "C4_structural": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.7973018725402148,
+            "roc_auc": 0.8650268528464017,
+            "brier": 0.13529064710763208,
+            "log_loss": 0.5432925803386838
+          },
+          "C5_full_process": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.7954727392541968,
+            "roc_auc": 0.8750032223415682,
+            "brier": 0.1342174066482128,
+            "log_loss": 0.4638682607596577
+          },
+          "C6_structural_confidence": {
+            "n": 720,
+            "prevalence": 0.3402777777777778,
+            "pr_auc": 0.7969561788720171,
+            "roc_auc": 0.8664189044038668,
+            "brier": 0.13463943533099107,
+            "log_loss": 0.5457321218665527
+          }
+        },
+        "structural_vs_completion_pr_auc": {
+          "estimate": 0.18138660822485486,
+          "ci_low": 0.05844833281855079,
+          "ci_high": 0.2834499154047346
+        },
+        "full_vs_structural_pr_auc": {
+          "estimate": -0.0018291332860179699,
+          "ci_low": -0.02140651202120416,
+          "ci_high": 0.02086390662458857
+        }
+      },
+      "unfinished": {
+        "n": 483,
+        "unique_questions": 59,
+        "benefit_prevalence": 0.4989648033126294,
+        "empty_trace_rate": 0.5942028985507246,
+        "metrics": {
+          "C0_completion": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.5311602502740185,
+            "roc_auc": 0.6056376667466822,
+            "brier": 0.2808384699297402,
+            "log_loss": 0.9113626432816605
+          },
+          "C1_last_activity": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.66072604208848,
+            "roc_auc": 0.7363859264085594,
+            "brier": 0.21887567223309407,
+            "log_loss": 0.7543976552012046
+          },
+          "C2_activity_counts": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.7533698604035496,
+            "roc_auc": 0.7524176125647268,
+            "brier": 0.22067294191853443,
+            "log_loss": 0.7548662091576076
+          },
+          "C3_dfg_only": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.7197447669474737,
+            "roc_auc": 0.7110695792325366,
+            "brier": 0.2402517195360867,
+            "log_loss": 0.9854318947833843
+          },
+          "C4_structural": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.750282856449892,
+            "roc_auc": 0.7308648537430129,
+            "brier": 0.23488739065537773,
+            "log_loss": 0.9583472222090793
+          },
+          "C5_full_process": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.7509150432241054,
+            "roc_auc": 0.7316878707863242,
+            "brier": 0.23717813407650665,
+            "log_loss": 0.8486977271719117
+          },
+          "C6_structural_confidence": {
+            "n": 483,
+            "prevalence": 0.4989648033126294,
+            "pr_auc": 0.7505261054023259,
+            "roc_auc": 0.7350313775247762,
+            "brier": 0.23312137713535896,
+            "log_loss": 0.9601995616094516
+          }
+        },
+        "structural_vs_completion_pr_auc": {
+          "estimate": 0.21912260617587354,
+          "ci_low": 0.11304967110866437,
+          "ci_high": 0.2878898595130642
+        },
+        "full_vs_structural_pr_auc": {
+          "estimate": 0.0006321867742133946,
+          "ci_low": -0.014103592144849549,
+          "ci_high": 0.015277837129711402
+        }
+      },
+      "nonempty_unfinished": {
+        "n": 196,
+        "unique_questions": 47,
+        "benefit_prevalence": 0.8724489795918368,
+        "empty_trace_rate": 0.0,
+        "metrics": {
+          "C0_completion": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8230970470332029,
+            "roc_auc": 0.44526315789473686,
+            "brier": 0.16717397734275252,
+            "log_loss": 0.7805126923698874
+          },
+          "C1_last_activity": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8135688243429994,
+            "roc_auc": 0.4145029239766082,
+            "brier": 0.1787331692898922,
+            "log_loss": 0.8583022557803909
+          },
+          "C2_activity_counts": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8419441001802882,
+            "roc_auc": 0.4411695906432749,
+            "brier": 0.16794229827993137,
+            "log_loss": 0.8932167935396449
+          },
+          "C3_dfg_only": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8512367168846077,
+            "roc_auc": 0.4975438596491228,
+            "brier": 0.18773230390939044,
+            "log_loss": 1.0380529714914264
+          },
+          "C4_structural": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8437398396519704,
+            "roc_auc": 0.44701754385964915,
+            "brier": 0.19852789678526317,
+            "log_loss": 1.4462510833750915
+          },
+          "C5_full_process": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8583187491451099,
+            "roc_auc": 0.4629239766081871,
+            "brier": 0.1992705094105708,
+            "log_loss": 1.1536694430691439
+          },
+          "C6_structural_confidence": {
+            "n": 196,
+            "prevalence": 0.8724489795918368,
+            "pr_auc": 0.8472406242853949,
+            "roc_auc": 0.4566081871345029,
+            "brier": 0.19553306196609976,
+            "log_loss": 1.4166488886327935
+          }
+        },
+        "structural_vs_completion_pr_auc": {
+          "estimate": 0.020642792618767558,
+          "ci_low": -0.04836908054701866,
+          "ci_high": 0.05874040050868055
+        },
+        "full_vs_structural_pr_auc": {
+          "estimate": 0.014578909493139447,
+          "ci_low": -0.0015493822584774688,
+          "ci_high": 0.03261616546844876
+        }
+      },
+      "empty_unfinished": {
+        "n": 287,
+        "unique_questions": 46,
+        "benefit_prevalence": 0.24390243902439024,
+        "empty_trace_rate": 1.0,
+        "metrics": {
+          "C0_completion": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.20513049730835253,
+            "log_loss": 0.64039300488164
+          },
+          "C1_last_activity": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.20513049730836272,
+            "log_loss": 0.6403930048816905
+          },
+          "C2_activity_counts": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.2051304973083627,
+            "log_loss": 0.6403930048816905
+          },
+          "C3_dfg_only": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.20513049730835253,
+            "log_loss": 0.6403930048816402
+          },
+          "C4_structural": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.20513049730833222,
+            "log_loss": 0.6403930048815396
+          },
+          "C5_full_process": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.3316768671741048,
+            "roc_auc": 0.6033245556287031,
+            "brier": 0.20513049730835256,
+            "log_loss": 0.6403930048816402
+          },
+          "C6_structural_confidence": {
+            "n": 287,
+            "prevalence": 0.24390243902439024,
+            "pr_auc": 0.35180843406516993,
+            "roc_auc": 0.6106319947333773,
+            "brier": 0.20138326651574998,
+            "log_loss": 0.6339636540828857
+          }
+        },
+        "structural_vs_completion_pr_auc": {
+          "estimate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0
+        },
+        "full_vs_structural_pr_auc": {
+          "estimate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0
+        }
+      }
+    },
+    "unfinished_leave_one_model_out": {
+      "DeepSeek-V4-Flash-158B": {
+        "C0_completion": {
+          "n": 61,
+          "prevalence": 0.5409836065573771,
+          "pr_auc": 0.6584887410894928,
+          "roc_auc": 0.6255411255411255,
+          "brier": 0.2824048560172733,
+          "log_loss": 0.7632194817304313
+        },
+        "C4_structural": {
+          "n": 61,
+          "prevalence": 0.5409836065573771,
+          "pr_auc": 0.7855555482883322,
+          "roc_auc": 0.7272727272727273,
+          "brier": 0.2727294332313425,
+          "log_loss": 0.7687650586215301
+        },
+        "C5_full_process": {
+          "n": 61,
+          "prevalence": 0.5409836065573771,
+          "pr_auc": 0.7874896575250796,
+          "roc_auc": 0.7402597402597403,
+          "brier": 0.27284671115536774,
+          "log_loss": 0.7682132990826446
+        },
+        "C6_structural_confidence": {
+          "n": 61,
+          "prevalence": 0.5409836065573771,
+          "pr_auc": 0.7911726005676151,
+          "roc_auc": 0.7451298701298701,
+          "brier": 0.2720845531400775,
+          "log_loss": 0.7610270771781278
+        }
+      },
+      "GLM-5.2-756B": {
+        "C0_completion": {
+          "n": 168,
+          "prevalence": 0.43452380952380953,
+          "pr_auc": 0.7831792461423371,
+          "roc_auc": 0.795097332372026,
+          "brier": 0.21436979635203757,
+          "log_loss": 0.6156320478982379
+        },
+        "C4_structural": {
+          "n": 168,
+          "prevalence": 0.43452380952380953,
+          "pr_auc": 0.7008219917837342,
+          "roc_auc": 0.6666906993511175,
+          "brier": 0.2319935568252557,
+          "log_loss": 1.3763614050551325
+        },
+        "C5_full_process": {
+          "n": 168,
+          "prevalence": 0.43452380952380953,
+          "pr_auc": 0.7007569000553039,
+          "roc_auc": 0.6998558038932948,
+          "brier": 0.2171186496679117,
+          "log_loss": 0.988360137404237
+        },
+        "C6_structural_confidence": {
+          "n": 168,
+          "prevalence": 0.43452380952380953,
+          "pr_auc": 0.7043062722281201,
+          "roc_auc": 0.6696467195385725,
+          "brier": 0.23455783695780083,
+          "log_loss": 1.3816152676777922
+        }
+      },
+      "GPT-OSS-120B": {
+        "C0_completion": {
+          "n": 126,
+          "prevalence": 0.5555555555555556,
+          "pr_auc": 0.6832087455037247,
+          "roc_auc": 0.6793367346938776,
+          "brier": 0.24102686967340536,
+          "log_loss": 0.6964734571164739
+        },
+        "C4_structural": {
+          "n": 126,
+          "prevalence": 0.5555555555555556,
+          "pr_auc": 0.7904868904612783,
+          "roc_auc": 0.8029336734693877,
+          "brier": 0.17211925652245882,
+          "log_loss": 0.6756553086353149
+        },
+        "C5_full_process": {
+          "n": 126,
+          "prevalence": 0.5555555555555556,
+          "pr_auc": 0.8275575814099049,
+          "roc_auc": 0.8177295918367347,
+          "brier": 0.1686135776804555,
+          "log_loss": 0.6592047250564177
+        },
+        "C6_structural_confidence": {
+          "n": 126,
+          "prevalence": 0.5555555555555556,
+          "pr_auc": 0.7862143196973405,
+          "roc_auc": 0.794515306122449,
+          "brier": 0.17723965209262735,
+          "log_loss": 0.6967430674490727
+        }
+      },
+      "GPT-OSS-20B": {
+        "C0_completion": {
+          "n": 128,
+          "prevalence": 0.5078125,
+          "pr_auc": 0.799769381026107,
+          "roc_auc": 0.7706959706959707,
+          "brier": 0.19583548817592678,
+          "log_loss": 0.5718296157968166
+        },
+        "C4_structural": {
+          "n": 128,
+          "prevalence": 0.5078125,
+          "pr_auc": 0.8888364708583855,
+          "roc_auc": 0.8694749694749695,
+          "brier": 0.12709465676215617,
+          "log_loss": 0.42191421223546616
+        },
+        "C5_full_process": {
+          "n": 128,
+          "prevalence": 0.5078125,
+          "pr_auc": 0.8836858042336686,
+          "roc_auc": 0.8496947496947497,
+          "brier": 0.13961860006936738,
+          "log_loss": 0.4642875551486778
+        },
+        "C6_structural_confidence": {
+          "n": 128,
+          "prevalence": 0.5078125,
+          "pr_auc": 0.8877001147487957,
+          "roc_auc": 0.870940170940171,
+          "brier": 0.1272279414261394,
+          "log_loss": 0.4220020725506839
+        }
+      }
+    },
+    "hard_budget_policy": {
+      "budget_definition": "Each upgrade reserves the known high_budget-low_budget Hard-cap increment. Policies are compared under the same worst-case nominal token budget; realized completion-token proxy is reported separately.",
+      "cap_increment": 512,
+      "fractions": {
+        "0.25": {
+          "mean_nominal_budget": 589.3847222222222,
+          "C0_completion": {
+            "accuracy": 0.4777777777777778,
+            "mean_realized_token_proxy": 534.025,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C1_last_activity": {
+            "accuracy": 0.5263888888888889,
+            "mean_realized_token_proxy": 514.4263888888889,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C2_activity_counts": {
+            "accuracy": 0.5291666666666667,
+            "mean_realized_token_proxy": 513.5805555555555,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C3_dfg_only": {
+            "accuracy": 0.5138888888888888,
+            "mean_realized_token_proxy": 518.425,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C4_structural": {
+            "accuracy": 0.5236111111111111,
+            "mean_realized_token_proxy": 512.8111111111111,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C5_full_process": {
+            "accuracy": 0.525,
+            "mean_realized_token_proxy": 512.05,
+            "upgraded": 180,
+            "upgrade_rate": 0.25,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 92160
+          },
+          "C6_structural_confidence": {
+            "accuracy": 0.31527777777777777,
+            "mean_realized_token_proxy": 1299.6361111111112,
+            "upgraded": 0,
+            "upgrade_rate": 0.0,
+            "confidence_overhead_total": 603541,
+            "nominal_budget_feasible": false,
+            "reserved_upgrade_tokens": 0
+          },
+          "oracle": {
+            "accuracy": 0.5652777777777778,
+            "mean_realized_token_proxy": 517.1680555555556,
+            "upgraded": 180,
+            "upgrade_rate": 0.25
+          },
+          "random_expected": {
+            "accuracy": 0.4,
+            "mean_realized_token_proxy": 524.6392361111111,
+            "upgraded_expected": 180
+          }
+        },
+        "0.5": {
+          "mean_nominal_budget": 717.3847222222222,
+          "C0_completion": {
+            "accuracy": 0.5930555555555556,
+            "mean_realized_token_proxy": 624.8763888888889,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C1_last_activity": {
+            "accuracy": 0.6208333333333333,
+            "mean_realized_token_proxy": 616.9916666666667,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C2_activity_counts": {
+            "accuracy": 0.6194444444444445,
+            "mean_realized_token_proxy": 614.0944444444444,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C3_dfg_only": {
+            "accuracy": 0.6,
+            "mean_realized_token_proxy": 620.9472222222222,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C4_structural": {
+            "accuracy": 0.6083333333333333,
+            "mean_realized_token_proxy": 617.5680555555556,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C5_full_process": {
+            "accuracy": 0.6125,
+            "mean_realized_token_proxy": 615.2402777777778,
+            "upgraded": 360,
+            "upgrade_rate": 0.5,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 184320
+          },
+          "C6_structural_confidence": {
+            "accuracy": 0.31527777777777777,
+            "mean_realized_token_proxy": 1299.6361111111112,
+            "upgraded": 0,
+            "upgrade_rate": 0.0,
+            "confidence_overhead_total": 603541,
+            "nominal_budget_feasible": false,
+            "reserved_upgrade_tokens": 0
+          },
+          "oracle": {
+            "accuracy": 0.6555555555555556,
+            "mean_realized_token_proxy": 554.4680555555556,
+            "upgraded": 360,
+            "upgrade_rate": 0.5
+          },
+          "random_expected": {
+            "accuracy": 0.4847222222222222,
+            "mean_realized_token_proxy": 587.89375,
+            "upgraded_expected": 360
+          }
+        },
+        "0.75": {
+          "mean_nominal_budget": 845.3847222222222,
+          "C0_completion": {
+            "accuracy": 0.6527777777777778,
+            "mean_realized_token_proxy": 704.1527777777778,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C1_last_activity": {
+            "accuracy": 0.6513888888888889,
+            "mean_realized_token_proxy": 705.3777777777777,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C2_activity_counts": {
+            "accuracy": 0.6541666666666667,
+            "mean_realized_token_proxy": 704.7333333333333,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C3_dfg_only": {
+            "accuracy": 0.6416666666666667,
+            "mean_realized_token_proxy": 702.4388888888889,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C4_structural": {
+            "accuracy": 0.6472222222222223,
+            "mean_realized_token_proxy": 703.7041666666667,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C5_full_process": {
+            "accuracy": 0.65,
+            "mean_realized_token_proxy": 703.9277777777778,
+            "upgraded": 540,
+            "upgrade_rate": 0.75,
+            "confidence_overhead_total": 0,
+            "nominal_budget_feasible": true,
+            "reserved_upgrade_tokens": 276480
+          },
+          "C6_structural_confidence": {
+            "accuracy": 0.31527777777777777,
+            "mean_realized_token_proxy": 1299.6361111111112,
+            "upgraded": 0,
+            "upgrade_rate": 0.0,
+            "confidence_overhead_total": 603541,
+            "nominal_budget_feasible": false,
+            "reserved_upgrade_tokens": 0
+          },
+          "oracle": {
+            "accuracy": 0.6555555555555556,
+            "mean_realized_token_proxy": 639.5791666666667,
+            "upgraded": 540,
+            "upgrade_rate": 0.75
+          },
+          "random_expected": {
+            "accuracy": 0.5694444444444444,
+            "mean_realized_token_proxy": 651.1482638888889,
+            "upgraded_expected": 540
+          }
+        }
+      }
+    },
+    "guardrails": [
+      "All test predictions are grouped out-of-fold by question_id.",
+      "DFGs are fitted on training folds only.",
+      "Structural profiles remove conclude events and answer-equivalent process features.",
+      "Low/high Phase 3 outcomes are independent calls, not resumed generations."
+    ]
+  }
+}
