@@ -1,3 +1,6 @@
+---
+> **歷史文件** — 已被 docs/zh-TW/research-narrative-2026-09-11.md 取代。保留僅供參考。
+
 # LLM 校準 × Token Allocation × Process Mining — 完整研究紀錄
 
 > **研究主題：** 探討 LLM 自我評估的校準品質與推理 Token 分配效率之間的關係

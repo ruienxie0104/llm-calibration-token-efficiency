@@ -1,3 +1,6 @@
+---
+> **Historical** — Superseded by docs/research-narrative-2026-09-11.md. Kept for reference.
+
 # Research Progress Overview (2026-09-11 Updated)
 
 > Core narrative: We attempted to validate the causal chain "calibration → token allocation efficiency," but the experiment design itself revealed a more fundamental problem—hard constraint and soft constraint budget mechanisms affect model behavior in fundamentally different ways, a distinction rarely discussed in the literature.

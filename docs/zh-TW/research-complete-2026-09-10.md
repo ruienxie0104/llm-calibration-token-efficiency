@@ -1,3 +1,6 @@
+---
+> **歷史文件** — 已被 docs/zh-TW/research-narrative-2026-09-11.md 取代。保留僅供參考。
+
 # LLM 校準 × Token Allocation × Process Mining — 完整研究總覽
 
 > 最後更新：2026-09-10 | Phase 3 全部完成
