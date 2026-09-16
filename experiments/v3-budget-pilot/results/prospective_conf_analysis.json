@@ -1,0 +1,188 @@
+{
+  "GPT-OSS-120B": {
+    "pros_256": {
+      "n": 89,
+      "mean_conf": 86.8,
+      "std_conf": 9.5,
+      "conf_range": [
+        70,
+        95
+      ],
+      "brier": 0.0263,
+      "ece": 0.2069,
+      "auroc": null,
+      "conf_gap": 86.8,
+      "spearman_r": 0.5438
+    },
+    "retro_256": {
+      "n": 89,
+      "mean_conf": 95.3,
+      "std_conf": 4.4,
+      "conf_range": [
+        60,
+        99
+      ],
+      "brier": 0.2224,
+      "ece": 0.2134,
+      "auroc": 0.5159,
+      "conf_gap": 1.5,
+      "spearman_r": 0.0272
+    },
+    "paired_n": 85,
+    "pros_lcae_256": 0.2222,
+    "retro_lcae_256": 0.298,
+    "tok_corr_256": {
+      "n": 89,
+      "conf_tok_sp": -0.661,
+      "conf_correct_sp": -0.134,
+      "low_conf_mean_tok": null,
+      "high_conf_mean_tok": 346.8,
+      "low_conf_n": 0,
+      "high_conf_n": 54
+    },
+    "missing_256": {
+      "total": 90,
+      "parsed": 89,
+      "missing": 1,
+      "parse_rate": 98.9
+    },
+    "pros_512": {
+      "n": 85,
+      "mean_conf": 86.6,
+      "std_conf": 9.9,
+      "conf_range": [
+        60,
+        97
+      ],
+      "brier": 0.0278,
+      "ece": 0.2049,
+      "auroc": null,
+      "conf_gap": 86.6,
+      "spearman_r": 0.6191
+    },
+    "retro_512": {
+      "n": 85,
+      "mean_conf": 96.1,
+      "std_conf": 2.2,
+      "conf_range": [
+        90,
+        99
+      ],
+      "brier": 0.2102,
+      "ece": 0.2035,
+      "auroc": 0.3824,
+      "conf_gap": -0.6,
+      "spearman_r": -0.1862
+    },
+    "pros_lcae_512": 0.2213,
+    "retro_lcae_512": 0.3063,
+    "tok_corr_512": {
+      "n": 85,
+      "conf_tok_sp": -0.7557,
+      "conf_correct_sp": -0.3158,
+      "low_conf_mean_tok": 785.0,
+      "high_conf_mean_tok": 348.2,
+      "low_conf_n": 2,
+      "high_conf_n": 51
+    },
+    "missing_512": {
+      "total": 90,
+      "parsed": 85,
+      "missing": 5,
+      "parse_rate": 94.4
+    }
+  },
+  "DeepSeek-V4-Flash-158B": {
+    "pros_256": {
+      "n": 90,
+      "mean_conf": 93.6,
+      "std_conf": 6.7,
+      "conf_range": [
+        70,
+        100
+      ],
+      "brier": 0.0085,
+      "ece": 0.0739,
+      "auroc": null,
+      "conf_gap": 93.6,
+      "spearman_r": null
+    },
+    "retro_256": {
+      "n": 90,
+      "mean_conf": 100.0,
+      "std_conf": 0.0,
+      "conf_range": [
+        100,
+        100
+      ],
+      "brier": 0.2,
+      "ece": 0.2,
+      "auroc": 0.5,
+      "conf_gap": 0.0,
+      "spearman_r": NaN
+    },
+    "paired_n": 90,
+    "pros_lcae_256": 0.2544,
+    "retro_lcae_256": 0.3099,
+    "tok_corr_256": {
+      "n": 90,
+      "conf_tok_sp": -0.6013,
+      "conf_correct_sp": -0.2111,
+      "low_conf_mean_tok": null,
+      "high_conf_mean_tok": 187.2,
+      "low_conf_n": 0,
+      "high_conf_n": 70
+    },
+    "missing_256": {
+      "total": 90,
+      "parsed": 90,
+      "missing": 0,
+      "parse_rate": 100.0
+    },
+    "pros_512": {
+      "n": 90,
+      "mean_conf": 93.8,
+      "std_conf": 6.3,
+      "conf_range": [
+        70,
+        100
+      ],
+      "brier": 0.0078,
+      "ece": 0.0694,
+      "auroc": null,
+      "conf_gap": 93.8,
+      "spearman_r": 0.1497
+    },
+    "retro_512": {
+      "n": 90,
+      "mean_conf": 99.9,
+      "std_conf": 0.5,
+      "conf_range": [
+        95,
+        100
+      ],
+      "brier": 0.1778,
+      "ece": 0.1772,
+      "auroc": 0.4932,
+      "conf_gap": -0.1,
+      "spearman_r": -0.0493
+    },
+    "pros_lcae_512": 0.2539,
+    "retro_lcae_512": 0.3095,
+    "tok_corr_512": {
+      "n": 90,
+      "conf_tok_sp": -0.6498,
+      "conf_correct_sp": -0.1406,
+      "low_conf_mean_tok": null,
+      "high_conf_mean_tok": 220.2,
+      "low_conf_n": 0,
+      "high_conf_n": 70
+    },
+    "missing_512": {
+      "total": 90,
+      "parsed": 90,
+      "missing": 0,
+      "parse_rate": 100.0
+    }
+  }
+}
