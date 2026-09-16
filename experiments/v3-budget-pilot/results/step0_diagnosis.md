@@ -14,11 +14,11 @@
   Zero gain: 29/30
 
 ### 3. Oracle 策略（含 Bootstrap CI）
-  λ=  0: Oracle=77.1% cost=513 | Random=74.9% cost=530 | Headroom=2.2pp 95%CI=[-14.4,15.6]
-  λ=  1: Oracle=76.4% cost=494 | Random=74.7% cost=519 | Headroom=1.7pp 95%CI=[-14.4,15.6]
-  λ=  2: Oracle=77.1% cost=495 | Random=74.7% cost=520 | Headroom=2.4pp 95%CI=[-14.4,15.6]
-  λ=  5: Oracle=74.2% cost=489 | Random=74.7% cost=517 | Headroom=-0.5pp 95%CI=[-16.7,14.5]
-  λ= 10: Oracle=74.2% cost=491 | Random=74.7% cost=519 | Headroom=-0.5pp 95%CI=[-16.7,14.4]
+  λ=  0: Oracle=76.8% cost=512 | Random=74.8% cost=512 | Headroom=2.0pp 95%CI=[0.0,5.9]
+  λ=  1: Oracle=76.8% cost=494 | Random=74.6% cost=507 | Headroom=2.2pp 95%CI=[0.0,6.7]
+  λ=  2: Oracle=76.5% cost=495 | Random=74.3% cost=506 | Headroom=2.2pp 95%CI=[0.0,6.7]
+  λ=  5: Oracle=74.6% cost=486 | Random=74.6% cost=503 | Headroom=0.0pp 95%CI=[-0.0,0.0]
+  λ= 10: Oracle=74.5% cost=490 | Random=74.5% cost=506 | Headroom=-0.0pp 95%CI=[-0.0,0.0]
 
 ### 4. 信心訊號評估
 
@@ -45,11 +45,11 @@
   Zero gain: 29/30
 
 ### 3. Oracle 策略（含 Bootstrap CI）
-  λ=  0: Oracle=82.5% cost=261 | Random=80.6% cost=278 | Headroom=1.9pp 95%CI=[-13.3,15.6]
-  λ=  1: Oracle=82.2% cost=255 | Random=80.5% cost=276 | Headroom=1.7pp 95%CI=[-12.3,15.6]
-  λ=  2: Oracle=82.4% cost=253 | Random=80.6% cost=276 | Headroom=1.9pp 95%CI=[-13.3,14.4]
-  λ=  5: Oracle=81.7% cost=260 | Random=80.6% cost=278 | Headroom=1.0pp 95%CI=[-13.3,13.3]
-  λ= 10: Oracle=82.0% cost=260 | Random=80.6% cost=278 | Headroom=1.4pp 95%CI=[-13.3,14.4]
+  λ=  0: Oracle=82.6% cost=263 | Random=80.3% cost=263 | Headroom=2.3pp 95%CI=[0.0,6.6]
+  λ=  1: Oracle=82.1% cost=256 | Random=80.0% cost=262 | Headroom=2.2pp 95%CI=[0.0,6.7]
+  λ=  2: Oracle=82.1% cost=257 | Random=79.9% cost=264 | Headroom=2.2pp 95%CI=[0.0,6.7]
+  λ=  5: Oracle=82.7% cost=254 | Random=80.3% cost=261 | Headroom=2.4pp 95%CI=[0.0,6.7]
+  λ= 10: Oracle=82.3% cost=258 | Random=80.0% cost=264 | Headroom=2.3pp 95%CI=[0.0,8.9]
 
 ### 4. 信心訊號評估
 
