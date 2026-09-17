@@ -52,10 +52,10 @@ The `thinking` field is ignored for state classification; only visible `content`
 | **Fixed Low** | Always stop at prefix | 0 |
 | **Fixed Continue** | Always use continuation | all 60 |
 | **Random matched** | Uniform random with *exactly* \(K^*\) continuations | \(K^*\) |
-| **Question-only** | Continue if question level ≥ 4 | depends on level |
+| **Question-only** | Rank by frozen question level, continue top \(K^*\) | \(K^*\) |
 | **Process-only** | State rule below | \(K^*\) |
 | **Process-only (inverse)** | Reverse of Process-only | \(K^*\) |
-| **Oracle** | Continue if prefix is **incorrect**; stop if correct | \(K^*\) |
+| **Oracle** | Rank by realised continuation gain, continue top \(K^*\) | \(K^*\) |
 
 #### Process-only rule
 
@@ -69,21 +69,22 @@ Priority for secondary quota curve: `visible_unfinished` > `empty_unfinished` > 
 
 #### Process-only (inverse)
 
-| State | Action |
-|-------|--------|
-| `complete` | **continue** |
-| `visible_unfinished` | **stop** |
-| `empty_unfinished` | **stop** |
-
-This tests whether the *direction* of the process signal is meaningful, not just whether any allocation has an effect.
+Rank `complete` > `empty_unfinished` > `visible_unfinished` and continue the top
+\(K^*\), using the same deterministic question-ID tie-break as the other ranked
+policies. This tests whether the *direction* of the process signal is meaningful,
+not just whether any allocation has an effect.
 
 #### Oracle
 
-Uses same \(K^*\) as Process-only. Select questions with lowest prefix accuracy (i.e., where continuation is most likely to help). If multiple questions are tied, prioritise unfinished states. After selecting \(K^*\) questions, assign continuation to those.
+Uses the same \(K^*\) as Process-only and ranks questions using the realised
+action gain: incorrect→correct (+1), unchanged (0), correct→incorrect (-1).
+This is a retrospective upper bound, never a deployable policy.
 
 #### Question-only
 
-Trained and frozen on old data (Phase 3 60 questions from any model). The rule: "continue if question level ≥ 4; otherwise stop". This is determined once and never updated from formal 60 outcomes.
+Uses only the manifest's pre-existing difficulty level, ranking higher levels first
+and continuing the top \(K^*\). Ties use a deterministic question-ID hash. No
+formal outcomes are used to construct this baseline.
 
 ### 2.6 Answer selection fallback
 
@@ -98,8 +99,9 @@ When continuation fails to produce a parseable answer:
 ```
 
 - At the same continuation quota \(K^*\).
-- 95% question-clustered bootstrap CI (10,000 replicates).
-- Success: CI does not contain zero, both models show non-contradictory direction.
+- Primary inference pools both model observations while resampling `question_id` clusters
+  (10,000 replicates); per-model CIs are reported as diagnostics.
+- Success: pooled CI lower bound is above zero and both model point estimates are positive.
 
 ### 2.8 Secondary comparisons
 
@@ -117,8 +119,8 @@ When continuation fails to produce a parseable answer:
 
 All three must hold:
 
-1. **Primary:** ΔAccuracy CI for Process-only vs Random matched does not contain zero.
-2. **Consistency:** Both models show the same direction (positive Δ); or any contradiction has a clear explanation.
+1. **Primary:** Pooled ΔAccuracy CI for Process-only vs Random matched has lower bound > 0.
+2. **Consistency:** Both model-specific point estimates show the same positive direction. A contradiction is reported as a No-Go rather than explained away after seeing the data.
 3. **Cost parity:** Actual mean total tokens per question for Process-only and Random matched are within ±5% (or Process-only is Pareto-improving: higher accuracy at similar or lower average cost).
 
 ## 3. Bootstrapping procedure
@@ -127,8 +129,8 @@ All three must hold:
 - 10,000 bootstrap replicates
 - For each replicate: resample 60 questions with replacement, apply all policies, compute per-policy accuracy, compute Δ for each pair
 - CI: percentile method (2.5%–97.5%)
-- p-value: proportion of 10,000 replicates where Δ ≤ 0
-- Reported **separately per model**
+- Descriptive bootstrap tail probability: proportion of replicates where Δ ≤ 0 (not labelled a p-value)
+- Reported **separately per model and pooled**, with both model observations retained whenever a sampled question appears
 
 ## 4. Smoke test (before formal execution)
 
@@ -141,9 +143,10 @@ All three must hold:
 
 ```
 results/process_stage2p_smoke.json       — smoke test raw data
-results/process_stage2p_raw.json         — 240 action records
-results/process_stage2p_analysis.json    — per-model policy metrics
-results/process_stage2p_report.md        — human-readable report
+data/process_stage2_questions.json       — locked 10/20/60 question manifest
+results/process_stage2p_formal_raw.json  — 240 formal action records
+results/process_stage2p_analysis_formal.json — model and pooled policy metrics
+results/process_stage2p_report_formal.md — human-readable formal report
 results/process_stage2p_figure.png       — accuracy-cost Pareto
 ```
 

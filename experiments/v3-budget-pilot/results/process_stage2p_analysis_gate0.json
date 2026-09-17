@@ -53,11 +53,20 @@
       "cost_ratio": 1.0,
       "cost_parity_pass": true,
       "pareto_improving": false,
+      "cost_condition_pass": true,
       "overall_success": false,
       "pref_baseline_pct": 100.0
     },
     "outcomes": {
       "complete_stop": 2
+    },
+    "continuation_outcomes_by_prefix_state": {
+      "complete": {
+        "benefit": 0,
+        "harm": 0,
+        "unchanged": 2,
+        "unresolved": 0
+      }
     },
     "token_breakdown": {
       "prompt": 610,
@@ -120,11 +129,20 @@
       "cost_ratio": 1.0,
       "cost_parity_pass": true,
       "pareto_improving": false,
+      "cost_condition_pass": true,
       "overall_success": false,
       "pref_baseline_pct": 100.0
     },
     "outcomes": {
       "complete_stop": 2
+    },
+    "continuation_outcomes_by_prefix_state": {
+      "complete": {
+        "benefit": 0,
+        "harm": 0,
+        "unchanged": 2,
+        "unresolved": 0
+      }
     },
     "token_breakdown": {
       "prompt": 843,
@@ -132,5 +150,27 @@
       "total": 2074
     },
     "oracle_benefit": 0
+  },
+  "_study": {
+    "primary_contrast": "process_only_minus_random_expected",
+    "cluster_unit": "question_id",
+    "model_deltas_pct": {
+      "DeepSeek-V4-Flash-158B": 0.0,
+      "GPT-OSS-120B": 0.0
+    },
+    "direction_consistent_across_models": false,
+    "delta_pct": 0.0,
+    "bootstrap_delta_mean_pct": 0.0,
+    "ci_lower_pct": 0.0,
+    "ci_upper_pct": 0.0,
+    "tail_prob": 1.0,
+    "significant": false,
+    "process_mean_tokens": 359.2,
+    "random_mean_tokens": 359.2,
+    "cost_ratio": 1.0,
+    "cost_parity_pass": true,
+    "pareto_improving": false,
+    "cost_condition_pass": true,
+    "study_success": false
   }
 }
