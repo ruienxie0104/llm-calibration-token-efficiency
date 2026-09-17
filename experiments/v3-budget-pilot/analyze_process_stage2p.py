@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 2P analysis: apply policies (matched-K* ranking), bootstrap expectation, report."""
+"""Stage 2P analysis: ranking-based matched-K* policies, bootstrap w/ duplicate handling."""
 
 import sys, json, random, copy, hashlib
 from pathlib import Path
@@ -9,532 +9,432 @@ RESULTS_DIR = Path(__file__).resolve().parent / "results"
 RANDOM_SEED = 20260917
 N_BOOTSTRAP = 10000
 ALPHA = 0.05
-EXPECTED_FORMAL_IDS = []  # populated from manifest
+COST_PARITY_TOLERANCE = 0.05  # ±5%
+
+FORMAL_FILE = "process_stage2p_formal_raw.json"
+SMOKE_FILE = "process_stage2p_smoke.json"
+
 
 def load_manifest():
-    """Load the formal 60 question IDs from manifest."""
     mpath = Path(__file__).resolve().parent / "data" / "process_stage2_questions.json"
     with open(mpath) as f:
         data = json.load(f)
     formal = data["splits"]["formal"]
     ids = sorted(q["id"] for q in formal)
     levels = {q["id"]: q.get("level", 3) for q in formal}
-    answers = {q["id"]: q.get("answer", "") for q in formal}
     return ids, levels, {q["id"]: q for q in formal}
 
+
 def load_data(stage="formal"):
-    """Load raw data and validate."""
-    fname = "process_stage2p_smoke.json" if stage == "gate0" else "process_stage2p_raw.json"
+    fname = FORMAL_FILE if stage == "formal" else SMOKE_FILE
     p = RESULTS_DIR / fname
     with open(p) as f:
         data = json.load(f)
     records = data["records"]
 
-    formal_ids, _, _ = load_manifest()
+    formal_ids, manifest_levels, manifest_qs = load_manifest()
     model_ids = sorted(set(r["model"] for r in records))
 
     if stage == "formal":
-        # Validation assertions
         rec_qids = sorted(set(r["question_id"] for r in records))
         assert set(rec_qids) == set(formal_ids), \
             f"Question ID mismatch: {set(rec_qids) ^ set(formal_ids)}"
-        assert len(model_ids) == 2, f"Expected 2 models, got {len(model_ids)}: {model_ids}"
+        assert len(model_ids) == 2, f"Expected 2 models, got {len(model_ids)}"
 
-        # Check each model-question has exactly one prefix and one continuation
         for model in model_ids:
             for qid in rec_qids:
-                prefix_count = sum(1 for r in records
-                                   if r["model"] == model and r["question_id"] == qid
-                                   and r["action"] == "prefix")
-                cont_count = sum(1 for r in records
-                                 if r["model"] == model and r["question_id"] == qid
-                                 and r["action"] == "continuation")
-                assert prefix_count == 1, f"{model}/{qid}: {prefix_count} prefix records ({cont_count} cont)"
-                assert cont_count == 1, f"{model}/{qid}: {cont_count} continuation records"
+                pref_cnt = sum(1 for r in records if r["model"] == model and r["question_id"] == qid and r["action"] == "prefix")
+                cont_cnt = sum(1 for r in records if r["model"] == model and r["question_id"] == qid and r["action"] == "continuation")
+                assert pref_cnt == 1, f"{model}/{qid}: {pref_cnt} prefix"
+                assert cont_cnt == 1, f"{model}/{qid}: {cont_cnt} cont"
 
-        # Check for duplicate keys
         keys = [(r["model"], r["question_id"], r["action"]) for r in records]
         dupes = {k: keys.count(k) for k in keys if keys.count(k) > 1}
-        assert not dupes, f"Duplicate keys found: {dupes}"
-
-        # Check for API errors
+        assert not dupes, f"Duplicates: {dupes}"
         errors = [r for r in records if r.get("error")]
-        assert not errors, f"API errors found: {len(errors)}"
-
-        # Check all IDs are from formal split
-        for r in records:
-            assert r["question_id"] in formal_ids, \
-                f"Question {r['question_id']} not in formal split"
-
-        total = len(records)
-        assert total == 240, f"Expected 240 records, got {total}"
-
-        print(f"Validation passed: {total} records, {len(model_ids)} models, "
-              f"{len(model_ids) * len(rec_qids)} model-question pairs")
+        assert not errors, f"API errors: {len(errors)}"
+        assert len(records) == 240, f"Expected 240, got {len(records)}"
+        assert all(r.get("stage") == "formal" for r in records), "Non-formal stage in records"
+        assert set(model_ids) == {"GPT-OSS-120B", "DeepSeek-V4-Flash-158B"}, f"Unexpected models: {model_ids}"
+        print(f"Validation: 240 records, 2 models, all formal, no errors, no duplicates")
     else:
-        # Smoke: use whatever question IDs exist in records
         formal_ids = sorted(set(r["question_id"] for r in records))
-        print(f"Smoke mode: {len(records)} records, {len(formal_ids)} questions")
+        print(f"Smoke: {len(records)} records, {len(formal_ids)} questions")
 
     return records, model_ids, formal_ids
 
+
+# ---- Helpers ----
 def get_prefix(records, qid, model):
-    """Get prefix record for a question-model pair."""
     for r in records:
         if r["question_id"] == qid and r["model"] == model and r["action"] == "prefix":
             return r
     return None
 
+
 def get_continuation(records, qid, model):
-    """Get continuation record for a question-model pair."""
     for r in records:
         if r["question_id"] == qid and r["model"] == model and r["action"] == "continuation":
             return r
     return None
 
+
+def prefix_correct(records, qid, model):
+    p = get_prefix(records, qid, model)
+    return p.get("correct", False) if p else False
+
+
+def prefix_tokens(records, qid, model):
+    p = get_prefix(records, qid, model)
+    return p.get("total_tokens", 0) if p else 0
+
+
+def continuation_tokens(records, qid, model):
+    c = get_continuation(records, qid, model)
+    return c.get("total_tokens", 0) if c else 0
+
+
+def continuation_raw_correct(records, qid, model):
+    """Raw continuation correctness (no fallback)."""
+    c = get_continuation(records, qid, model)
+    if c and c.get("parsed_answer"):
+        return c.get("correct", False)
+    return None  # unparsed
+
+
+def continuation_has_answer(records, qid, model):
+    c = get_continuation(records, qid, model)
+    return bool(c and c.get("parsed_answer"))
+
+
+def process_state(records, qid, model):
+    p = get_prefix(records, qid, model)
+    return p.get("process_state", "unknown") if p else "unknown"
+
+
 def get_final_correct(records, qid, model):
-    """Get continuation result with fallback.
-    If continuation has parseable answer → use it.
-    Otherwise keep prefix answer. If no prefix answer either → unresolved (incorrect)."""
-    pref = get_prefix(records, qid, model)
-    cont = get_continuation(records, qid, model)
+    """Continuation with fallback."""
+    c = get_continuation(records, qid, model)
+    if c and c.get("parsed_answer"):
+        return c.get("correct", False), c.get("parsed_answer", ""), "continue"
+    p = get_prefix(records, qid, model)
+    if p and p.get("parsed_answer"):
+        return p.get("correct", False), p.get("parsed_answer", ""), "fallback_prefix"
+    return False, "", "unresolved"
 
-    if cont and cont.get("parsed_answer"):
-        return cont.get("correct", False), cont.get("parsed_answer", ""), "continue"
-    elif pref and pref.get("parsed_answer"):
-        return pref.get("correct", False), pref.get("parsed_answer", ""), "fallback_prefix"
-    else:
-        return False, "", "unresolved"
 
-def get_process_state(records, qid, model):
-    """Get prefix process state."""
-    pref = get_prefix(records, qid, model)
-    return pref.get("process_state", "unknown") if pref else "unknown"
-
-def get_prefix_correct(records, qid, model):
-    """Get prefix correctness and answer."""
-    pref = get_prefix(records, qid, model)
-    if pref:
-        return pref.get("correct", False), pref.get("parsed_answer", "")
-    return False, ""
-
-def get_prefix_tokens(records, qid, model):
-    """Get prefix total tokens."""
-    pref = get_prefix(records, qid, model)
-    if pref:
-        return pref.get("total_tokens", 0)
+def compute_gain(records, qid, model):
+    """+1 fixed, -1 broke, 0 unchanged."""
+    pf = prefix_correct(records, qid, model)
+    cf, _, _ = get_final_correct(records, qid, model)
+    if not pf and cf:
+        return 1
+    if pf and not cf:
+        return -1
     return 0
 
-def get_continuation_tokens(records, qid, model):
-    """Get continuation total tokens."""
-    cont = get_continuation(records, qid, model)
-    if cont:
-        return cont.get("total_tokens", 0)
-    return 0
 
-def get_continuation_correct(records, qid, model):
-    """Get continuation raw correctness (without fallback)."""
-    cont = get_continuation(records, qid, model)
-    if cont:
-        return cont.get("correct", False), cont.get("parsed_answer", "")
-    return False, ""
+# ---- Ranking ----
+def qid_tiebreak(qid):
+    return hashlib.md5(qid.encode()).hexdigest()
 
-def compute_continuation_gain(records, qid, model):
-    """Compute gain from continuation: +1 if fixed wrong, -1 if broke correct, 0 otherwise."""
-    pref = get_prefix(records, qid, model)
-    cont = get_continuation(records, qid, model)
-    if not pref or not cont:
-        return 0
-
-    pref_correct = pref.get("correct", False)
-    cont_correct, cont_parsed, _src = get_final_correct(records, qid, model)
-
-    if not pref_correct and cont_correct:
-        return 1  # fixed
-    elif pref_correct and not cont_correct:
-        return -1  # broke
-    else:
-        return 0  # unchanged
-
-POLICY_DEFINITIONS = {
-    "fixed_low": "Always stop at prefix (0 continuations)",
-    "fixed_continue": "Always continue (all questions)",
-    "process_only": f"complete→stop, unfinished→continue (K* = n_unfinished)",
-    "process_only_inverse": f"complete→continue, unfinished→stop (reverse direction, matched K*)",
-    "question_only": "Level 4→continue, Level 3→stop (frozen rule, matched K*)",
-    "random_expected": "Uniform random expectation at K* (analytical formula)",
-    "oracle": "Rank by realized gain, select top K* (matched K*)",
-}
 
 def rank_questions(qids, records, model, ranking_key):
-    """
-    Rank questions by a priority key, return ordered list.
-    ranking_key: 'process' (visible>empty>complete),
-                 'inverse' (complete>empty>visible),
-                 'level' (Level4>Level3)
-    """
-    states = []
-    qlevels = {}
-    manifest_ids, manifest_levels, manifest_qs = load_manifest()
-
-    def tie_break(qid):
-        """Deterministic tie-break by question ID hash."""
-        return hashlib.md5(qid.encode()).hexdigest()
-
+    """Return ordered list of qids."""
+    manifest_ids, manifest_levels, _ = load_manifest()
+    items = []
     for qid in qids:
-        state = get_process_state(records, qid, model) if ranking_key in ("process", "inverse") else None
-        level = manifest_levels.get(qid, 3)
-
         if ranking_key == "process":
-            # visible (2) > empty (1) > complete (0)
-            state_score = {"visible_unfinished": 2, "empty_unfinished": 1, "complete": 0}.get(state, -1)
-            score = (state_score, tie_break(qid))
+            st = process_state(records, qid, model)
+            score = {"visible_unfinished": 2, "empty_unfinished": 1, "complete": 0}.get(st, -1)
         elif ranking_key == "inverse":
-            # complete (2) > empty (1) > visible (0)
-            state_score = {"complete": 2, "empty_unfinished": 1, "visible_unfinished": 0}.get(state, -1)
-            score = (state_score, tie_break(qid))
+            st = process_state(records, qid, model)
+            score = {"complete": 2, "empty_unfinished": 1, "visible_unfinished": 0}.get(st, -1)
         elif ranking_key == "level":
-            score = (level if level else 3, tie_break(qid))
+            score = manifest_levels.get(qid, 3)
         else:
-            score = (0, tie_break(qid))
+            score = 0
+        items.append((score, qid_tiebreak(qid), qid))
+    items.sort(key=lambda x: (-x[0], x[1]))
+    return [x[2] for x in items]
 
-        states.append((score, qid, state, level))
-
-    states.sort(key=lambda x: x[0], reverse=True)
-    return [s[1] for s in states]
 
 def apply_policy_at_k(qids, records, model, k_star, ranking_key):
-    """
-    Generic policy: rank questions by ranking_key, continue top K*, stop rest.
-    Returns list of correctness booleans and total_tokens for each question.
-    """
+    """Rank, continue top K*, stop rest. Returns (corrects, tokens)."""
     ranked = rank_questions(qids, records, model, ranking_key)
-    continue_set = set(ranked[:k_star])
-    corrects = []
-    tokens = []
-
+    continue_set = set(ranked[:k_star])  # unique K* (OK here since qids are unique input)
+    corrects, tokens = [], []
     for qid in qids:
         if qid in continue_set:
-            correct, _, _ = get_final_correct(records, qid, model)
-            tok = get_prefix_tokens(records, qid, model) + get_continuation_tokens(records, qid, model)
+            cf, _, _ = get_final_correct(records, qid, model)
+            tok = prefix_tokens(records, qid, model) + continuation_tokens(records, qid, model)
         else:
-            correct, _ = get_prefix_correct(records, qid, model)
-            tok = get_prefix_tokens(records, qid, model)
-        corrects.append(1 if correct else 0)
+            cf = prefix_correct(records, qid, model)
+            tok = prefix_tokens(records, qid, model)
+        corrects.append(1 if cf else 0)
         tokens.append(tok)
+    return corrects, tokens
 
-    return corrects, tokens, len(continue_set)
 
 def compute_random_expected(records, qids, model, k_star):
-    """
-    Compute expected accuracy of uniform random matched-allocation:
-    E[Acc_random] = Acc_prefix + (K*/N) * (1/N) * sum(Gain_i)
-    where Gain_i = continuation_correct - prefix_correct
-    """
+    """E[Acc_random] = pref_acc + (K*/N) * avg_gain"""
     n = len(qids)
+    pref_acc = sum(1 for q in qids if prefix_correct(records, q, model)) / n
     sum_gain = 0
-    for qid in qids:
-        pf_correct, _ = get_prefix_correct(records, qid, model)
-        cont_correct, cont_parsed = get_continuation_correct(records, qid, model)
-        if cont_parsed:
-            gain = 1 if cont_correct and not pf_correct else (-1 if not cont_correct and pf_correct else 0)
+    for q in qids:
+        pf = prefix_correct(records, q, model)
+        cf_raw = continuation_raw_correct(records, q, model)
+        if cf_raw is not None:
+            gain = 1 if cf_raw and not pf else (-1 if not cf_raw and pf else 0)
         else:
-            gain = 0  # continuation unparsed → fallback to prefix, no gain
+            gain = 0
         sum_gain += gain
-
-    # Expected: prefix accuracy + (K*/N) * avg_gain
-    pref_acc = sum(1 for q in qids if get_prefix_correct(records, q, model)[0]) / n
     avg_gain = sum_gain / n
     expected_acc = pref_acc + (k_star / n) * avg_gain
-
-    # Expected tokens: prefix + (K*/N) * continuation marginal
-    prefix_tok_sum = sum(get_prefix_tokens(records, q, model) for q in qids) / n
-    cont_tok_sum = sum(get_continuation_tokens(records, q, model) for q in qids) / n
-    expected_tok = prefix_tok_sum + (k_star / n) * cont_tok_sum
-
+    pref_tok = sum(prefix_tokens(records, q, model) for q in qids) / n
+    cont_tok = sum(continuation_tokens(records, q, model) for q in qids) / n
+    expected_tok = pref_tok + (k_star / n) * cont_tok
     return expected_acc, expected_tok, pref_acc, avg_gain
 
-def compute_oracle_gain(records, qids, model, k_star):
-    """Oracle: rank by realized continuation gain, select top K*."""
-    gains = []
-    for qid in qids:
-        g = compute_continuation_gain(records, qid, model)
-        gains.append((g, qid))
 
-    # Sort by gain descending, tie-break by question ID hash
-    gains.sort(key=lambda x: (-x[0], hashlib.md5(x[1].encode()).hexdigest()))
-    continue_set = set(qid for _, qid in gains[:k_star])
-
-    corrects = []
-    tokens = []
+def compute_oracle(records, qids, model, k_star):
+    """Oracle: rank by realized gain, select top K*."""
+    gains = [(compute_gain(records, q, model), qid_tiebreak(q), q) for q in qids]
+    gains.sort(key=lambda x: (-x[0], x[1]))
+    continue_set = set(x[2] for x in gains[:k_star])
+    corrects, tokens = [], []
     for qid in qids:
         if qid in continue_set:
-            correct, _, _ = get_final_correct(records, qid, model)
-            tok = get_prefix_tokens(records, qid, model) + get_continuation_tokens(records, qid, model)
-            corrects.append(1 if correct else 0)
+            cf, _, _ = get_final_correct(records, qid, model)
+            tok = prefix_tokens(records, qid, model) + continuation_tokens(records, qid, model)
         else:
-            correct, _ = get_prefix_correct(records, qid, model)
-            tok = get_prefix_tokens(records, qid, model)
-            corrects.append(1 if correct else 0)
+            cf = prefix_correct(records, qid, model)
+            tok = prefix_tokens(records, qid, model)
+        corrects.append(1 if cf else 0)
         tokens.append(tok)
+    n_benefit = sum(1 for g, _, _ in gains if g == 1)
+    return sum(corrects) / len(corrects), sum(tokens) / len(tokens), n_benefit
 
-    # Also compute what we could achieve if we had budget = oracle_optimal
-    # i.e., continue only on gain=1 cases
-    n_benefit = sum(1 for g, _ in gains if g == 1)
-    max_possible = n_benefit / len(qids) + pref_acc_quick(records, qids, model)
 
-    acc = sum(corrects) / len(corrects)
-    return acc, sum(tokens) / len(tokens), n_benefit
-
-def pref_acc_quick(records, qids, model):
-    return sum(1 for q in qids if get_prefix_correct(records, q, model)[0]) / len(qids)
-
-def bootstrap_process_vs_random(records, qids, model, k_star, n_iter=N_BOOTSTRAP, seed=RANDOM_SEED):
-    """Bootstrap Process-only vs Random expected at K*. Resamples questions."""
+# ---- Bootstrap (direct evaluation, no set collapse) ----
+def bootstrap_direct(records, qids, model, n_iter=N_BOOTSTRAP, seed=RANDOM_SEED):
+    """
+    Bootstrap with duplicate-aware evaluation.
+    For each replicate: resample questions w/ replacement, evaluate each occurrence directly.
+    """
     rng = random.Random(seed)
     n = len(qids)
-    po_diffs = []
-    pref_accs = []
-    random_accs = []
-    process_accs = []
+    diffs = []
+    po_accs, rnd_accs = [], []
 
     for _ in range(n_iter):
-        # Resample questions with replacement
         idx = [rng.randint(0, n - 1) for _ in range(n)]
-        sampled_qids = [qids[i] for i in idx]
 
-        # Compute K* for this replicate (same logic as overall)
-        n_unfinished = sum(1 for q in sampled_qids
-                           if get_process_state(records, q, model) != "complete")
+        # Count unfinished and total occurrences directly
+        n_unfinished = 0
+        for i in idx:
+            qid = qids[i]
+            if process_state(records, qid, model) != "complete":
+                n_unfinished += 1
+
         k_star_boot = n_unfinished
+        if n == 0:
+            continue
 
-        # Process-only accuracy
-        po_corrects, po_toks, po_n = apply_policy_at_k(sampled_qids, records, model, k_star_boot, "process")
-        po_acc = sum(po_corrects) / n
-
-        # Random expected accuracy (analytical)
-        pref_acc = sum(1 for q in sampled_qids if get_prefix_correct(records, q, model)[0]) / n
+        # Process-only: each duplicate occurrence evaluated independently
+        po_correct = 0
         sum_gain = 0
-        for q in sampled_qids:
-            pf_c, _ = get_prefix_correct(records, q, model)
-            cont_c, cont_p = get_continuation_correct(records, q, model)
-            if cont_p:
-                gain = 1 if cont_c and not pf_c else (-1 if not cont_c and pf_c else 0)
+        for i in idx:
+            qid = qids[i]
+            if process_state(records, qid, model) != "complete":  # unfinished → continue
+                cf, _, _ = get_final_correct(records, qid, model)
+            else:
+                cf = prefix_correct(records, qid, model)
+            po_correct += 1 if cf else 0
+
+            # Random expectation: for each occurrence, compute gain
+            pf = prefix_correct(records, qid, model)
+            cf_raw = continuation_raw_correct(records, qid, model)
+            if cf_raw is not None:
+                gain = 1 if cf_raw and not pf else (-1 if not cf_raw and pf else 0)
             else:
                 gain = 0
             sum_gain += gain
-        avg_gain = sum_gain / n
-        random_acc = pref_acc + (k_star_boot / n) * avg_gain
 
-        po_diffs.append(po_acc - random_acc)
-        pref_accs.append(pref_acc)
-        random_accs.append(random_acc)
-        process_accs.append(po_acc)
+        po_acc = po_correct / n
+        pref_acc_num = sum(1 for i in idx if prefix_correct(records, qids[i], model))
+        pref_acc = pref_acc_num / n
+        rand_acc = pref_acc + (k_star_boot / n) * (sum_gain / n)
 
-    # CI from bootstrap distribution
-    po_diffs.sort()
-    lo = po_diffs[int(n_iter * ALPHA / 2)]
-    hi = po_diffs[int(n_iter * (1 - ALPHA / 2))]
-    p = sum(1 for d in po_diffs if d <= 0) / n_iter
+        diffs.append(po_acc - rand_acc)
+        po_accs.append(po_acc)
+        rnd_accs.append(rand_acc)
+
+    diffs.sort()
+    lo = diffs[int(n_iter * ALPHA / 2)]
+    hi = diffs[int(n_iter * (1 - ALPHA / 2))]
+    tail = sum(1 for d in diffs if d <= 0) / n_iter
 
     return {
-        "process_mean": sum(process_accs) / n_iter,
-        "random_mean": sum(random_accs) / n_iter,
-        "delta_mean": sum(po_diffs) / n_iter,
-        "ci_lower": lo, "ci_upper": hi, "p_value": p,
-        "significant": p < 0.05,
+        "process_mean": sum(po_accs) / n_iter,
+        "random_mean": sum(rnd_accs) / n_iter,
+        "delta_mean": sum(diffs) / n_iter,
+        "ci_lower": lo, "ci_upper": hi, "tail_prob": tail,
+        "significant": lo > 0,  # CI excludes zero
     }
+
 
 def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", default="formal", choices=["formal", "gate0"])
-    parser.add_argument("--model-filter", nargs="+", help="Filter to specific models")
+    parser.add_argument("--model-filter", nargs="+")
     args = parser.parse_args()
 
     records, model_ids, formal_ids = load_data(args.stage)
     if args.model_filter:
         model_ids = [m for m in args.model_filter if m in model_ids]
-    # Get question metadata
-    _, manifest_levels, manifest_qs = load_manifest()
 
+    manifest_ids, manifest_levels, _ = load_manifest()
     results_by_model = {}
-    all_report_sections = []
 
     for model in model_ids:
         qids = sorted(formal_ids)
         n = len(qids)
-
-        # Compute K*: number of unfinished prefix cases
-        n_visible = sum(1 for q in qids if get_process_state(records, q, model) == "visible_unfinished")
-        n_empty = sum(1 for q in qids if get_process_state(records, q, model) == "empty_unfinished")
-        n_complete = sum(1 for q in qids if get_process_state(records, q, model) == "complete")
+        n_visible = sum(1 for q in qids if process_state(records, q, model) == "visible_unfinished")
+        n_empty = sum(1 for q in qids if process_state(records, q, model) == "empty_unfinished")
+        n_complete = sum(1 for q in qids if process_state(records, q, model) == "complete")
         k_star = n_visible + n_empty
 
         print(f"\n{'='*60}")
-        print(f"Model: {model}")
-        print(f"Questions: {n}, complete={n_complete}, visible={n_visible}, empty={n_empty}, K*={k_star}")
+        print(f"Model: {model}, N={n}, K*={k_star} (V={n_visible} E={n_empty} C={n_complete})")
 
-        # Apply all policies (matched K* for ranking-based policies)
         policies = {}
 
         # Fixed Low (K=0)
-        pol_corrects, _, _ = apply_policy_at_k(qids, records, model, 0, "process")
-        acc = sum(pol_corrects) / n
-        tok = sum(get_prefix_tokens(records, q, model) for q in qids) / n
-        policies["fixed_low"] = {"accuracy": acc, "mean_tokens": tok, "k_used": 0}
+        corr, _ = apply_policy_at_k(qids, records, model, 0, "process")
+        policies["fixed_low"] = {"accuracy": sum(corr)/n, "mean_tokens": sum(prefix_tokens(records, q, model) for q in qids)/n, "k_used": 0}
 
         # Fixed Continue (K=n)
-        pol_corrects, _, _ = apply_policy_at_k(qids, records, model, n, "process")
-        acc = sum(pol_corrects) / n
-        tok = sum(get_prefix_tokens(records, q, model) + get_continuation_tokens(records, q, model) for q in qids) / n
-        policies["fixed_continue"] = {"accuracy": acc, "mean_tokens": tok, "k_used": n}
+        corr, tok = apply_policy_at_k(qids, records, model, n, "process")
+        policies["fixed_continue"] = {"accuracy": sum(corr)/n, "mean_tokens": sum(tok)/n, "k_used": n}
 
-        # Process-only (ranking=process, K=K*)
-        po_corrects, po_toks, _ = apply_policy_at_k(qids, records, model, k_star, "process")
-        po_acc = sum(po_corrects) / n
-        po_tok = sum(po_toks) / n
+        # Process-only
+        corr, tok = apply_policy_at_k(qids, records, model, k_star, "process")
+        po_acc, po_tok = sum(corr)/n, sum(tok)/n
         policies["process_only"] = {"accuracy": po_acc, "mean_tokens": po_tok, "k_used": k_star}
 
-        # Process-only inverse (ranking=inverse, K=K*)
-        inv_corrects, inv_toks, _ = apply_policy_at_k(qids, records, model, k_star, "inverse")
-        inv_acc = sum(inv_corrects) / n
-        inv_tok = sum(inv_toks) / n
-        policies["process_only_inverse"] = {"accuracy": inv_acc, "mean_tokens": inv_tok, "k_used": k_star}
+        # Inverse
+        corr, tok = apply_policy_at_k(qids, records, model, k_star, "inverse")
+        policies["process_only_inverse"] = {"accuracy": sum(corr)/n, "mean_tokens": sum(tok)/n, "k_used": k_star}
 
-        # Question-only (ranking=level, K=K*)
-        qo_corrects, qo_toks, _ = apply_policy_at_k(qids, records, model, k_star, "level")
-        qo_acc = sum(qo_corrects) / n
-        qo_tok = sum(qo_toks) / n
-        policies["question_only"] = {"accuracy": qo_acc, "mean_tokens": qo_tok, "k_used": k_star}
+        # Question-only
+        corr, tok = apply_policy_at_k(qids, records, model, k_star, "level")
+        policies["question_only"] = {"accuracy": sum(corr)/n, "mean_tokens": sum(tok)/n, "k_used": k_star}
 
-        # Random expected (analytical formula)
-        r_exp, r_tok, pref_acc_mean, avg_gain = compute_random_expected(records, qids, model, k_star)
-        policies["random_expected"] = {"accuracy": r_exp, "mean_tokens": r_tok, "k_used": k_star}
+        # Random expected
+        r_acc, r_tok, pref_acc_mean, avg_gain = compute_random_expected(records, qids, model, k_star)
+        policies["random_expected"] = {"accuracy": r_acc, "mean_tokens": r_tok, "k_used": k_star}
 
-        # Oracle (ranking by realized gain, K=K*)
-        o_acc, o_tok, n_benefit = compute_oracle_gain(records, qids, model, k_star)
+        # Oracle
+        o_acc, o_tok, n_benefit = compute_oracle(records, qids, model, k_star)
         policies["oracle"] = {"accuracy": o_acc, "mean_tokens": o_tok, "k_used": k_star}
 
-        # Bootstrap primary comparison
-        boot = bootstrap_process_vs_random(records, qids, model, k_star)
+        # Bootstrap (direct, duplicate-aware)
+        boot = bootstrap_direct(records, qids, model)
+        print(f"\n  Process-only: {po_acc*100:.1f}% @ {po_tok:.0f} tok")
+        print(f"  Random expected: {r_acc*100:.1f}% @ {r_tok:.0f} tok")
+        print(f"  Δ = {(po_acc - r_acc)*100:.1f}% [{boot['ci_lower']*100:.1f}%, {boot['ci_upper']*100:.1f}%]")
+        print(f"  CI excludes zero: {boot['significant']}  tail: {boot['tail_prob']:.4f}")
 
-        print(f"  Primary: Process-only vs Random expected")
-        print(f"    Process-only acc = {po_acc*100:.1f}%, tok = {po_tok:.0f}")
-        print(f"    Random expected acc = {r_exp*100:.1f}%, tok = {r_tok:.0f}")
-        print(f"    Pref baseline = {pref_acc_mean*100:.1f}%")
-        print(f"    Avg gain per continuation = {avg_gain*100:.1f}%")
-        print(f"    Δ = {(po_acc - r_exp)*100:.1f}%")
-        print(f"    95% CI [{boot['ci_lower']*100:.1f}%, {boot['ci_upper']*100:.1f}%]")
-        print(f"    p = {boot['p_value']:.4f}, significant = {boot['significant']}")
+        # Cost parity
+        cost_ratio = po_tok / r_tok if r_tok > 0 else 1.0
+        cost_parity_pass = abs(cost_ratio - 1.0) <= COST_PARITY_TOLERANCE
+        pareto_improving = po_acc > r_acc and cost_ratio <= 1.0
+        overall_success = boot["significant"] and cost_parity_pass
 
-        for pname, pdata in sorted(policies.items()):
-            print(f"  {pname:25s}: acc={pdata['accuracy']*100:.1f}% tok={pdata['mean_tokens']:.0f} K={pdata['k_used']}")
+        print(f"  Cost ratio: {cost_ratio:.3f} (parity: {cost_parity_pass}, pareto: {pareto_improving})")
+        print(f"  Overall success: {overall_success}")
 
-        # Token breakdown
-        breakdown = {"prompt": 0, "completion": 0, "total": 0}
-        for r in records:
-            if r["model"] == model:
-                breakdown["prompt"] += r.get("prompt_tokens", 0)
-                breakdown["completion"] += r.get("completion_tokens", 0)
-                breakdown["total"] += r.get("total_tokens", 0)
+        for pname, pd in sorted(policies.items()):
+            print(f"  {pname:25s}: acc={pd['accuracy']*100:.1f}% tok={pd['mean_tokens']:.0f} K={pd['k_used']}")
 
-        # Benefit/Harm/Unchanged/Unresolved
+        # Outcome breakdown
         outcomes = Counter()
         for q in qids:
-            correct_final, _, suffix = get_final_correct(records, q, model)
-            pref_correct, _ = get_prefix_correct(records, q, model)
-            prefix_state = get_process_state(records, q, model)
-            if prefix_state == "complete":
-                outcomes[f"complete_stop"] += 1
+            st = process_state(records, q, model)
+            if st == "complete":
+                outcomes["complete_stop"] += 1
             else:
-                cont = get_continuation(records, q, model)
-                if cont and cont.get("parsed_answer"):
-                    gain = compute_continuation_gain(records, q, model)
-                    if gain == 1:
-                        outcomes["benefit"] += 1
-                    elif gain == -1:
-                        outcomes["harm"] += 1
-                    else:
-                        outcomes["unchanged"] += 1
+                c_has = continuation_has_answer(records, q, model)
+                if c_has:
+                    g = compute_gain(records, q, model)
+                    outcomes["benefit" if g == 1 else ("harm" if g == -1 else "unchanged")] += 1
                 else:
-                    # continuation unparsed, fallback
-                    if pref_correct:
-                        outcomes["unchanged_fallback"] += 1
-                    else:
-                        outcomes["unresolved"] += 1
+                    outcomes["unresolved_fallback"] += 1
+
+        # Token breakdown
+        tok_bd = {"prompt": 0, "completion": 0, "total": 0}
+        for r in records:
+            if r["model"] == model:
+                tok_bd["prompt"] += r.get("prompt_tokens", 0)
+                tok_bd["completion"] += r.get("completion_tokens", 0)
+                tok_bd["total"] += r.get("total_tokens", 0)
 
         results_by_model[model] = {
-            "n_questions": n,
-            "k_star": k_star,
-            "prefix_state_distribution": {"complete": n_complete, "visible_unfinished": n_visible, "empty_unfinished": n_empty},
-            "policies": {k: {"accuracy_pct": round(v["accuracy"]*100, 1), "mean_total_tokens": round(v["mean_tokens"], 1), "k_used": v["k_used"]} for k, v in policies.items()},
-            "primary_comparison": {
-                "delta_accuracy_pct": round((po_acc - r_exp)*100, 1),
+            "n": n, "k_star": k_star,
+            "states": {"complete": n_complete, "visible": n_visible, "empty": n_empty},
+            "policies": {k: {"acc_pct": round(v["accuracy"]*100, 1), "mean_tok": round(v["mean_tokens"], 1), "k": v["k_used"]} for k, v in policies.items()},
+            "primary": {
+                "delta_pct": round((po_acc - r_acc)*100, 1),
                 "ci_lower_pct": round(boot["ci_lower"]*100, 1),
                 "ci_upper_pct": round(boot["ci_upper"]*100, 1),
-                "p_value": round(boot["p_value"], 4),
+                "tail_prob": round(boot["tail_prob"], 4),
                 "significant": boot["significant"],
-                "process_only_accuracy_pct": round(po_acc*100, 1),
-                "random_expected_accuracy_pct": round(r_exp*100, 1),
+                "cost_ratio": round(cost_ratio, 3),
+                "cost_parity_pass": cost_parity_pass,
+                "pareto_improving": pareto_improving,
+                "overall_success": overall_success,
                 "pref_baseline_pct": round(pref_acc_mean*100, 1),
             },
             "outcomes": dict(outcomes),
-            "token_breakdown": breakdown,
-            "n_benefit": n_benefit,
+            "token_breakdown": tok_bd,
+            "oracle_benefit": n_benefit,
         }
 
-    # Save analysis
-    out = RESULTS_DIR / (f"process_stage2p_analysis_{args.stage}.json")
+    # Save
+    out = RESULTS_DIR / f"process_stage2p_analysis_{args.stage}.json"
     with open(out, "w") as f:
         json.dump(results_by_model, f, indent=2)
-    print(f"\nSaved analysis to {out}")
+    print(f"\nSaved to {out}")
 
-    # Generate report
+    # Report
     lines = [
-        f"# Stage 2P: Process-only formal interventional pilot",
-        f"\n> Stage: {args.stage}",
-        f"> Generated from `{__file__}`",
-        f"> Bootstrap: {N_BOOTSTRAP} replicates, question-clustered, {int(ALPHA*100)}% alpha",
-        f"> Random baseline: analytical expectation at matched K* (not single draw)",
-        "",
-        "## Policy comparison (per model)",
-        "",
+        f"# Stage 2P: Process-only formal interventional pilot ({args.stage})",
+        f"N_BOOTSTRAP={N_BOOTSTRAP} alpha={ALPHA} cost_tol={COST_PARITY_TOLERANCE}",
+        f"significant = ci_lower > 0 (not tail_prob < 0.05)\n",
     ]
-
     for model in model_ids:
         md = results_by_model[model]
-        lines.append(f"### {model.split('-')[0]}")
-        lines.append(f"- K* = {md['k_star']} ({md['prefix_state_distribution']['visible_unfinished']} visible + {md['prefix_state_distribution']['empty_unfinished']} empty)")
-        lines.append(f"- Prefix baseline: {md['primary_comparison']['pref_baseline_pct']:.1f}%")
-        lines.append("")
-        lines.append("| Policy | Accuracy | Mean total tokens | K used |")
-        lines.append("|--------|------:|------:|------:|")
-        for pname, pdata in sorted(md["policies"].items()):
-            lines.append(f"| {pname:25s} | {pdata['accuracy_pct']:.1f}% | {pdata['mean_total_tokens']:.0f} | {pdata['k_used']} |")
-        lines.append("")
-
-        pc = md["primary_comparison"]
-        lines.append("**Primary comparison: Process-only vs Random expected**")
-        lines.append(f"- ΔAccuracy = {pc['delta_accuracy_pct']:.1f}%")
-        lines.append(f"- 95% CI [{pc['ci_lower_pct']:.1f}%, {pc['ci_upper_pct']:.1f}%]")
-        lines.append(f"- p = {pc['p_value']:.4f}")
-        lines.append(f"- Significant: {pc['significant']}")
+        lines.append(f"### {model}")
+        lines.append(f"K* = {md['k_star']} ({md['states']}), prefix baseline = {md['primary']['pref_baseline_pct']}%")
+        lines.append(f"| Policy | Acc% | Mean tok | K |")
+        lines.append(f"|---|---:|---:|")
+        for pn, pd in sorted(md["policies"].items()):
+            lines.append(f"| {pn} | {pd['acc_pct']} | {pd['mean_tok']} | {pd['k']} |")
+        pr = md["primary"]
+        lines.append(f"\n**Primary: Δ={pr['delta_pct']}% CI [{pr['ci_lower_pct']},{pr['ci_upper_pct']}] tail={pr['tail_prob']} significant={pr['significant']}**")
+        lines.append(f"Cost ratio: {pr['cost_ratio']} parity={pr['cost_parity_pass']} pareto={pr['pareto_improving']}")
+        lines.append(f"Overall success: {pr['overall_success']}")
+        lines.append(f"Outcomes: {md['outcomes']}")
+        lines.append(f"Oracle max benefit: {md['oracle_benefit']}/{md['k_star']}")
         lines.append("")
 
-        lines.append("**Outcome breakdown (for unfinished cases)**")
-        lines.append(f"- Benefit (prefix wrong → continuation right): {md['outcomes'].get('benefit', 0)}")
-        lines.append(f"- Harm (prefix right → continuation wrong): {md['outcomes'].get('harm', 0)}")
-        lines.append(f"- Unchanged: {md['outcomes'].get('unchanged', 0)}")
-        lines.append(f"- Unresolved (continuation unparsed, no fallback): {md['outcomes'].get('unresolved', 0)}")
-        lines.append(f"- Oracle max benefit (continue-only-on-gain=1): {md['n_benefit']}")
-        lines.append("")
+    rpt = RESULTS_DIR / f"process_stage2p_report_{args.stage}.md"
+    with open(rpt, "w") as f:
+        f.write("\n".join(lines))
+    print(f"Report: {rpt}")
 
-    report_text = "\n".join(lines)
-    report_path = RESULTS_DIR / f"process_stage2p_report_{args.stage}.md"
-    with open(report_path, "w") as f:
-        f.write(report_text)
-    print(f"Saved report to {report_path}")
 
 if __name__ == "__main__":
     main()

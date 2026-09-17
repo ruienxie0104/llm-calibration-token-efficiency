@@ -1,62 +1,39 @@
-# Stage 2P: Process-only formal interventional pilot
+# Stage 2P: Process-only formal interventional pilot (gate0)
+N_BOOTSTRAP=10000 alpha=0.05 cost_tol=0.05
+significant = ci_lower > 0 (not tail_prob < 0.05)
 
-> Stage: gate0
-> Generated from `/Users/ryan/Projects/llm-calibration-token-efficiency/experiments/v3-budget-pilot/analyze_process_stage2p.py`
-> Bootstrap: 10000 replicates, question-clustered, 5% alpha
-> Random baseline: analytical expectation at matched K* (not single draw)
+### DeepSeek-V4-Flash-158B
+K* = 0 ({'complete': 2, 'visible': 0, 'empty': 0}), prefix baseline = 100.0%
+| Policy | Acc% | Mean tok | K |
+|---|---:|---:|
+| fixed_continue | 100.0 | 645.0 | 2 |
+| fixed_low | 100.0 | 236.0 | 0 |
+| oracle | 100.0 | 236.0 | 0 |
+| process_only | 100.0 | 236.0 | 0 |
+| process_only_inverse | 100.0 | 236.0 | 0 |
+| question_only | 100.0 | 236.0 | 0 |
+| random_expected | 100.0 | 236.0 | 0 |
 
-## Policy comparison (per model)
+**Primary: Δ=0.0% CI [0.0,0.0] tail=1.0 significant=False**
+Cost ratio: 1.0 parity=True pareto=False
+Overall success: False
+Outcomes: {'complete_stop': 2}
+Oracle max benefit: 0/0
 
-### DeepSeek
-- K* = 0 (0 visible + 0 empty)
-- Prefix baseline: 100.0%
+### GPT-OSS-120B
+K* = 0 ({'complete': 2, 'visible': 0, 'empty': 0}), prefix baseline = 100.0%
+| Policy | Acc% | Mean tok | K |
+|---|---:|---:|
+| fixed_continue | 100.0 | 1037.0 | 2 |
+| fixed_low | 100.0 | 482.5 | 0 |
+| oracle | 100.0 | 482.5 | 0 |
+| process_only | 100.0 | 482.5 | 0 |
+| process_only_inverse | 100.0 | 482.5 | 0 |
+| question_only | 100.0 | 482.5 | 0 |
+| random_expected | 100.0 | 482.5 | 0 |
 
-| Policy | Accuracy | Mean total tokens | K used |
-|--------|------:|------:|------:|
-| fixed_continue            | 100.0% | 746 | 2 |
-| fixed_low                 | 100.0% | 219 | 0 |
-| oracle                    | 100.0% | 219 | 0 |
-| process_only              | 100.0% | 219 | 0 |
-| process_only_inverse      | 100.0% | 219 | 0 |
-| question_only             | 100.0% | 219 | 0 |
-| random_expected           | 100.0% | 219 | 0 |
-
-**Primary comparison: Process-only vs Random expected**
-- ΔAccuracy = 0.0%
-- 95% CI [0.0%, 0.0%]
-- p = 1.0000
-- Significant: False
-
-**Outcome breakdown (for unfinished cases)**
-- Benefit (prefix wrong → continuation right): 0
-- Harm (prefix right → continuation wrong): 0
-- Unchanged: 0
-- Unresolved (continuation unparsed, no fallback): 0
-- Oracle max benefit (continue-only-on-gain=1): 0
-
-### GPT
-- K* = 0 (0 visible + 0 empty)
-- Prefix baseline: 100.0%
-
-| Policy | Accuracy | Mean total tokens | K used |
-|--------|------:|------:|------:|
-| fixed_continue            | 100.0% | 1092 | 2 |
-| fixed_low                 | 100.0% | 496 | 0 |
-| oracle                    | 100.0% | 496 | 0 |
-| process_only              | 100.0% | 496 | 0 |
-| process_only_inverse      | 100.0% | 496 | 0 |
-| question_only             | 100.0% | 496 | 0 |
-| random_expected           | 100.0% | 496 | 0 |
-
-**Primary comparison: Process-only vs Random expected**
-- ΔAccuracy = 0.0%
-- 95% CI [0.0%, 0.0%]
-- p = 1.0000
-- Significant: False
-
-**Outcome breakdown (for unfinished cases)**
-- Benefit (prefix wrong → continuation right): 0
-- Harm (prefix right → continuation wrong): 0
-- Unchanged: 0
-- Unresolved (continuation unparsed, no fallback): 0
-- Oracle max benefit (continue-only-on-gain=1): 0
+**Primary: Δ=0.0% CI [0.0,0.0] tail=1.0 significant=False**
+Cost ratio: 1.0 parity=True pareto=False
+Overall success: False
+Outcomes: {'complete_stop': 2}
+Oracle max benefit: 0/0
