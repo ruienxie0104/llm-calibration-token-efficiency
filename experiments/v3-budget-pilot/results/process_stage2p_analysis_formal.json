@@ -1,0 +1,198 @@
+{
+  "DeepSeek-V4-Flash-158B": {
+    "n": 60,
+    "k_star": 5,
+    "states": {
+      "complete": 55,
+      "visible": 5,
+      "empty": 0
+    },
+    "policies": {
+      "fixed_low": {
+        "acc_pct": 86.7,
+        "mean_tok": 276.2,
+        "k": 0
+      },
+      "fixed_continue": {
+        "acc_pct": 93.3,
+        "mean_tok": 643.4,
+        "k": 60
+      },
+      "process_only": {
+        "acc_pct": 93.3,
+        "mean_tok": 349.2,
+        "k": 5
+      },
+      "process_only_inverse": {
+        "acc_pct": 86.7,
+        "mean_tok": 306.5,
+        "k": 5
+      },
+      "question_only": {
+        "acc_pct": 88.3,
+        "mean_tok": 307.4,
+        "k": 5
+      },
+      "random_expected": {
+        "acc_pct": 87.2,
+        "mean_tok": 306.8,
+        "k": 5
+      },
+      "oracle": {
+        "acc_pct": 93.3,
+        "mean_tok": 342.1,
+        "k": 5
+      }
+    },
+    "primary": {
+      "delta_pct": 6.1,
+      "ci_lower_pct": 1.6,
+      "ci_upper_pct": 11.6,
+      "tail_prob": 0.0157,
+      "significant": true,
+      "cost_ratio": 1.138,
+      "cost_parity_pass": false,
+      "pareto_improving": false,
+      "cost_condition_pass": false,
+      "overall_success": false,
+      "pref_baseline_pct": 86.7
+    },
+    "outcomes": {
+      "complete_stop": 55,
+      "benefit": 4,
+      "unchanged": 1
+    },
+    "continuation_outcomes_by_prefix_state": {
+      "complete": {
+        "benefit": 0,
+        "harm": 0,
+        "unchanged": 55,
+        "unresolved": 0
+      },
+      "visible_unfinished": {
+        "benefit": 4,
+        "harm": 0,
+        "unchanged": 1,
+        "unresolved": 0
+      }
+    },
+    "token_breakdown": {
+      "prompt": 22424,
+      "completion": 16180,
+      "total": 38604
+    },
+    "oracle_benefit": 4
+  },
+  "GPT-OSS-120B": {
+    "n": 60,
+    "k_star": 17,
+    "states": {
+      "complete": 43,
+      "visible": 11,
+      "empty": 6
+    },
+    "policies": {
+      "fixed_low": {
+        "acc_pct": 68.3,
+        "mean_tok": 444.9,
+        "k": 0
+      },
+      "fixed_continue": {
+        "acc_pct": 81.7,
+        "mean_tok": 962.5,
+        "k": 60
+      },
+      "process_only": {
+        "acc_pct": 83.3,
+        "mean_tok": 640.6,
+        "k": 17
+      },
+      "process_only_inverse": {
+        "acc_pct": 68.3,
+        "mean_tok": 581.9,
+        "k": 17
+      },
+      "question_only": {
+        "acc_pct": 71.7,
+        "mean_tok": 596.5,
+        "k": 17
+      },
+      "random_expected": {
+        "acc_pct": 72.1,
+        "mean_tok": 591.5,
+        "k": 17
+      },
+      "oracle": {
+        "acc_pct": 83.3,
+        "mean_tok": 616.7,
+        "k": 17
+      }
+    },
+    "primary": {
+      "delta_pct": 11.2,
+      "ci_lower_pct": 5.4,
+      "ci_upper_pct": 16.5,
+      "tail_prob": 0.0,
+      "significant": true,
+      "cost_ratio": 1.083,
+      "cost_parity_pass": false,
+      "pareto_improving": false,
+      "cost_condition_pass": false,
+      "overall_success": false,
+      "pref_baseline_pct": 68.3
+    },
+    "outcomes": {
+      "complete_stop": 43,
+      "benefit": 9,
+      "unresolved_fallback": 8
+    },
+    "continuation_outcomes_by_prefix_state": {
+      "complete": {
+        "benefit": 0,
+        "harm": 1,
+        "unchanged": 41,
+        "unresolved": 1
+      },
+      "visible_unfinished": {
+        "benefit": 9,
+        "harm": 0,
+        "unchanged": 0,
+        "unresolved": 2
+      },
+      "empty_unfinished": {
+        "benefit": 0,
+        "harm": 0,
+        "unchanged": 0,
+        "unresolved": 6
+      }
+    },
+    "token_breakdown": {
+      "prompt": 25302,
+      "completion": 32447,
+      "total": 57749
+    },
+    "oracle_benefit": 9
+  },
+  "_study": {
+    "primary_contrast": "process_only_minus_random_expected",
+    "cluster_unit": "question_id",
+    "model_deltas_pct": {
+      "DeepSeek-V4-Flash-158B": 6.1,
+      "GPT-OSS-120B": 11.2
+    },
+    "direction_consistent_across_models": true,
+    "delta_pct": 8.7,
+    "bootstrap_delta_mean_pct": 8.5,
+    "ci_lower_pct": 4.6,
+    "ci_upper_pct": 12.3,
+    "tail_prob": 0.0,
+    "significant": true,
+    "process_mean_tokens": 494.9,
+    "random_mean_tokens": 449.2,
+    "cost_ratio": 1.102,
+    "cost_parity_pass": false,
+    "pareto_improving": false,
+    "cost_condition_pass": false,
+    "study_success": false
+  }
+}
