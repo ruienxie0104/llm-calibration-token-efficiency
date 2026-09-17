@@ -1,0 +1,765 @@
+{
+  "schema_version": 1,
+  "units": [
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/1199.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 90,
+          "completion_tokens": 83,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 201,
+          "completion_tokens": 91,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 90,
+          "completion_tokens": 83,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1123.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\frac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 64,
+          "completion_tokens": 287,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\frac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 379,
+          "completion_tokens": 55,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\frac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 64,
+          "completion_tokens": 286,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1411.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 182,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 723,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "440",
+          "normalized_answer": "440",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 182,
+          "completion_tokens": 903,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1898.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 93,
+          "completion_tokens": 397,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 518,
+          "completion_tokens": 43,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 93,
+          "completion_tokens": 399,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/number_theory/1257.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 46,
+          "completion_tokens": 192,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 266,
+          "completion_tokens": 153,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 46,
+          "completion_tokens": 192,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/number_theory/634.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 52,
+          "completion_tokens": 320,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 400,
+          "completion_tokens": 36,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 52,
+          "completion_tokens": 312,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/number_theory/89.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 54,
+          "completion_tokens": 263,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 345,
+          "completion_tokens": 165,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 54,
+          "completion_tokens": 291,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/1082.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 77,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\frac{8}{15}",
+          "normalized_answer": "(8)/(15)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 618,
+          "completion_tokens": 54,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\frac{8}{15}",
+          "normalized_answer": "(8)/(15)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 77,
+          "completion_tokens": 549,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/1199.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\pi",
+          "normalized_answer": "\\pi",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 249,
+          "completion_tokens": 274,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\pi",
+          "normalized_answer": "\\pi",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 551,
+          "completion_tokens": 193,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "2\\pi",
+          "normalized_answer": "2\\pi",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 249,
+          "completion_tokens": 317,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/263.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\begin{pmatrix} -2 \\\\ -14 \\\\ -7 \\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 143,
+          "completion_tokens": 511,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\begin{pmatrix} -2 \\\\ -14 \\\\ -7 \\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 682,
+          "completion_tokens": 69,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\begin{pmatrix} -2 \\\\ -14 \\\\ -7 \\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 143,
+          "completion_tokens": 601,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/1199.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 153,
+          "completion_tokens": 172,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 290,
+          "completion_tokens": 121,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "1",
+          "normalized_answer": "1",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 153,
+          "completion_tokens": 161,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1123.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\dfrac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 128,
+          "completion_tokens": 386,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\dfrac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 385,
+          "completion_tokens": 240,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\frac{10}{11}",
+          "normalized_answer": "(10)/(11)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 128,
+          "completion_tokens": 382,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1411.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 243,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 270,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 243,
+          "completion_tokens": 1024,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1898.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 162,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 469,
+          "completion_tokens": 75,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "-5",
+          "normalized_answer": "-5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 162,
+          "completion_tokens": 574,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/number_theory/1257.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 108,
+          "completion_tokens": 374,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 292,
+          "completion_tokens": 310,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "204_5",
+          "normalized_answer": "204_5",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 108,
+          "completion_tokens": 358,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/number_theory/634.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 114,
+          "completion_tokens": 351,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 172,
+          "completion_tokens": 430,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "333",
+          "normalized_answer": "333",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 114,
+          "completion_tokens": 341,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/number_theory/89.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 116,
+          "completion_tokens": 428,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 391,
+          "completion_tokens": 405,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "900",
+          "normalized_answer": "900",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 116,
+          "completion_tokens": 381,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/1082.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 139,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\dfrac{8}{15}",
+          "normalized_answer": "(8)/(15)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 166,
+          "completion_tokens": 431,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 139,
+          "completion_tokens": 1024,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/1199.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\pi",
+          "normalized_answer": "\\pi",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 295,
+          "completion_tokens": 334,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 463,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\pi",
+          "normalized_answer": "\\pi",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 295,
+          "completion_tokens": 548,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    },
+    {
+      "stage": "gate0",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/263.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 232,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 490,
+          "completion_tokens": 283,
+          "context_mode": "visible_prefix_only"
+        },
+        "fresh_high": {
+          "parsed_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}-2\\\\-14\\\\-7\\end{pmatrix}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 232,
+          "completion_tokens": 762,
+          "context_mode": "independent_fresh_call"
+        }
+      }
+    }
+  ]
+}

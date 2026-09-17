@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "raw_metadata": {
+    "schema_version": 1,
+    "question_manifest": "/Users/ryan/Projects/llm-calibration-token-efficiency/experiments/v3-budget-pilot/data/process_stage2_questions.json",
+    "question_manifest_sha256": "6929cb63e2cfca3547b9a4e9c1d202c7ff55aa28ca33db6906bfb5c1288280ac",
+    "visible_contextual_continuation": true,
+    "hidden_thinking_is_not_replayed": true,
+    "stage": "gate0",
+    "budgets": {
+      "prefix": 512,
+      "continuation": 512,
+      "branch": 256,
+      "fresh_high": 1024
+    }
+  },
+  "record_count": 60,
+  "unit_count": 20,
+  "gate0": {
+    "DeepSeek-V4-Flash-158B": {
+      "n": 10,
+      "prefix_parse_rate": 0.8,
+      "continuation_parse_rate": 0.9,
+      "fresh_high_parse_rate": 1.0,
+      "prefix_accuracy": 0.8,
+      "continuation_accuracy": 0.9,
+      "fresh_high_accuracy": 0.9,
+      "continuation_error_rate": 0.0,
+      "mean_actual_total_tokens": {
+        "prefix": 440.1,
+        "continuation": 605.4,
+        "fresh_high": 498.3
+      }
+    },
+    "GPT-OSS-120B": {
+      "n": 10,
+      "prefix_parse_rate": 0.7,
+      "continuation_parse_rate": 0.8,
+      "fresh_high_parse_rate": 0.8,
+      "prefix_accuracy": 0.7,
+      "continuation_accuracy": 0.8,
+      "fresh_high_accuracy": 0.8,
+      "continuation_error_rate": 0.0,
+      "mean_actual_total_tokens": {
+        "prefix": 578.3,
+        "continuation": 670.7,
+        "fresh_high": 724.5
+      }
+    }
+  },
+  "gate1": {}
+}
