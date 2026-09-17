@@ -1,0 +1,122 @@
+[
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/counting_and_probability/282.json",
+    "budget": 128,
+    "content": "",
+    "completion_tokens": 128,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "\\frac{1}{2}",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/counting_and_probability/282.json",
+    "budget": 256,
+    "content": "",
+    "completion_tokens": 256,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "\\frac{1}{2}",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/607.json",
+    "budget": 128,
+    "content": "",
+    "completion_tokens": 128,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "13535",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/607.json",
+    "budget": 256,
+    "content": "",
+    "completion_tokens": 256,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "13535",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/1000.json",
+    "budget": 128,
+    "content": "",
+    "completion_tokens": 128,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "3",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/1000.json",
+    "budget": 256,
+    "content": "",
+    "completion_tokens": 256,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "3",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/prealgebra/378.json",
+    "budget": 128,
+    "content": "",
+    "completion_tokens": 128,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "10",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/prealgebra/378.json",
+    "budget": 256,
+    "content": "",
+    "completion_tokens": 256,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "10",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/1779.json",
+    "budget": 128,
+    "content": "",
+    "completion_tokens": 128,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "15",
+    "error": null
+  },
+  {
+    "model": "GPT-OSS-120B",
+    "question_id": "test/intermediate_algebra/1779.json",
+    "budget": 256,
+    "content": "",
+    "completion_tokens": 256,
+    "done_reason": "length",
+    "parsed_answer": "",
+    "correct": false,
+    "expected_answer": "15",
+    "error": null
+  }
+]
