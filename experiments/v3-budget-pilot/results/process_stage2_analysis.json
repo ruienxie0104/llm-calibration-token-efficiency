@@ -6,7 +6,7 @@
     "question_manifest_sha256": "6929cb63e2cfca3547b9a4e9c1d202c7ff55aa28ca33db6906bfb5c1288280ac",
     "visible_contextual_continuation": true,
     "hidden_thinking_is_not_replayed": true,
-    "stage": "gate0",
+    "stage": "gate1",
     "budgets": {
       "prefix": 512,
       "continuation": 512,
@@ -14,8 +14,8 @@
       "fresh_high": 1024
     }
   },
-  "record_count": 60,
-  "unit_count": 20,
+  "record_count": 150,
+  "unit_count": 60,
   "gate0": {
     "DeepSeek-V4-Flash-158B": {
       "n": 10,
@@ -48,5 +48,28 @@
       }
     }
   },
-  "gate1": {}
+  "gate1": {
+    "GPT-OSS-120B": {
+      "n_empty_unfinished": 5,
+      "branch_pair_parse_rate": 0.0,
+      "agreement_rate_among_parseable": {
+        "n": 0,
+        "rate": null
+      },
+      "continuation_correct_given_agree": {
+        "n": 0,
+        "rate": null
+      },
+      "continuation_correct_given_disagree": {
+        "n": 0,
+        "rate": null
+      },
+      "consensus_correct_given_agree": {
+        "n": 0,
+        "rate": null
+      },
+      "mean_branch_total_tokens": 1171.2,
+      "mean_continuation_total_tokens": 838.8
+    }
+  }
 }

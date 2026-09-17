@@ -760,6 +760,1226 @@
           "context_mode": "independent_fresh_call"
         }
       }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/1338.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "66",
+          "normalized_answer": "66",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 58,
+          "completion_tokens": 246,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "66",
+          "normalized_answer": "66",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 332,
+          "completion_tokens": 63,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/1553.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 128,
+          "completion_tokens": 308,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 464,
+          "completion_tokens": 50,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/1578.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "10",
+          "normalized_answer": "10",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 91,
+          "completion_tokens": 445,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "10",
+          "normalized_answer": "10",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 564,
+          "completion_tokens": 37,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/2584.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\frac{14}{3}",
+          "normalized_answer": "(14)/(3)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 73,
+          "completion_tokens": 230,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\frac{14}{3}",
+          "normalized_answer": "(14)/(3)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 331,
+          "completion_tokens": 68,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/621.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3.21",
+          "normalized_answer": "3.21",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 78,
+          "completion_tokens": 192,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3.21",
+          "normalized_answer": "3.21",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 298,
+          "completion_tokens": 60,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/algebra/791.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "41",
+          "normalized_answer": "41",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 63,
+          "completion_tokens": 236,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "41",
+          "normalized_answer": "41",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 327,
+          "completion_tokens": 57,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/counting_and_probability/23957.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "210",
+          "normalized_answer": "210",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 79,
+          "completion_tokens": 133,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "210",
+          "normalized_answer": "210",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 240,
+          "completion_tokens": 21,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/counting_and_probability/25149.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "63",
+          "normalized_answer": "63",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 77,
+          "completion_tokens": 147,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "63",
+          "normalized_answer": "63",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 252,
+          "completion_tokens": 107,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/counting_and_probability/282.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 746,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\frac{1}{2}",
+          "normalized_answer": "(1)/(2)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 1287,
+          "completion_tokens": 235,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/counting_and_probability/913.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "6",
+          "normalized_answer": "6",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 65,
+          "completion_tokens": 77,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "6",
+          "normalized_answer": "6",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 170,
+          "completion_tokens": 51,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1000.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 73,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 614,
+          "completion_tokens": 97,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1779.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 265,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 806,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/1992.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "(0,9) \\cup (9,36)",
+          "normalized_answer": "(0,9)\\cup(9,36)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 51,
+          "completion_tokens": 249,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "(0,9) \\cup (9,36)",
+          "normalized_answer": "(0,9)\\cup(9,36)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 328,
+          "completion_tokens": 113,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/intermediate_algebra/607.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 56,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "13535",
+          "normalized_answer": "13535",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 596,
+          "completion_tokens": 167,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/number_theory/183.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "14",
+          "normalized_answer": "14",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 57,
+          "completion_tokens": 440,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "14",
+          "normalized_answer": "14",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 525,
+          "completion_tokens": 161,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/prealgebra/2037.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "550",
+          "normalized_answer": "550",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 76,
+          "completion_tokens": 73,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "550",
+          "normalized_answer": "550",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 177,
+          "completion_tokens": 69,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/prealgebra/378.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "6",
+          "normalized_answer": "6",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 226,
+          "completion_tokens": 354,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "8",
+          "normalized_answer": "8",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 608,
+          "completion_tokens": 101,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/477.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3\\sqrt{5}",
+          "normalized_answer": "3\\sqrt{5}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 96,
+          "completion_tokens": 405,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3\\sqrt{5}",
+          "normalized_answer": "3\\sqrt{5}",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 529,
+          "completion_tokens": 26,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/580.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "120",
+          "normalized_answer": "120",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 71,
+          "completion_tokens": 372,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "120",
+          "normalized_answer": "120",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 471,
+          "completion_tokens": 50,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "DeepSeek-V4-Flash-158B",
+      "question_id": "test/precalculus/625.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\begin{pmatrix} \\frac{16}{49} \\\\ \\frac{48}{49} \\\\ \\frac{24}{49} \\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}(16)/(49)\\\\(48)/(49)\\\\(24)/(49)\\end{pmatrix}",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 72,
+          "completion_tokens": 253,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\begin{pmatrix} \\frac{16}{49} \\\\[2pt] \\frac{48}{49} \\\\[2pt] \\frac{24}{49} \\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}(16)/(49)\\\\[2pt](48)/(49)\\\\[2pt](24)/(49)\\end{pmatrix}",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 353,
+          "completion_tokens": 53,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/1338.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "66",
+          "normalized_answer": "66",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 120,
+          "completion_tokens": 271,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "66",
+          "normalized_answer": "66",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 287,
+          "completion_tokens": 184,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/1553.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 188,
+          "completion_tokens": 497,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 462,
+          "completion_tokens": 434,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/1578.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 153,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "10",
+          "normalized_answer": "10",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 409,
+          "completion_tokens": 325,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/2584.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\frac{14}{3}",
+          "normalized_answer": "(14)/(3)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 136,
+          "completion_tokens": 321,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\dfrac{14}{3}",
+          "normalized_answer": "(14)/(3)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 362,
+          "completion_tokens": 56,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/621.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3.21",
+          "normalized_answer": "3.21",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 140,
+          "completion_tokens": 335,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3.21",
+          "normalized_answer": "3.21",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 370,
+          "completion_tokens": 101,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/algebra/791.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 125,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 264,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/counting_and_probability/23957.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "210",
+          "normalized_answer": "210",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 141,
+          "completion_tokens": 109,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "210",
+          "normalized_answer": "210",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 253,
+          "completion_tokens": 91,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/counting_and_probability/25149.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "63",
+          "normalized_answer": "63",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 139,
+          "completion_tokens": 304,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "63",
+          "normalized_answer": "63",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 362,
+          "completion_tokens": 224,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/counting_and_probability/282.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 791,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 818,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "branch_1": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 790,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        },
+        "branch_2": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 790,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/counting_and_probability/913.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "6",
+          "normalized_answer": "6",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 130,
+          "completion_tokens": 140,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "6",
+          "normalized_answer": "6",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 256,
+          "completion_tokens": 155,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1000.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 136,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3",
+          "normalized_answer": "3",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 163,
+          "completion_tokens": 358,
+          "context_mode": "visible_prefix_only"
+        },
+        "branch_1": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 135,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        },
+        "branch_2": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 135,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1779.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 324,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 351,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "branch_1": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 323,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        },
+        "branch_2": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 323,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/1992.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 116,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "(0,9)\\cup(9,36)",
+          "normalized_answer": "(0,9)\\cup(9,36)",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 300,
+          "completion_tokens": 388,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/intermediate_algebra/607.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 118,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 145,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "branch_1": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 117,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        },
+        "branch_2": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 117,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/number_theory/183.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 121,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "14",
+          "normalized_answer": "14",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 195,
+          "completion_tokens": 502,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/prealgebra/2037.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "550",
+          "normalized_answer": "550",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 138,
+          "completion_tokens": 143,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "550",
+          "normalized_answer": "550",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 264,
+          "completion_tokens": 89,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/prealgebra/378.json",
+      "process_state": "empty_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 284,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 311,
+          "completion_tokens": 512,
+          "context_mode": "visible_prefix_only"
+        },
+        "branch_1": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 283,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        },
+        "branch_2": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 283,
+          "completion_tokens": 256,
+          "context_mode": "independent_branch"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/477.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "3\\sqrt5",
+          "normalized_answer": "3\\sqrt5",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 168,
+          "completion_tokens": 441,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "3\\sqrt5",
+          "normalized_answer": "3\\sqrt5",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 410,
+          "completion_tokens": 60,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/580.json",
+      "process_state": "visible_unfinished",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "",
+          "normalized_answer": "",
+          "correct": false,
+          "error": null,
+          "done_reason": "length",
+          "prompt_tokens": 133,
+          "completion_tokens": 512,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "120",
+          "normalized_answer": "120",
+          "correct": true,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 440,
+          "completion_tokens": 106,
+          "context_mode": "visible_prefix_only"
+        }
+      }
+    },
+    {
+      "stage": "gate1",
+      "model": "GPT-OSS-120B",
+      "question_id": "test/precalculus/625.json",
+      "process_state": "complete",
+      "actions": {
+        "prefix": {
+          "parsed_answer": "\\begin{pmatrix}\\dfrac{16}{49}\\\\[2pt]\\dfrac{48}{49}\\\\[2pt]\\dfrac{24}{49}\\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}(16)/(49)\\\\[2pt](48)/(49)\\\\[2pt](24)/(49)\\end{pmatrix}",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 143,
+          "completion_tokens": 308,
+          "context_mode": "none"
+        },
+        "continuation": {
+          "parsed_answer": "\\begin{pmatrix}\\dfrac{16}{49}\\\\[2pt]\\dfrac{48}{49}\\\\[2pt]\\dfrac{24}{49}\\end{pmatrix}",
+          "normalized_answer": "\\begin{pmatrix}(16)/(49)\\\\[2pt](48)/(49)\\\\[2pt](24)/(49)\\end{pmatrix}",
+          "correct": false,
+          "error": null,
+          "done_reason": "stop",
+          "prompt_tokens": 409,
+          "completion_tokens": 206,
+          "context_mode": "visible_prefix_only"
+        }
+      }
     }
   ]
 }

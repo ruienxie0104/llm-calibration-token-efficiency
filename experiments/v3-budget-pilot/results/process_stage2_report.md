@@ -13,6 +13,7 @@
 
 | Model | n | Pair parse | Agree n / rate | Consensus correct given agree | Continue correct given agree | Continue correct given disagree |
 |---|---:|---:|---:|---:|---:|---:|
+| GPT-OSS-120B | 5 | 0.0% | 0 / NA | NA | NA | NA |
 
 ## Interpretation guardrails
 
