@@ -1,0 +1,203 @@
+{
+  "models": {
+    "GPT-OSS-120B": {
+      "n": 60,
+      "states": {
+        "complete": 38,
+        "empty_unfinished": 10,
+        "visible_unfinished": 12
+      },
+      "visible_support_pass": true,
+      "policies": {
+        "visible_progress": {
+          "accuracy": 0.7,
+          "mean_tokens": 667.9,
+          "continuation_cost": 8351.0,
+          "n_continue": 12,
+          "visible_count": 12
+        },
+        "random_cost_calibrated": {
+          "accuracy": 0.6037870326828121,
+          "mean_tokens": 667.9,
+          "expected_continuation_cost": 8351.0,
+          "target_continuation_cost": 8351.0,
+          "probability": 0.2454443921937456,
+          "cost_identity_error": 0.0,
+          "expected_n_continue": 14.726663531624736
+        },
+        "fixed_low": {
+          "accuracy": 0.5833333333333334,
+          "mean_tokens": 528.7166666666667,
+          "n_continue": 0,
+          "continuation_cost": 0
+        },
+        "fixed_continue": {
+          "accuracy": 0.6666666666666666,
+          "mean_tokens": 1095.7833333333333,
+          "n_continue": 60,
+          "continuation_cost": 34024.0
+        },
+        "random_count_matched": {
+          "accuracy": 0.6,
+          "mean_tokens": 642.13,
+          "expected_n_continue": 12.0
+        },
+        "question_only_count_matched": {
+          "accuracy": 0.6666666666666666,
+          "mean_tokens": 652.4666666666667,
+          "n_continue": 12,
+          "continuation_cost": 7425.0
+        },
+        "oracle_count_matched": {
+          "accuracy": 0.7166666666666667,
+          "mean_tokens": 647.1333333333333,
+          "n_continue": 12,
+          "continuation_cost": 7105.0
+        },
+        "random_ledger_replay": {
+          "accuracy": 0.6048366666666667,
+          "mean_tokens": 672.972935,
+          "mean_n_continue": 15.2622,
+          "ledger": 8351.0,
+          "cost_p025": 668.1166666666667,
+          "cost_p975": 679.9166666666666,
+          "draws": 10000
+        },
+        "oracle_cost_constrained": {
+          "accuracy": 0.7166666666666667,
+          "mean_tokens": 618.4,
+          "n_continue": 8,
+          "continuation_cost": 5381.0,
+          "oracle_gain": 8,
+          "budget": 8351.0,
+          "used_continuation_cost": 5381.0
+        }
+      },
+      "primary": {
+        "delta": 0.09621296731718787,
+        "cost_identity_error": 0.0
+      },
+      "continuation_outcomes_by_state": {
+        "complete": {
+          "unchanged": 35,
+          "harm": 3
+        },
+        "empty_unfinished": {
+          "unresolved": 9,
+          "benefit": 1
+        },
+        "visible_unfinished": {
+          "benefit": 7,
+          "unresolved": 4,
+          "unchanged": 1
+        }
+      }
+    },
+    "DeepSeek-V4-Flash-158B": {
+      "n": 60,
+      "states": {
+        "complete": 56,
+        "visible_unfinished": 4
+      },
+      "visible_support_pass": false,
+      "policies": {
+        "visible_progress": {
+          "accuracy": 0.8666666666666667,
+          "mean_tokens": 381.81666666666666,
+          "continuation_cost": 3711.0,
+          "n_continue": 4,
+          "visible_count": 4
+        },
+        "random_cost_calibrated": {
+          "accuracy": 0.8241509357857374,
+          "mean_tokens": 381.81666666666666,
+          "expected_continuation_cost": 3711.0,
+          "target_continuation_cost": 3711.0,
+          "probability": 0.14968538238141335,
+          "cost_identity_error": 0.0,
+          "expected_n_continue": 8.9811229428848
+        },
+        "fixed_low": {
+          "accuracy": 0.8166666666666667,
+          "mean_tokens": 319.96666666666664,
+          "n_continue": 0,
+          "continuation_cost": 0
+        },
+        "fixed_continue": {
+          "accuracy": 0.8666666666666667,
+          "mean_tokens": 733.1666666666666,
+          "n_continue": 60,
+          "continuation_cost": 24792.0
+        },
+        "random_count_matched": {
+          "accuracy": 0.8200000000000001,
+          "mean_tokens": 347.5133333333333,
+          "expected_n_continue": 4.0
+        },
+        "question_only_count_matched": {
+          "accuracy": 0.8333333333333334,
+          "mean_tokens": 355.9,
+          "n_continue": 4,
+          "continuation_cost": 2156.0
+        },
+        "oracle_count_matched": {
+          "accuracy": 0.8666666666666667,
+          "mean_tokens": 368.71666666666664,
+          "n_continue": 4,
+          "continuation_cost": 2925.0
+        },
+        "random_ledger_replay": {
+          "accuracy": 0.8245366666666667,
+          "mean_tokens": 386.05438,
+          "mean_n_continue": 9.5709,
+          "ledger": 3711.0,
+          "cost_p025": 381.98333333333335,
+          "cost_p975": 394.95,
+          "draws": 10000
+        },
+        "oracle_cost_constrained": {
+          "accuracy": 0.8666666666666667,
+          "mean_tokens": 362.71666666666664,
+          "n_continue": 3,
+          "continuation_cost": 2565.0,
+          "oracle_gain": 3,
+          "budget": 3711.0,
+          "used_continuation_cost": 2565.0
+        }
+      },
+      "primary": {
+        "delta": 0.0425157308809293,
+        "cost_identity_error": 0.0
+      },
+      "continuation_outcomes_by_state": {
+        "complete": {
+          "unchanged": 56
+        },
+        "visible_unfinished": {
+          "benefit": 3,
+          "unresolved": 1
+        }
+      }
+    }
+  },
+  "study": {
+    "primary_contrast": "visible_progress_minus_cost_calibrated_random",
+    "pooled": {
+      "delta_mean": 0.06775881490420406,
+      "ci_lower": 0.03475923844966916,
+      "ci_upper": 0.1022128492376273,
+      "tail_prob": 0.0,
+      "significant": true,
+      "n_bootstrap": 10000,
+      "cluster_unit": "question_id"
+    },
+    "model_deltas": {
+      "GPT-OSS-120B": 0.09621296731718787,
+      "DeepSeek-V4-Flash-158B": 0.0425157308809293
+    },
+    "direction_consistent": true,
+    "visible_support_pass": false,
+    "study_success": false,
+    "random_comparator_boundary": "cost-calibrated random is an action-bank evaluation benchmark, not an online policy"
+  }
+}

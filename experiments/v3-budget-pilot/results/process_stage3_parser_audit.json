@@ -1,0 +1,16 @@
+{
+  "n_records": 240,
+  "question_count": 60,
+  "models": [
+    "GPT-OSS-120B",
+    "DeepSeek-V4-Flash-158B"
+  ],
+  "parseable_prefix": {
+    "GPT-OSS-120B": 38,
+    "DeepSeek-V4-Flash-158B": 56
+  },
+  "parseable_continuation": {
+    "GPT-OSS-120B": 47,
+    "DeepSeek-V4-Flash-158B": 59
+  }
+}
