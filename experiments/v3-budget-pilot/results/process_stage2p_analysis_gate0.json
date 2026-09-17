@@ -1,0 +1,132 @@
+{
+  "DeepSeek-V4-Flash-158B": {
+    "n_questions": 2,
+    "k_star": 0,
+    "prefix_state_distribution": {
+      "complete": 2,
+      "visible_unfinished": 0,
+      "empty_unfinished": 0
+    },
+    "policies": {
+      "fixed_low": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      },
+      "fixed_continue": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 746.0,
+        "k_used": 2
+      },
+      "process_only": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      },
+      "process_only_inverse": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      },
+      "question_only": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      },
+      "random_expected": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      },
+      "oracle": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 219.0,
+        "k_used": 0
+      }
+    },
+    "primary_comparison": {
+      "delta_accuracy_pct": 0.0,
+      "ci_lower_pct": 0.0,
+      "ci_upper_pct": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "process_only_accuracy_pct": 100.0,
+      "random_expected_accuracy_pct": 100.0,
+      "pref_baseline_pct": 100.0
+    },
+    "outcomes": {
+      "complete_stop": 2
+    },
+    "token_breakdown": {
+      "prompt": 263,
+      "completion": 1229,
+      "total": 1492
+    },
+    "n_benefit": 0
+  },
+  "GPT-OSS-120B": {
+    "n_questions": 2,
+    "k_star": 0,
+    "prefix_state_distribution": {
+      "complete": 2,
+      "visible_unfinished": 0,
+      "empty_unfinished": 0
+    },
+    "policies": {
+      "fixed_low": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      },
+      "fixed_continue": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 1091.5,
+        "k_used": 2
+      },
+      "process_only": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      },
+      "process_only_inverse": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      },
+      "question_only": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      },
+      "random_expected": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      },
+      "oracle": {
+        "accuracy_pct": 100.0,
+        "mean_total_tokens": 495.5,
+        "k_used": 0
+      }
+    },
+    "primary_comparison": {
+      "delta_accuracy_pct": 0.0,
+      "ci_lower_pct": 0.0,
+      "ci_upper_pct": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "process_only_accuracy_pct": 100.0,
+      "random_expected_accuracy_pct": 100.0,
+      "pref_baseline_pct": 100.0
+    },
+    "outcomes": {
+      "complete_stop": 2
+    },
+    "token_breakdown": {
+      "prompt": 844,
+      "completion": 1339,
+      "total": 2183
+    },
+    "n_benefit": 0
+  }
+}
