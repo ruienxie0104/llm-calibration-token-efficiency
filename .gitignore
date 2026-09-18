@@ -47,3 +47,8 @@ runs/
 pilot_real_results/
 experiment_v2_results/
 _site/
+
+# Deck/proposal build artifacts & scratch (regenerable)
+deliverables/**/build/
+deliverables/**/build-visible-progress/
+deliverables/**/.chart-data-*/
